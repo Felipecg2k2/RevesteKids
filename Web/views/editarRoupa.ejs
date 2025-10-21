@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Item</title>
+</head>
+<body>
+    <h1>Editar Peça: <%= item.peca %></h1>
+    
+    <form method="POST" action="/roupas/editar/<%= item.id %>">
+        
+        <label for="peca">Nome da Peça:</label>
+        <input type="text" id="peca" name="peca" value="<%= item.peca %>" required><br><br>
+
+        <label for="tipo">Tipo:</label>
+        <select id="tipo" name="tipo" required>
+            <option value="Feminino" <%= item.tipo === 'Feminino' ? 'selected' : '' %>>Feminino</option>
+            <option value="Masculino" <%= item.tipo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
+            <option value="Unissex" <%= item.tipo === 'Unissex' ? 'selected' : '' %>>Unissex</option>
+        </select><br><br>
+
+        <label for="tamanho">Tamanho:</label>
+        <input type="text" id="tamanho" name="tamanho" value="<%= item.tamanho %>" required><br><br>
+        
+        <label for="cor">Cor:</label>
+        <input type="text" id="cor" name="cor" value="<%= item.cor %>"><br><br>
+        
+        <label for="condicao">Condição:</label>
+        <input type="text" id="condicao" name="condicao" value="<%= item.condicao %>" required><br><br>
+
+        <label for="descricao">Descrição Detalhada:</label>
+        <textarea id="descricao" name="descricao"><%= item.descricao %></textarea><br><br>
+
+        <button type="submit">Salvar Alterações</button>
+    </form>
+    
+    <p><a href="/minhas-roupas">Voltar para a Lista</a></p>
+</body>
+</html>

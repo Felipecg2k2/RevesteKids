@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Minhas Roupas para Troca</title>
+</head>
+<body>
+    <h1>Gerenciamento de Peças</h1>
+    <p><a href="/roupas/cadastro">Cadastrar Nova Peça</a></p>
+    
+    <% if (itens && itens.length > 0) { %>
+        <% itens.forEach(function(item) { %>
+            <div style="border: 1px solid #0056b3; margin-bottom: 20px; padding: 15px; border-radius: 5px;">
+                <h2><%= item.peca %> (<%= item.tipo %>)</h2>
+                <p><strong>Tamanho:</strong> <%= item.tamanho %></p>
+                <p><strong>Cor:</strong> <%= item.cor || 'Não informada' %></p>
+                <p><strong>Condição:</strong> <%= item.condicao %></p>
+                
+                <a href="/roupas/editar/<%= item.id %>" style="margin-right: 15px;">Editar</a> 
+                
+                <a href="/roupas/excluir/<%= item.id %>" onclick="return confirm('Tem certeza que deseja excluir esta peça?');" style="color: red;">Excluir</a>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <p>Você ainda não cadastrou nenhuma peça. Clique <a href="/roupas/cadastro">aqui para começar</a>.</p>
+    <% } %>
+
+    <p><a href="/dashboard">Voltar para o Dashboard</a></p>
+</body>
+</html>
