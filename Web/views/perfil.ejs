@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Perfil - Reveste Kids</title>
+</head>
+<body>
+    <h1>Meu Perfil</h1>
+
+    <h2>Informações Pessoais</h2>
+    
+    <p><strong>Nome Completo:</strong> <%= usuario.nome %> <%= usuario.sobrenome %></p>
+    <p><strong>E-mail:</strong> <%= usuario.email %></p>
+
+    <hr>
+    
+    <h2>Endereço de Entrega</h2>
+    
+    <p><strong>CEP:</strong> <%= usuario.cep %></p>
+    <p><strong>Rua/Avenida:</strong> <%= usuario.logradouro %>, <%= usuario.numero %></p>
+    <p><strong>Bairro:</strong> <%= usuario.bairro %></p>
+    <p><strong>Cidade/Estado:</strong> <%= usuario.cidade %> / <%= usuario.estado %></p>
+
+    <hr>
+    
+    <h2>Ações</h2>
+    
+    <a href="/perfil/editar">
+        <button type="button">Editar Meu Perfil</button>
+    </a>
+
+    <p>
+        <a href="/perfil/apagar" 
+           onclick="return confirm('Tem certeza que deseja apagar permanentemente o seu perfil? Esta ação é irreversível.');">
+           **APAGAR MINHA CONTA**
+        </a>
+    </p>
+
+    <br>
+    <a href="/dashboard">Voltar para o Dashboard</a>
+</body>
+</html>
