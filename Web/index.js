@@ -29,7 +29,7 @@ connection.query(`CREATE DATABASE IF NOT EXISTS RevesteKids;`).then(() => {
 
 // ROTA PRINCIPAL
 app.get("/", function (req, res) {
-  res.render("index");
+  res.render("login");
 });
 
 // INICIA O SERVIDOR NA PORTA 8080

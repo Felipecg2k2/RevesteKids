@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Logo e Título centralizados dentro do card -->
+        <img src="/imgs/logo.jpg" alt="ReVeste Kids Logo" class="logo">
+        <h1 class="login-title">ReVeste Kids</h1>
+ 
+        <!-- Título BEM-VINDO com estilo Barrio (Classe 'welcome-title-barrio') -->
+        <h2 class="welcome-title-barrio">BEM-VINDO(A)!</h2>
+        <!-- Subtítulo abaixo do título Barrio -->
+        <p class="login-subtitle">Entre em sua conta para começar a trocar roupas</p>
+ 
+        <form action="/login" method="POST" class="login-form">
+           
+            <!-- Campo Email ou Usuário com Rótulo VISÍVEL -->
+            <div class="input-group">
+                <!-- Rótulo agora visível e será estilizado em negrito via CSS -->
+                <label for="email" class="input-label">Email</label>
+                <input type="text" id="email" name="email" placeholder="email" class="text-input">
+            </div>
+ 
+            <!-- Campo Senha com Rótulo VISÍVEL e Ícone do Olho -->
+            <div class="input-group password-field">
+                <!-- Rótulo agora visível e será estilizado em negrito via CSS -->
+                <label for="senha" class="input-label">Senha</label>
+                <div class="input-with-icon">
+                    <input type="password" id="senha" name="senha" placeholder="senha" class="text-input">
+                    <!-- Ícone do Olho (Visibilidade da Senha) -->
+                    <i class="fas fa-eye input-icon password-toggle" id="password-toggle"></i>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Login
+            </button>
+        </form>
+        <a href="/cadastro" class="btn btn-secondary create-account-btn">
+            Criar conta
+        </a>
+    </div>
+    <!-- Footer (fora do container) -->
+    <p class="footer-text">Um produto RalKy Tech</p>
+ 
+</body>
