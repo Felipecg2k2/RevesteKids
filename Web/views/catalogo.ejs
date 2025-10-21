@@ -1,82 +1,187 @@
-<h1>Catálogo de Peças Disponíveis para Troca</h1>
-<p>Navegue pelas roupas de outros usuários e envie sua proposta!</p>
+<div style="display: flex; gap: 20px">
+  <div class="filters-column" style="width: 25%">
+    <h2>Filtros</h2>
+    <div>
+      <p>Gênero:</p>
+      <input type="checkbox" id="feminino" name="genero" value="Feminino" />
+      <label for="feminino">Feminino</label><br />
+    </div>
+  </div>
 
-<style>
-    .main-content-wrapper { display: flex; gap: 20px; }
-    .filters-column { width: 250px; }
-    .filter-group { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    .filter-group button { margin: 5px 5px 5px 0; padding: 5px 10px; cursor: pointer; }
-    .feed-container { flex-grow: 1; display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
-    .item-card { border: 1px solid #ccc; padding: 15px; width: 300px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-    .item-image-wrapper img { width: 100%; height: auto; max-height: 300px; object-fit: cover; }
-    .item-info { margin-top: 10px; }
-    .owner-info { margin-top: 10px; }
-    .actions a { display: block; padding: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center; }
-</style>
+  <div
+    id="swipe-container"
+    style="
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 80vh;
+      padding-top: 20px;
+    "
+  >
+    <% if (itens.length === 0) { %>
+    <p style="width: 100%; text-align: center">
+      Parece que não há novas peças no catálogo por enquanto!
+    </p>
+    <% } %> <% itens.forEach((item, index) => { %>
+    <div
+      class="card-item"
+      data-id="<%= item.id %>"
+      data-index="<%= index %>"
+      style="
+        /* Estilos para empilhar as cartas */
+        position: absolute;
+        width: 90%;
+        max-width: 400px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        /* Oculta todas as cartas, exceto a primeira, inicialmente pelo JavaScript */
+        display: none;
+      "
+    >
+      <h2><%= item.peca %></h2>
+      <img
+        src="/uploads/<%= item.imagemURL %>"
+        alt="<%= item.peca %>"
+        style="
+          max-width: 100%;
+          height: auto;
+          border-radius: 4px;
+          margin-bottom: 10px;
+        "
+      />
 
-<div class="main-content-wrapper">
+      <p>
+        <strong>Dono:</strong> <%= item.usuario.nome %> (<%= item.usuario.cidade
+        %> / <%= item.usuario.estado %>)
+      </p>
+      <p><strong>Gênero:</strong> <%= item.genero %></p>
+      <p><strong>Tamanho:</strong> <%= item.tamanho %></p>
+      <p><strong>Condição:</strong> <%= item.condicao %></p>
 
-    <aside class="filters-column">
-        <h2>Filtros</h2>
-                <div class="filter-group">
-            <h3>Gênero</h3>
-            <label><input type="checkbox" name="genero" value="Feminino"> Feminino</label><br>
-            <label><input type="checkbox" name="genero" value="Masculino"> Masculino</label><br>
-            <label><input type="checkbox" name="genero" value="Unissex"> Unissex</label>
-        </div>
-        
-        <div class="filter-group">
-            <h3>Tamanho</h3>
-            <button type="button">0-3</button>
-            <button type="button">3-6</button>
-            <button type="button">6+</button>
-        </div>
+      <div
+        class="card-actions"
+        style="
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+          align-items: center;
+        "
+      >
+        <button
+          class="btn-voltar"
+          data-item-id="<%= item.id %>"
+          style="
+            padding: 10px 15px;
+            background-color: #ffc107; /* Amarelo/Aviso */
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+          "
+        >
+          Voltar (↩️)
+        </button>
 
-        <div class="filter-group">
-            <h3>Tipo de Peça</h3>
-            <button type="button">Camiseta</button>
-            <button type="button">Calça</button>
-            <button type="button">Vestido</button>
-        </div>
+        <button
+          class="btn-ignorar"
+          data-item-id="<%= item.id %>"
+          style="
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+          "
+        >
+          Ignorar (❌)
+        </button>
 
-        <button type="submit">Aplicar Filtros</button>
-    </aside>
-
-    <section class="feed-container">
-        
-        <% if (itens && itens.length > 0) { %>
-            <% itens.forEach(item => { %>
-                <div class="item-card">
-                    
-                    <div class="item-image-wrapper">
-                        <img src="/uploads/<%= item.imagemURL %>" alt="Peça: <%= item.nome %>">
-                    </div>
-
-                    <div class="item-info">
-                        <h2><%= item.nome %></h2>
-                        <p class="genero-tamanho">Gênero: <%= item.genero %> | Tamanho: <%= item.tamanho %></p>
-                        
-                        <div class="owner-info">
-                            <% if (item.usuario) { %>
-                                <p><strong>Dono:</strong> <%= item.usuario.nome %></p>
-                                <p><strong>Local:</strong> <%= item.usuario.cidade %> / <%= item.usuario.estado %></p>
-                            <% } else { %>
-                                <p><strong>Dono:</strong> (Não encontrado)</p>
-                            <% } %>
-                            <p class="condicao">Condição: <%= item.condicao %></p>
-                        </div>
-
-                        <div class="actions">
-                            <a href="/trocas/propor/<%= item.id %>">
-                                Propor Troca
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <% }); %>
-        <% } else { %>
-            <p style="text-align: center;">Nenhuma peça de outros usuários encontrada no catálogo no momento.</p>
-        <% } %>
-
-    </section>
+        <a
+          href="/trocas/propor/<%= item.id %>"
+          class="btn-trocar"
+          style="
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+          "
+        >
+          Propor Troca (✅)
+        </a>
+      </div>
+    </div>
+    <% }); %>
+  </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cardContainer = document.getElementById('swipe-container');
+        const cards = document.querySelectorAll('.card-item');
+        let currentIndex = 0; // Começa na primeira carta
+
+        // Função para mostrar apenas a carta atual
+        function updateCardDisplay() {
+            cards.forEach((card, index) => {
+                // Oculta todas as cartas
+                card.style.display = 'none';
+                
+                // Exibe apenas a carta atual
+                if (index === currentIndex) {
+                    card.style.display = 'block';
+                }
+            });
+
+            // Se o índice atual for igual ao número de cartas, o catálogo acabou
+            if (currentIndex >= cards.length) {
+                cardContainer.innerHTML = '<p style="width: 100%; text-align: center;">Você viu todas as peças do catálogo! Volte mais tarde.</p>';
+            }
+            
+            // Oculta/Exibe o botão de voltar quando estiver na primeira carta
+            const btnVoltar = document.querySelector('.btn-voltar');
+            if (btnVoltar) {
+                 // Busca o botão "Voltar" da carta atual
+                const currentCardBtnVoltar = cards[currentIndex] ? cards[currentIndex].querySelector('.btn-voltar') : null;
+
+                // Oculta o botão Voltar APENAS na primeira carta (índice 0)
+                if (currentCardBtnVoltar) {
+                    currentCardBtnVoltar.style.display = currentIndex === 0 ? 'none' : 'inline-block';
+                }
+            }
+        }
+
+        // 1. Lógica para Ignorar: avança o índice
+        document.querySelectorAll('.btn-ignorar').forEach(button => {
+            button.addEventListener('click', () => {
+                currentIndex++;
+                updateCardDisplay();
+            });
+        });
+
+        // 2. Lógica para Voltar (NOVA): recua o índice
+        document.querySelectorAll('.btn-voltar').forEach(button => {
+            button.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCardDisplay();
+                }
+            });
+        });
+
+
+        // Inicializa a exibição (apenas a primeira carta visível)
+        if (cards.length > 0) {
+            updateCardDisplay(); 
+        }
+    });
+</script>
