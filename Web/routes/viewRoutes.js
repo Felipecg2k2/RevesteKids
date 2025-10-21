@@ -20,7 +20,25 @@ router.get("/cadastro", function (req, res) {
 
 // ROTA DE SUCESSO APÓS LOGIN (DASHBOARD)
 router.get("/dashboard", function (req, res) {
-    res.send("<h1>BEM-VINDO! Você está logado!</h1><p><a href='/minhas-roupas'>Minhas Roupas (Trocas)</a></p><p><a href='/perfil'>Meu Perfil</a></p><p><a href='/logout'>Fazer Logout</a></p>");
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    
+    // ATUALIZADO: Inclui links para o fluxo de trocas
+    res.send("<h1>BEM-VINDO! Você está logado!</h1>" + 
+             "<hr>" + 
+             
+             "<h2>Área de Trocas</h2>" +
+             "<p><a href='/catalogo'>🔍 Explorar o Catálogo de Trocas</a></p>" +
+             "<p><a href='/minhas-roupas'>📦 Minhas Roupas (Gerenciar Meus Itens)</a></p>" + 
+             "<p><a href='/trocas/recebidas'>📥 Propostas de Troca Recebidas</a></p>" +
+             "<p><a href='/trocas/enviadas'>📤 Propostas de Troca Enviadas</a></p>" +
+
+             "<hr>" + 
+
+             "<h2>Minha Conta</h2>" +
+             "<p><a href='/perfil'>👤 Meu Perfil</a></p>" + 
+             "<p><a href='/logout'>🚪 Fazer Logout</a></p>");
 });
 
 export default router;

@@ -1,0 +1,101 @@
+<h1>Propostas de Troca Recebidas</h1>
+<p>Gerencie as propostas de troca que você recebeu de outros usuários.</p>
+
+<% if (messages.success && messages.success.length> 0) { %>
+    <p>SUCESSO: <%= messages.success[0] %>
+    </p>
+    <% } %>
+        <% if (messages.error && messages.error.length> 0) { %>
+            <p>ERRO: <%= messages.error[0] %>
+            </p>
+            <% } %>
+                <% if (messages.info && messages.info.length> 0) { %>
+                    <p>INFORMAÇÃO: <%= messages.info[0] %>
+                    </p>
+                    <% } %>
+
+                        <div class="propostas-list">
+
+                            <% if (propostas && propostas.length> 0) { %>
+
+                                <% propostas.forEach(proposta=> { %>
+
+                                    <% const statusTexto=proposta.status; %>
+
+                                        <div class="proposta-card">
+
+                                            <h3>Status: <%= statusTexto %>
+                                            </h3>
+                                            <p>Proposta ID: <%= proposta.id %> | Enviada por: <strong>
+                                                        <%= proposta.itemOferecido.usuario.nome %>
+                                                    </strong></p>
+
+                                            <div class="proposta-details">
+
+                                                <div class="item-col">
+                                                    <h4>Seu Item (O que você oferece na troca):</h4>
+
+                                                    <p><strong>
+                                                            <%= proposta.itemDesejado.peca || 'NOME INDISPONÍVEL' %>
+                                                        </strong> (Tam: <%= proposta.itemDesejado.tamanho %>)</p>
+
+                                                </div>
+
+                                                <div class="item-col">
+                                                    <h4>Item Oferecido (O que você receberia):</h4>
+
+
+                                                    <p><strong>
+                                                            <%= proposta.itemOferecido.peca || 'NOME INDISPONÍVEL' %>
+                                                        </strong> (Tam: <%= proposta.itemOferecido.tamanho %>)</p>
+                                                    <p>Dono: <%= proposta.itemOferecido.usuario.nome %> (<%=
+                                                                proposta.itemOferecido.usuario.cidade %>)</p>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="actions">
+
+                                                <% if (proposta.status==='Pendente' ) { %>
+                                                    <form action="/trocas/aceitar/<%= proposta.id %>" method="POST"
+                                                        style="display: inline-block; margin-right: 10px;">
+                                                        <button type="submit">ACEITAR PROPOSTA</button>
+                                                    </form>
+
+                                                    <form action="/trocas/rejeitar/<%= proposta.id %>" method="POST"
+                                                        style="display: inline-block;">
+                                                        <button type="submit">REJEITAR PROPOSTA</button>
+                                                    </form>
+                                                    <% } %>
+
+                                                        <% if (proposta.status==='Aceita' ) { %>
+                                                            <p>PROPOSTA ACEITA! Aguardando confirmação de recebimento.
+                                                            </p>
+
+                                                            <form action="/trocas/finalizar/<%= proposta.id %>"
+                                                                method="POST">
+                                                                <button type="submit">
+                                                                    CONFIRMAR RECEBIMENTO E FINALIZAR TROCA
+                                                                </button>
+                                                            </form>
+                                                            <% } %>
+                                                                <% if (proposta.status==='Finalizada' ) { %>
+                                                                    <p>Troca concluída com sucesso.</p>
+                                                                    <% } %>
+
+                                                                        <% if (proposta.status==='Rejeitada' ||
+                                                                            proposta.status==='Cancelada' ) { %>
+                                                                            <p>Proposta Não Aceita/Cancelada.</p>
+                                                                            <% } %>
+                                            </div>
+
+                                        </div>
+                                        <% }); %>
+
+                                            <% } else { %>
+                                                <p>Você ainda não recebeu nenhuma proposta de troca.</p>
+                                                <% } %>
+
+                        </div>
+
+                        <p><a href="/dashboard">Voltar para o Dashboard</a></p>

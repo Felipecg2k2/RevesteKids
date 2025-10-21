@@ -1,0 +1,58 @@
+<h1>Proposta de Troca</h1>
+<p>Você está prestes a enviar uma proposta de troca para **<%= itemDesejado.usuario.nome %>**.</p>
+<hr>
+
+<div class="proposta-container" style="display: flex; justify-content: space-between; gap: 40px;">
+
+    <section class="item-desejado-card" style="width: 45%; border: 1px solid #007bff; padding: 20px;">
+        <h2>Item que Você Quer Receber:</h2>
+        
+        <div class="item-info">
+            <ul style="list-style: none; padding: 0;">
+                <li>Tamanho: <strong><%= itemDesejado.tamanho %></strong></li>
+                <li>Gênero: <strong><%= itemDesejado.genero %></strong></li>
+                                <li>Dono: <strong><%= itemDesejado.usuario.nome %></strong></li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="item-oferecido-form" style="width: 45%; background-color: #f9f9f9; padding: 20px; border-radius: 5px;">
+        <h2>Qual Peça Você Deseja Oferecer?</h2>
+        
+        <form action="/trocas/propor" method="POST">
+            
+            <input type="hidden" name="itemIdDesejado" value="<%= itemDesejado.id %>">
+            
+            <% if (meusItens && meusItens.length > 0) { %>
+                
+                <label for="itemOferecido">Escolha um item da sua lista:</label>
+                <select name="itemOferecido" id="itemOferecido" required style="width: 100%; padding: 10px; margin-bottom: 20px;">
+                    <option value="">-- Selecione uma de suas peças --</option>
+                    
+                    <% meusItens.forEach(item => { %>
+                        <option value="<%= item.id %>">
+                            <%= item.nome %> | Tam: <%= item.tamanho %> | Condição: <%= item.condicao %>
+                        </option>
+                    <% }); %>
+                    
+                </select>
+
+                <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; cursor: pointer;">
+                    ENVIAR PROPOSTA DE TROCA
+                </button>
+
+            <% } else { %>
+                <p>Você não possui itens cadastrados para oferecer. Cadastre uma peça primeiro!</p>
+                <a href="/roupas/cadastro" style="display: inline-block; padding: 10px; background-color: #ffc107; color: #333; text-decoration: none;">
+                    Cadastrar Minha Primeira Peça
+                </a>
+            <% } %>
+
+        </form>
+    </section>
+
+</div>
+
+<p style="margin-top: 30px;">
+    <a href="/catalogo">Voltar ao Catálogo</a>
+</p>

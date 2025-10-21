@@ -1,0 +1,82 @@
+<h1>Catálogo de Peças Disponíveis para Troca</h1>
+<p>Navegue pelas roupas de outros usuários e envie sua proposta!</p>
+
+<style>
+    .main-content-wrapper { display: flex; gap: 20px; }
+    .filters-column { width: 250px; }
+    .filter-group { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .filter-group button { margin: 5px 5px 5px 0; padding: 5px 10px; cursor: pointer; }
+    .feed-container { flex-grow: 1; display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+    .item-card { border: 1px solid #ccc; padding: 15px; width: 300px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+    .item-image-wrapper img { width: 100%; height: auto; max-height: 300px; object-fit: cover; }
+    .item-info { margin-top: 10px; }
+    .owner-info { margin-top: 10px; }
+    .actions a { display: block; padding: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center; }
+</style>
+
+<div class="main-content-wrapper">
+
+    <aside class="filters-column">
+        <h2>Filtros</h2>
+                <div class="filter-group">
+            <h3>Gênero</h3>
+            <label><input type="checkbox" name="genero" value="Feminino"> Feminino</label><br>
+            <label><input type="checkbox" name="genero" value="Masculino"> Masculino</label><br>
+            <label><input type="checkbox" name="genero" value="Unissex"> Unissex</label>
+        </div>
+        
+        <div class="filter-group">
+            <h3>Tamanho</h3>
+            <button type="button">0-3</button>
+            <button type="button">3-6</button>
+            <button type="button">6+</button>
+        </div>
+
+        <div class="filter-group">
+            <h3>Tipo de Peça</h3>
+            <button type="button">Camiseta</button>
+            <button type="button">Calça</button>
+            <button type="button">Vestido</button>
+        </div>
+
+        <button type="submit">Aplicar Filtros</button>
+    </aside>
+
+    <section class="feed-container">
+        
+        <% if (itens && itens.length > 0) { %>
+            <% itens.forEach(item => { %>
+                <div class="item-card">
+                    
+                    <div class="item-image-wrapper">
+                        <img src="/uploads/<%= item.imagemURL %>" alt="Peça: <%= item.nome %>">
+                    </div>
+
+                    <div class="item-info">
+                        <h2><%= item.nome %></h2>
+                        <p class="genero-tamanho">Gênero: <%= item.genero %> | Tamanho: <%= item.tamanho %></p>
+                        
+                        <div class="owner-info">
+                            <% if (item.usuario) { %>
+                                <p><strong>Dono:</strong> <%= item.usuario.nome %></p>
+                                <p><strong>Local:</strong> <%= item.usuario.cidade %> / <%= item.usuario.estado %></p>
+                            <% } else { %>
+                                <p><strong>Dono:</strong> (Não encontrado)</p>
+                            <% } %>
+                            <p class="condicao">Condição: <%= item.condicao %></p>
+                        </div>
+
+                        <div class="actions">
+                            <a href="/trocas/propor/<%= item.id %>">
+                                Propor Troca
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p style="text-align: center;">Nenhuma peça de outros usuários encontrada no catálogo no momento.</p>
+        <% } %>
+
+    </section>
+</div>
