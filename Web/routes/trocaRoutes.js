@@ -20,7 +20,7 @@ function requireLogin(req, res, next) {
 router.use(requireLogin); // Aplica a verificação de login a todas as rotas abaixo
 
 // ==========================================================
-// ROTA 1: CATÁLOGO DE ITENS (FEED) - OK com filtros
+// ROTA 1: CATÁLOGO DE ITENS (FEED) - CORRIGIDA: Adicionado filtro statusPosse
 // ==========================================================
 router.get("/catalogo", async (req, res) => {
     try {
@@ -39,10 +39,12 @@ router.get("/catalogo", async (req, res) => {
         // 2. Filtra o catálogo
         const itensCatalogo = await Item.findAll({
             where: { 
-                // CRÍTICO AQUI: 1. Item NÃO é do usuário logado
+                // 1. Item NÃO é do usuário logado
                 UsuarioId: { [Sequelize.Op.ne]: userId }, 
-                // CRÍTICO AQUI: 2. Item NÃO está em troca pendente
-                id: { [Sequelize.Op.notIn]: itensEmTrocaIDs } 
+                // 2. Item NÃO está em troca pendente
+                id: { [Sequelize.Op.notIn]: itensEmTrocaIDs },
+                // NOVO FILTRO CRÍTICO: Item deve estar ATIVO (não pode ser Histórico)
+                statusPosse: 'Ativo' 
             },
             include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
             order: [['createdAt', 'DESC']]
@@ -162,7 +164,7 @@ router.get("/trocas/enviadas", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 5: MINHAS PROPOSTAS RECEBIDAS (READ do Receptor) - CORRIGIDA (Flash)
+// ROTA 5: MINHAS PROPOSTAS RECEBIDAS (READ do Receptor) - OK
 // ==========================================================
 router.get("/trocas/recebidas", async (req, res) => {
     try {
@@ -183,7 +185,6 @@ router.get("/trocas/recebidas", async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        // CORREÇÃO: Removida a passagem de 'messages: {}' para deixar o middleware do index.js gerenciar o req.flash()
         res.render('trocasRecebidas', { 
             title: "Propostas Recebidas",
             propostas: propostas
@@ -199,7 +200,7 @@ router.get("/trocas/recebidas", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 6: ACEITAR PROPOSTA (UPDATE de Status) - CORRIGIDA (Flash)
+// ROTA 6: ACEITAR PROPOSTA (UPDATE de Status) - OK
 // ==========================================================
 router.post("/trocas/aceitar/:trocaId", async (req, res) => {
     try {
@@ -236,7 +237,7 @@ router.post("/trocas/aceitar/:trocaId", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 7: REJEITAR PROPOSTA (UPDATE de Status) - CORRIGIDA (Flash)
+// ROTA 7: REJEITAR PROPOSTA (UPDATE de Status) - OK
 // ==========================================================
 router.post("/trocas/rejeitar/:trocaId", async (req, res) => {
     try {
@@ -270,7 +271,7 @@ router.post("/trocas/rejeitar/:trocaId", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 8: CANCELAR PROPOSTA (UPDATE do Proponente) - CORRIGIDA (Flash)
+// ROTA 8: CANCELAR PROPOSTA (UPDATE do Proponente) - OK
 // ==========================================================
 router.post("/trocas/cancelar/:trocaId", async (req, res) => {
     try {
@@ -303,7 +304,7 @@ router.post("/trocas/cancelar/:trocaId", async (req, res) => {
 
 
 //==========================================================
-// ROTA 9: FINALIZAR TROCA (Troca a posse dos itens) - CORRIGIDA (View/Flash)
+// ROTA 9: FINALIZAR TROCA (Troca a posse dos itens) - CORRIGIDA: Adicionado update statusPosse
 // ==========================================================
 router.post("/trocas/finalizar/:trocaId", async (req, res) => {
     const receptorId = req.session.userId; 
@@ -348,10 +349,24 @@ router.post("/trocas/finalizar/:trocaId", async (req, res) => {
             { where: { id: troca.ItemOferecidoId }, transaction: t }
         );
 
+        // NOVO UPDATE CRÍTICO: Marcar ambos os itens como HISTÓRICO/INATIVOS (statusPosse)
+        const updateStatus = await Item.update(
+            { statusPosse: 'Historico' },
+            { 
+                where: { 
+                    [Sequelize.Op.or]: [
+                        { id: troca.ItemDesejadoId }, 
+                        { id: troca.ItemOferecidoId }
+                    ]
+                }, 
+                transaction: t 
+            }
+        );
+
         // Se algum dos UPDATES de item falhou (checagem de segurança)
-        if (updateDesejado[0] === 0 || updateOferecido[0] === 0) {
+        if (updateDesejado[0] === 0 || updateOferecido[0] === 0 || updateStatus[0] === 0) {
             await t.rollback();
-            req.flash('error', 'Erro ao atualizar a posse dos itens.');
+            req.flash('error', 'Erro ao atualizar a posse ou status dos itens.');
             return res.redirect("/trocas/recebidas");
         }
 
@@ -361,7 +376,6 @@ router.post("/trocas/finalizar/:trocaId", async (req, res) => {
         // 5. Confirma todas as alterações
         await t.commit(); 
         
-        // CORREÇÃO: Usa req.flash e redireciona (RESOLVE O ERRO DE VIEW)
         req.flash('success', 'Troca finalizada com sucesso! A posse dos itens foi transferida.');
         res.redirect("/trocas/recebidas");
 

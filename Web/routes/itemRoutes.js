@@ -36,7 +36,10 @@ router.get("/roupas", async (req, res) => {
     // itens que PERTENCEM ao usuário logado, resolvendo o problema dos itens trocados.
     try {
         const itens = await Item.findAll({ 
-            where: { UsuarioId: idUsuario },
+            where: { 
+                UsuarioId: idUsuario,
+                statusPosse: 'Ativo'
+            },
             order: [['createdAt', 'DESC']],
             // NOVO: Adicione 'raw: true' para garantir que o Sequelize 
             // busque do banco e não do cache de instâncias

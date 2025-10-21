@@ -39,7 +39,12 @@ const Item = connection.define('itens', {
     descricao: {
         type: DataTypes.TEXT,
         allowNull: true // Permite ser NULL
-    }
+    },
+    statusPosse: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'Ativo' // Itens novos ou atuais são 'Ativo'
+    },
     // O campo 'usuario_id' será criado automaticamente na associação (veja abaixo)
 });
 
