@@ -4,7 +4,7 @@ import express from 'express';
 import Sequelize from 'sequelize'; 
 import connection from '../config/sequelize-config.js';
 import Troca from '../models/Troca.js';
-import Item from '../models/Item.js';
+import Item from '../models/Item.js'; // Item Model DEVE ter a coluna 'statusPosse'
 import Usuario from '../models/Usuario.js';
 
 const router = express.Router();
@@ -20,7 +20,7 @@ function requireLogin(req, res, next) {
 router.use(requireLogin); // Aplica a verificação de login a todas as rotas abaixo
 
 // ==========================================================
-// ROTA 1: CATÁLOGO DE ITENS (FEED) - CORRIGIDA: Adicionado filtro statusPosse
+// ROTA 1: CATÁLOGO DE ITENS (FEED) - CORRIGIDA: Filtra por statusPosse: 'Ativo'
 // ==========================================================
 router.get("/catalogo", async (req, res) => {
     try {
@@ -43,7 +43,7 @@ router.get("/catalogo", async (req, res) => {
                 UsuarioId: { [Sequelize.Op.ne]: userId }, 
                 // 2. Item NÃO está em troca pendente
                 id: { [Sequelize.Op.notIn]: itensEmTrocaIDs },
-                // NOVO FILTRO CRÍTICO: Item deve estar ATIVO (não pode ser Histórico)
+                // FILTRO CRÍTICO: Item deve estar ATIVO (não pode ser Histórico)
                 statusPosse: 'Ativo' 
             },
             include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
@@ -63,7 +63,7 @@ router.get("/catalogo", async (req, res) => {
 
 
 // ==========================================================
-// ROTA 2: FORMULÁRIO DE PROPOSTA (CREATE VIEW) - OK
+// ROTA 2: FORMULÁRIO DE PROPOSTA (CREATE VIEW) - CORRIGIDA: Filtra por statusPosse: 'Ativo'
 // ==========================================================
 router.get("/trocas/propor/:itemIdDesejado", async (req, res) => {
     try {
@@ -76,8 +76,12 @@ router.get("/trocas/propor/:itemIdDesejado", async (req, res) => {
         });
         
         // 2. Busca os Itens que o usuário tem para oferecer (Filtro por UsuarioId)
+        // ATENÇÃO: Apenas itens ativos podem ser oferecidos
         const meusItens = await Item.findAll({
-            where: { UsuarioId: userId } 
+            where: { 
+                UsuarioId: userId,
+                statusPosse: 'Ativo' 
+            } 
         });
 
         if (!itemDesejado || itemDesejado.UsuarioId == userId) {
@@ -304,7 +308,7 @@ router.post("/trocas/cancelar/:trocaId", async (req, res) => {
 
 
 //==========================================================
-// ROTA 9: FINALIZAR TROCA (Troca a posse dos itens) - CORRIGIDA: Adicionado update statusPosse
+// ROTA 9: FINALIZAR TROCA (Troca a posse dos itens) - CORRIGIDA: Implementa update statusPosse
 // ==========================================================
 router.post("/trocas/finalizar/:trocaId", async (req, res) => {
     const receptorId = req.session.userId; 
@@ -349,7 +353,7 @@ router.post("/trocas/finalizar/:trocaId", async (req, res) => {
             { where: { id: troca.ItemOferecidoId }, transaction: t }
         );
 
-        // NOVO UPDATE CRÍTICO: Marcar ambos os itens como HISTÓRICO/INATIVOS (statusPosse)
+        // UPDATE CRÍTICO: Marcar ambos os itens como HISTÓRICO/INATIVOS (statusPosse)
         const updateStatus = await Item.update(
             { statusPosse: 'Historico' },
             { 

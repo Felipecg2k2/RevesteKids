@@ -2,63 +2,71 @@
 <p>Acompanhe o status das trocas que você propôs a outros usuários.</p>
 
 <div class="propostas-list">
-    
-    <% if (propostas && propostas.length > 0) { %>
-        
-        <% propostas.forEach(proposta => { %>
-            
-            <% 
-                const statusTexto = proposta.status; 
-            %>
+    
+    <% if (propostas && propostas.length > 0) { %>
+        
+        <% propostas.forEach(proposta => { %>
+            
+            <% 
+                const statusTexto = proposta.status; 
+            %>
 
-            <div class="proposta-card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
-                
-                <h3>Status: <%= statusTexto %></h3>
+            <div class="proposta-card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+                
+                <h3>Status: <%= statusTexto %></h3>
 
-                <div class="proposta-details" style="display: flex; justify-content: space-around;">
-                    
-                    <div class="item-col" style="width: 45%;">
-                        <h4>Peça que você deseja:</h4>
-                        
-                        <img src="/uploads/<%= proposta.itemDesejado.imagemURL %>" alt="<%= proposta.itemDesejado.nome %>" style="max-width: 100px; height: auto;">
-                        <p><strong><%= proposta.itemDesejado.peca || 'NOME INDISPONÍVEL' %></strong> (Tam: <%= proposta.itemDesejado.tamanho %>)</p>
-                        
-                        <p>Dono: <%= proposta.itemDesejado.usuario.nome %> (<%= proposta.itemDesejado.usuario.cidade %>)</p>
-                    </div>
+                <div class="proposta-details" style="display: flex; justify-content: space-around;">
+                    
+                    <div class="item-col" style="width: 45%;">
+                        <h4>Peça que você deseja:</h4>
+                        
+                        <img src="/uploads/<%= proposta.itemDesejado.imagemURL %>" alt="<%= proposta.itemDesejado.nome %>" style="max-width: 100px; height: auto;">
+                        <p><strong><%= proposta.itemDesejado.peca || 'NOME INDISPONÍVEL' %></strong> (Tam: <%= proposta.itemDesejado.tamanho %>)</p>
+                        
+                        <p>Dono: <%= proposta.itemDesejado.usuario.nome %> (<%= proposta.itemDesejado.usuario.cidade %>)</p>
+                    </div>
 
-                    <div class="item-col" style="width: 45%;">
-                        <h4>Sua peça oferecida:</h4>
-                        
-                        <img src="/uploads/<%= proposta.itemOferecido.imagemURL %>" alt="<%= proposta.itemOferecido.nome %>" style="max-width: 100px; height: auto;">
-                        <p><strong><%= proposta.itemOferecido.peca || 'NOME INDISPONÍVEL' %></strong> (Tam: <%= proposta.itemOferecido.tamanho %>)</p>
-                    </div>
+                    <div class="item-col" style="width: 45%;">
+                        <h4>Sua peça oferecida:</h4>
+                        
+                        <img src="/uploads/<%= proposta.itemOferecido.imagemURL %>" alt="<%= proposta.itemOferecido.nome %>" style="max-width: 100px; height: auto;">
+                        <p><strong><%= proposta.itemOferecido.peca || 'NOME INDISPONÍVEL' %></strong> (Tam: <%= proposta.itemOferecido.tamanho %>)</p>
+                    </div>
 
-                </div>
+                </div>
 
-                <div class="actions">
-                    <% if (proposta.status === 'Pendente') { %>
-                        <a href="/trocas/cancelar/<%= proposta.id %>">Cancelar Proposta</a>
-                    <% } %>
-                    
-                    <% if (proposta.status === 'Aceita') { %>
-                        <p>PROPOSTA ACEITA!</p>
-                        <a href="/trocas/finalizar/<%= proposta.id %>" class="btn-finalizar">
-                            CONFIRMAR RECEBIMENTO E FINALIZAR TROCA
-                        </a>
-                    <% } %>
-                    
-                    <% if (proposta.status === 'Finalizada') { %>
-                        <p>Troca concluída com sucesso.</p>
-                    <% } %>
-                </div>
+                <div class="actions">
+                    <% if (proposta.status === 'Pendente') { %>
+                        <form action="/trocas/cancelar/<%= proposta.id %>" method="POST" style="display:inline;">
+                            <button type="submit" 
+                                onclick="return confirm('Tem certeza que deseja cancelar esta proposta?');"
+                                style="background: none; border: none; padding: 0; color: #dc3545; cursor: pointer; text-decoration: underline;">
+                                Cancelar Proposta
+                            </button>
+                        </form>
+                    <% } %>
+                    
+                    <% if (proposta.status === 'Aceita') { %>
+                        <p>PROPOSTA ACEITA! (Aguardando sua confirmação)</p>
+                        <form action="/trocas/finalizar/<%= proposta.id %>" method="POST" style="display:inline;">
+                             <button type="submit" class="btn-finalizar" onclick="return confirm('ATENÇÃO: Você confirma o recebimento da peça e deseja FINALIZAR a troca?');">
+                                CONFIRMAR RECEBIMENTO E FINALIZAR TROCA
+                            </button>
+                        </form>
+                    <% } %>
+                    
+                    <% if (proposta.status === 'Finalizada') { %>
+                        <p>Troca concluída com sucesso.</p>
+                    <% } %>
+                </div>
 
-            </div>
-        <% }); %>
+            </div>
+        <% }); %>
 
-    <% } else { %>
-        <p>Você ainda não enviou nenhuma proposta de troca.</p>
-        <p><a href="/catalogo">Navegue no Catálogo para Propor a Primeira Troca!</a></p>
-    <% } %>
+    <% } else { %>
+        <p>Você ainda não enviou nenhuma proposta de troca.</p>
+        <p><a href="/catalogo">Navegue no Catálogo para Propor a Primeira Troca!</a></p>
+    <% } %>
 
 </div>
 
