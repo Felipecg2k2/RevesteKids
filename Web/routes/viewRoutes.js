@@ -30,7 +30,7 @@ router.get("/dashboard", function (req, res) {
              
              "<h2>Área de Trocas</h2>" +
              "<p><a href='/catalogo'>🔍 Explorar o Catálogo de Trocas</a></p>" +
-             "<p><a href='/minhas-roupas'>📦 Minhas Roupas (Gerenciar Meus Itens)</a></p>" + 
+             "<p><a href='/roupas'>📦 Minhas Roupas (Gerenciar Meus Itens)</a></p>" + 
              "<p><a href='/trocas/recebidas'>📥 Propostas de Troca Recebidas</a></p>" +
              "<p><a href='/trocas/enviadas'>📤 Propostas de Troca Enviadas</a></p>" +
 

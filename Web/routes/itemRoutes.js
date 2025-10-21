@@ -37,7 +37,10 @@ router.get("/roupas", async (req, res) => {
     try {
         const itens = await Item.findAll({ 
             where: { UsuarioId: idUsuario },
-            order: [['createdAt', 'DESC']] // Opcional: ordenar pelo mais recente
+            order: [['createdAt', 'DESC']],
+            // NOVO: Adicione 'raw: true' para garantir que o Sequelize 
+            // busque do banco e não do cache de instâncias
+            raw: true 
         });
         
         res.render('roupas', { itens: itens }); 
