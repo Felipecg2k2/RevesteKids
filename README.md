@@ -30,11 +30,11 @@ O propósito é **incentivar a sustentabilidade e o reaproveitamento de roupas**
 
 1. **Clone o repositório**
    ```bash
-   git clone https://github.com/usuario/reveste-kids.git
+   git clone https://github.com/usuario/revestekids.git
    cd reveste-kids
    ```
 
-2. **Instale as dependências**
+2. **Instale as dependências dentro da pasta web**
    ```bash
    npm install
    ```
