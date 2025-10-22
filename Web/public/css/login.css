@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Barrio&display=swap');
+
+/* Estilos Globais e Fundo */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #D2FBF4; /* Cor de fundo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    flex-direction: column; /* Necessário para posicionar o footer p */
+}
+
+/* Container Principal do Formulário */
+div {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+/* Logo */
+img {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+/* Títulos */
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+h2 {
+    font-family: 'Barrio', cursive; /* Fonte para "BEM-VINDO(A)!" */
+    color: #000000; /* Cor roxa */
+    margin-bottom: 15px;
+    font-size: 32px;
+}
+
+/* Parágrafo de Boas-Vindas */
+p {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+/* Estilos do Formulário */
+form div {
+    text-align: left;
+    margin-bottom: 20px;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 14px;
+}
+
+form input[type="text"],
+form input[type="password"] {
+    width: 100%; /* Simplificado para 100% */
+    padding: 12px 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Container do Input de Senha + Link */
+/* Note que no HTML deve ser: <div><label>... <div class="password-group"> <input> <a href></div> </div> */
+/* Se você usar a estrutura que sugeri na resposta anterior, esta regra se aplica ao DIV interno que contém o input e o link "Esqueceu a senha?" */
+form div > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+form div > div a {
+    color: #8247A9;
+    text-decoration: none;
+    font-size: 13px;
+    /* Adicionado margin-left para afastar do input, caso não esteja envolvido por outro div */
+    margin-left: 10px; 
+}
+
+/* Botão de Login */
+button[type="submit"] {
+    background-color: #8247A9; /* Cor roxa */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 15px; /* Aumentado um pouco o margin para espaçamento */
+}
+
+button[type="submit"]:hover {
+    background-color: #6a3a8a;
+}
+
+/* Link para Criar Conta (Botão Verde) */
+a[href="/cadastro"] {
+    display: block;
+    background-color: #38FEDD; /* Cor verde-água */
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+a[href="/cadastro"]:hover {
+    background-color: #33e4c6;
+}
+
+/* Footer "Um produto RalKy Tech" */
+body > p {
+    /* Removido o 'position: absolute' para simplificar, mas mantido o posicionamento */
+    color: #999;
+    font-size: 12px;
+    margin-top: 20px; /* Espaço entre o container e o texto */
+    padding-bottom: 10px; /* Garante que não está grudado na borda inferior */
+}
