@@ -1,11 +1,10 @@
 // index.js
 
-// Troca de require() por import na linha do connect-flash
 import express from "express";
 import session from "express-session";
-import flash from 'connect-flash'; // CORREÇÃO: Usando import
+import flash from 'connect-flash';
 import connection from "./config/sequelize-config.js";
-import Sequelize from 'sequelize'; // Importação que estava solta
+// import Sequelize from 'sequelize'; // REMOVIDO: A importação completa do Sequelize não é necessária aqui, apenas o objeto 'connection' e os Models.
 
 // Iniciando o Express
 const app = express();
@@ -31,7 +30,7 @@ app.use(express.json());
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-// Configuração da Sessão (Você tinha duas, mantive a mais robusta)
+// Configuração da Sessão
 app.use(session({
     secret: "qualquercoisasecreta12345", 
     resave: false, 
@@ -41,23 +40,26 @@ app.use(session({
     }
 }));
 
-// CONFIGURAÇÃO DO FLASH (Agora req.flash() funcionará)
+// CONFIGURAÇÃO DO FLASH
 app.use(flash()); 
 
-// Middleware para injetar 'messages' em todas as views
+// Middleware para injetar 'messages' e 'userId' em todas as views
 app.use((req, res, next) => {
-    // res.locals são variáveis globais para o EJS
+    // res.locals são variáveis globais para o EJS
     res.locals.messages = req.flash();
+    // Injete a userId na sessão para uso fácil no template
+    res.locals.userId = req.session.userId || null;
     next();
 });
 
 
-// Bloco de verificação de Sequelize (Opcional, mas estava misturado no código)
-if (Sequelize && Sequelize.Op) {
+// Bloco de verificação de Sequelize (Mantido, mas menos crítico agora que a importação foi removida)
+/* if (Sequelize && Sequelize.Op) {
     console.log("SUCESSO: Sequelize e Op.ne estão importados corretamente!");
 } else {
     console.error("FALHA: O objeto Sequelize não foi carregado corretamente na sua aplicação.");
 }
+*/
 
 
 // =========================================================================
@@ -70,10 +72,12 @@ connection.authenticate()
         console.log("Conexão com o banco de dados realizada com sucesso!");
         
         // Criando o banco de dados (se ele ainda não existir)
+        // NOTA: A criação do DB deve ser feita fora da Promise se a string de conexão já estiver apontando para o DB.
+        // Se a string de conexão apontar para o MySQL sem DB, esta linha está correta.
         return connection.query(`CREATE DATABASE IF NOT EXISTS RevesteKids;`);
     })
     .then(() => {
-        console.log("O banco de dados está criado.");
+        console.log("O banco de dados está criado (ou já existia).");
         
         // Sincroniza os Models
         return Usuario.sync({ force: false });
@@ -90,11 +94,18 @@ connection.authenticate()
         console.log("Tabela 'trocas' sincronizada e pronta para uso.");
 
         // === REGISTRO DAS ROTAS MODULARIZADAS ===
+        // NOTA: Se todas as rotas usam prefixo '/' (raiz), está OK. 
+        // Se, por exemplo, 'trocaRoutes' só tem rotas tipo '/recebidas', o '/trocas' na linha abaixo não é necessário, mas é uma boa prática.
         app.use('/', viewRoutes);
         app.use('/', usuarioRoutes);
         app.use('/', itemRoutes);
-        app.use('/', trocaRoutes);
+        app.use('/trocas', trocaRoutes); 
         // ======================================
+
+        // TRATAMENTO DE ERRO: Rota não encontrada (404)
+        app.use((req, res, next) => {
+            res.status(404).render('404', { title: "Página não encontrada" }); // Melhor renderizar uma view 404.ejs
+        });
 
         // 4. INICIA O SERVIDOR
         app.listen(port, function (error) {

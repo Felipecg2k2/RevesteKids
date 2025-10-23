@@ -20,6 +20,11 @@ const Item = connection.define('itens', {
         type: DataTypes.STRING(50),
         allowNull: false
     },
+    // NOVO CAMPO: Categoria da Peça
+    categoriaPeca: {
+        type: DataTypes.STRING(50),
+        allowNull: false // Tornamos obrigatório
+    },
     cor: {
         type: DataTypes.STRING(50),
         allowNull: true // Permite ser NULL
@@ -60,7 +65,8 @@ Usuario.hasMany(Item, {
 
 // 2. O Item pertence a um Usuário
 Item.belongsTo(Usuario, {
-    foreignKey: 'UsuarioId'
+    foreignKey: 'UsuarioId',
+    as: 'usuario'
 });
 
 // Nota: O Sequelize irá criar a coluna 'UsuarioId' na tabela 'itens' automaticamente

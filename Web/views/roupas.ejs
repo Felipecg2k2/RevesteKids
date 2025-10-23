@@ -2,29 +2,496 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Minhas Roupas para Troca</title>
+    <title>Gerenciamento de Peças para Troca</title>
+    
+    <style>
+        /* Estilos básicos para o layout da página */
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* BARRA DE MÉTRICAS */
+        .metrics-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            justify-content: space-between;
+        }
+        
+        .metric-card {
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            text-align: center;
+            min-width: 150px; /* Garante que os cartões não fiquem muito pequenos */
+        }
+        
+        .metric-card strong {
+            display: block;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+        
+        .metric-card p {
+            margin: 0;
+            font-size: 1em;
+            color: #555;
+        }
+        
+        /* GRID DE ITENS */
+        .itens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+        }
+        
+        .item-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .item-card h3 {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .item-card p {
+            margin: 5px 0;
+        }
+
+        .status-ativo {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-troca {
+            color: orange;
+            font-weight: bold;
+        }
+
+        /* GRID E CARDS DE HISTÓRICO (para a seção de histórico) */
+        .historico-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .troca-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            background-color: #f9f9f9;
+        }
+
+        /* MENSAGEM DE VAZIO */
+        .empty-message {
+            grid-column: 1 / -1; /* Ocupa toda a largura do grid */
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+
+        /* ESTILOS DO MODAL */
+        #modal-cadastro {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4); /* Fundo preto semi-transparente */
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% do topo e centralizado */
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%; /* Pode ajustar isso */
+            max-width: 600px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Estilos para o formulário no modal */
+        #form-roupa label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        #form-roupa input[type="text"],
+        #form-roupa select,
+        #form-roupa textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #form-roupa textarea {
+            resize: vertical;
+        }
+
+        #btn-submit {
+            background-color: #4CAF50; 
+            color: white; 
+            padding: 10px 15px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        /* Correção para o botão de adicionar roupa fora do modal */
+        #btn-abrir-modal {
+            background-color: #9370DB; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px;
+            /* Adicionado aqui para o caso de não estar na classe .modal-content */
+        }
+
+
+    </style>
 </head>
 <body>
-    <h1>Gerenciamento de Peças</h1>
-    <p><a href="/roupas/cadastro">Cadastrar Nova Peça</a></p>
     
-    <% if (itens && itens.length > 0) { %>
-        <% itens.forEach(function(item) { %>
-            <div style="border: 1px solid #0056b3; margin-bottom: 20px; padding: 15px; border-radius: 5px;">
-                <h2><%= item.peca %> (<%= item.tipo %>)</h2>
-                <p><strong>Tamanho:</strong> <%= item.tamanho %></p>
-                <p><strong>Cor:</strong> <%= item.cor || 'Não informada' %></p>
-                <p><strong>Condição:</strong> <%= item.condicao %></p>
-                
-                <a href="/roupas/editar/<%= item.id %>" style="margin-right: 15px;">Editar</a> 
-                
-                <a href="/roupas/excluir/<%= item.id %>" onclick="return confirm('Tem certeza que deseja excluir esta peça?');" style="color: red;">Excluir</a>
-            </div>
-        <% }); %>
-    <% } else { %>
-        <p>Você ainda não cadastrou nenhuma peça. Clique <a href="/roupas/cadastro">aqui para começar</a>.</p>
-    <% } %>
+    <div 
+        id="item-data-container" 
+        style="display: none;"
+        data-item='<%- typeof itemParaEditar !== 'undefined' && itemParaEditar ? JSON.stringify(itemParaEditar) : 'null' %>'
+    ></div>
 
-    <p><a href="/dashboard">Voltar para o Dashboard</a></p>
-</body>
+    <h1>Gerenciamento de Peças (Minhas Roupas)</h1>
+    
+    <% if (!mostrarHistorico) { %>
+        <div style="text-align: right; margin-bottom: 20px;">
+            <button id="btn-abrir-modal" style="
+                background-color: #9370DB; 
+                color: white; 
+                padding: 10px 20px; 
+                border: none; 
+                border-radius: 4px; 
+                cursor: pointer; 
+                font-size: 16px;
+            ">
+                + Adicionar Roupa
+            </button>
+        </div>
+    <% } %>
+    
+    <div class="metrics-bar">
+        
+        <a href="/roupas" style="text-decoration: none; color: inherit;">
+            <div class="metric-card" style="background-color: #e0f7fa;">
+                <strong><%= typeof totalCadastradas !== 'undefined' ? totalCadastradas : 0 %></strong>
+                <p>Roupas Cadastradas</p>
+            </div>
+        </a>
+        
+        <a href="/roupas?status=EmTroca" style="text-decoration: none; color: inherit;">
+            <div class="metric-card" style="background-color: #fffde7;">
+                <strong><%= typeof emTroca !== 'undefined' ? emTroca : 0 %></strong>
+                <p>Em Processo de Troca</p>
+            </div>
+        </a>
+
+        <a href="/roupas?historico=true" style="text-decoration: none; color: inherit;">
+            <div class="metric-card" style="background-color: #e8f5e9;">
+                <strong><%= typeof trocasRealizadas !== 'undefined' ? trocasRealizadas : 0 %></strong>
+                <p>Trocas Realizadas</p>
+            </div>
+        </a>
+
+    </div>
+
+    <% if (mostrarHistorico) { %>
+        
+        <h2>Histórico de Trocas Concluídas</h2>
+        <p><a href="/roupas">← Voltar para o Gerenciamento de Peças Ativas</a></p>
+
+        <div class="historico-grid">
+            
+            <% 
+                // Função auxiliar para formatar datas de forma segura
+                const formatarData = (dataStr) => {
+                    if (!dataStr) return 'N/A';
+                    try {
+                        return new Date(dataStr).toLocaleDateString('pt-BR');
+                    } catch (e) {
+                        return 'Data Inválida';
+                    }
+                };
+            %>
+
+            <% if (historicoTrocas && historicoTrocas.length > 0) { %>
+                
+                <% historicoTrocas.forEach(function(troca) { %>
+                    <div class="troca-card status-<%= troca.status %>">
+                        <h2>Troca #<%= troca.id %> - <%= troca.status %></h2>
+                        
+                        <% 
+                            const idUsuarioLogado = typeof userId !== 'undefined' ? userId : null;
+                            const foiProponente = idUsuarioLogado && (troca.ProponenteId === idUsuarioLogado);
+                            const foiReceptor = idUsuarioLogado && (troca.ReceptorId === idUsuarioLogado);
+                        %>
+
+                        <span class="role">
+                            Você foi o: 
+                            <% if (foiProponente) { %>
+                                Proponente (Quem iniciou)
+                            <% } else if (foiReceptor) { %> 
+                                Receptor (Quem aceitou ou rejeitou) 
+                            <% } else { %>
+                                Participante (ID não correspondente)
+                            <% } %>
+                        </span>
+
+                        <p>
+                            <strong>Item Oferecido:</strong> 
+                            <span class="item-info"><%= troca.itemOferecido ? troca.itemOferecido.peca + ' (' + troca.itemOferecido.tamanho + ')' : 'Item Desconhecido' %></span>
+                        </p>
+
+                        <p>
+                            <strong>Item Desejado:</strong> 
+                            <span class="item-info"><%= troca.itemDesejado ? troca.itemDesejado.peca + ' (' + troca.itemDesejado.tamanho + ')' : 'Item Desconhecido' %></span>
+                        </p>
+                        
+                        <% if (troca.status === 'Finalizada' && troca.dataFinalizacao) { %>
+                            <p style="font-size: 0.85em; color: #4CAF50; font-weight: bold;">Finalizada em: <%= formatarData(troca.dataFinalizacao) %></p>
+                        <% } else { %>
+                            <p style="font-size: 0.85em; color: #555;">Proposta enviada em: <%= formatarData(troca.createdAt) %></p>
+                        <% } %>
+                    </div>
+                <% }); %>
+                
+            <% } else { %>
+                <div class="empty-message">
+                    <h2>Histórico Vazio</h2>
+                    <p>Você ainda não possui trocas em seu histórico (finalizadas, canceladas ou rejeitadas).</p>
+                    <p>Que tal começar uma nova troca no <a href="/catalogo">Catálogo</a>?</p>
+                </div>
+            <% } %>
+        </div>
+
+    <% } else { %>
+        
+        <div class="itens-grid">
+            <% 
+                const statusAtual = typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo';
+            %>
+            
+            <% if (itens && itens.length > 0) { %>
+                <% itens.forEach(function(item) { %>
+                    <div class="item-card">
+                        <div style="height: 150px; background-color: #f0f0f0; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                            [Imagem da Peça]
+                        </div>
+                        
+                        <h3><%= item.peca %></h3>
+                        
+                        <p>Tam: **<%= item.tamanho %>**</p>
+                        
+                        <p style="font-size: 0.9em; color: #666; margin-top: -10px;">
+                            <%= item.categoriaPeca %>
+                        </p>
+                        
+                        <p class="status <%= item.statusPosse === 'Ativo' ? 'status-ativo' : 'status-troca' %>">
+                            <%= item.statusPosse === 'Ativo' ? 'Disponível' : 'Em Processo de Troca' %>
+                        </p> 
+                        
+                        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
+                            <a href="/roupas/editar/<%= item.id %>" title="Editar" style="text-decoration: none; font-size: 1.2em;">✏️ Editar</a> 
+                            
+                            <% if (item.statusPosse === 'Ativo') { %>
+                                <a href="/roupas/excluir/<%= item.id %>" onclick="return confirm('Excluir <%= item.peca %>?');" title="Excluir" style="color: red; text-decoration: none; font-size: 1.2em;">🗑️ Excluir</a>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+                
+            <% } else { %>
+                
+                <% if (statusAtual === 'EmTroca') { %>
+                    <div class="empty-message">
+                        <h2>Nenhuma Peça em Processo de Troca 🟠</h2>
+                        <p>Você não possui nenhuma peça atualmente em negociação (com status 'Aceita' ou 'Pendente').</p>
+                        <p>Veja se há novas propostas na seção <a href="/trocas/recebidas">Propostas Recebidas</a> ou comece uma troca pelo <a href="/catalogo">Catálogo</a>.</p>
+                    </div>
+                <% } else { %>
+                    <div class="empty-message">
+                        <h2>Nenhuma Peça Ativa Cadastrada 👗</h2>
+                        <p>Você ainda não cadastrou nenhuma peça disponível para troca.</p>
+                        <p>Clique no botão **"+ Adicionar Roupa"** para começar!</p>
+                    </div>
+                <% } %>
+            <% } %>
+        </div>
+        
+    <% } %>
+    
+    <div id="modal-cadastro">
+        <div class="modal-content">
+            <span id="btn-fechar-modal" class="close">&times;</span>
+
+            <h1 id="modal-titulo">Cadastrar Nova Peça para Troca</h1>
+            
+            <form id="form-roupa" method="POST" action="/roupas/salvar"> 
+                <input type="hidden" id="item-id" name="id" value=""> 
+
+                <label for="peca">Nome da Peça (Ex: Vestido Floral, Calça Jeans):</label>
+                <input type="text" id="peca" name="peca" required><br>
+
+                <label for="categoriaPeca">Tipo da Peça (Categoria):</label>
+                <select id="categoriaPeca" name="categoriaPeca" required>
+                    <option value="">Selecione a Categoria</option>
+                    <option value="Blusa">Blusa</option>
+                    <option value="Camisa">Camisa</option>
+                    <option value="Calça">Calça</option>
+                    <option value="Vestido">Vestido</option>
+                    <option value="Saia">Saia</option>
+                    <option value="Macacão">Macacão</option>
+                    <option value="Shorts">Shorts</option>
+                    <option value="Sapato">Sapato/Calçado</option>
+                    <option value="Acessorio">Acessório</option>
+                </select><br>
+
+                <label for="tipo">Gênero:</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Unissex">Unissex</option>
+                </select><br>
+                
+                <label for="tamanho">Tamanho (Ex: 3-4, M, G):</label>
+                <input type="text" id="tamanho" name="tamanho" required><br>
+                
+                <label for="cor">Cor:</label>
+                <input type="text" id="cor" name="cor"><br>
+
+                <label for="tecido">Tecido:</label>
+                <input type="text" id="tecido" name="tecido"><br>
+
+                <label for="estacao">Estação (Ex: Verão, Inverno):</label>
+                <input type="text" id="estacao" name="estacao"><br>
+                
+                <label for="condicao">Condição (Ex: Novo, Com pouco uso):</label>
+                <input type="text" id="condicao" name="condicao" required><br>
+
+                <label for="descricao">Descrição Detalhada:</label>
+                <textarea id="descricao" name="descricao"></textarea><br>
+
+                <button type="submit" id="btn-submit">Cadastrar Roupa</button>
+            </form>
+        </div>
+    </div>
+
+    <p style="clear: both; margin-top: 30px;"><a href="/dashboard">Voltar para o Dashboard</a></p>
+
+    <script>
+        // O JS agora lê os dados do atributo 'data-item'
+        const dataContainer = document.getElementById('item-data-container');
+        let itemData = dataContainer.getAttribute('data-item');
+
+        // Garante que a variável global seja definida (para compatibilidade com roupas.js)
+        if (itemData && itemData !== 'null') {
+            try {
+                // Tenta fazer o parse. É necessário usar a função de parseamento no EJS.
+                window.itemParaEditar = JSON.parse(itemData);
+            } catch (e) {
+                console.error("Erro ao parsear itemParaEditar:", e);
+                // Tenta limpar entidades HTML que EJS pode ter introduzido (como no código original).
+                itemData = itemData.replace(/&#34;/g, '"').replace(/&#39;/g, "'");
+                try {
+                    window.itemParaEditar = JSON.parse(itemData);
+                } catch (e) {
+                    console.error("Erro final ao parsear itemParaEditar:", e);
+                    window.itemParaEditar = null; 
+                }
+            }
+        } else {
+            window.itemParaEditar = null;
+        }
+
+        // Lógica para abrir o modal em caso de edição (quando itemParaEditar não é null)
+        const modal = document.getElementById('modal-cadastro');
+        if (window.itemParaEditar) {
+             modal.style.display = 'block'; // Abre o modal automaticamente se houver item para editar
+        }
+
+        // Lógica básica de clique para abrir o modal
+        const btnAbrir = document.getElementById('btn-abrir-modal');
+        const btnFechar = document.getElementById('btn-fechar-modal');
+
+        if (btnAbrir) {
+            btnAbrir.onclick = function() {
+                modal.style.display = "block";
+                // Limpa o formulário e prepara para cadastro
+                document.getElementById('form-roupa').reset();
+                document.getElementById('modal-titulo').textContent = 'Cadastrar Nova Peça para Troca';
+                document.getElementById('item-id').value = '';
+                document.getElementById('form-roupa').action = '/roupas/salvar';
+                document.getElementById('btn-submit').textContent = 'Cadastrar Roupa';
+            }
+        }
+        
+        if (btnFechar) {
+            btnFechar.onclick = function() {
+                modal.style.display = "none";
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+
+    </script>
+    
+    <script src="/js/roupas.js"></script>
+
+    </body>
 </html>

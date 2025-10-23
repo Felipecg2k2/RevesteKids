@@ -1,50 +1,54 @@
-// routes/trocaRoutes.js
+// routes/trocaRoutes.js - CÓDIGO FINAL E CORRIGIDO
 
 import express from 'express';
-import Sequelize from 'sequelize'; 
-import connection from '../config/sequelize-config.js';
+// Importamos o Op diretamente para uso em cláusulas 'where'.
+import { Op } from 'sequelize'; 
+import connection from '../config/sequelize-config.js'; 
 import Troca from '../models/Troca.js';
-import Item from '../models/Item.js'; // Item Model DEVE ter a coluna 'statusPosse'
+import Item from '../models/Item.js'; 
 import Usuario from '../models/Usuario.js';
+// Mantido o import de Sequelize caso outras constantes/funções do Sequelize sejam necessárias
+import Sequelize from 'sequelize'; 
 
 const router = express.Router();
 
 // Middleware para verificar se o usuário está logado
 function requireLogin(req, res, next) {
     if (!req.session.userId) {
+        // Redireciona para /login se o usuário não estiver logado
         return res.redirect('/login');
     }
     next();
 }
 
-router.use(requireLogin); // Aplica a verificação de login a todas as rotas abaixo
+router.use(requireLogin); 
 
 // ==========================================================
-// ROTA 1: CATÁLOGO DE ITENS (FEED) - CORRIGIDA: Filtra por statusPosse: 'Ativo'
+// ROTA 1: CATÁLOGO DE ITENS (FEED)
 // ==========================================================
 router.get("/catalogo", async (req, res) => {
     try {
         const userId = req.session.userId; 
 
-        // 1. Busca IDs de itens em trocas Pendentes ou Aceitas para exclusão
+        // 1. Busca IDs de itens em trocas Pendentes ou Aceitas para exclusão do Catálogo
         const itensEmTroca = await Troca.findAll({
             attributes: ['ItemDesejadoId', 'ItemOferecidoId'],
             where: {
-                status: { [Sequelize.Op.in]: ['Pendente', 'Aceita'] }
+                status: { [Op.in]: ['Pendente', 'Aceita'] } 
             },
             raw: true 
         });
-        const itensEmTrocaIDs = itensEmTroca.map(t => [t.ItemDesejadoId, t.ItemOferecidoId]).flat();
+        
+        // Cria um array plano de todos os IDs envolvidos
+        const itensEmTrocaIDs = itensEmTroca.map(t => [t.ItemDesejadoId, t.ItemOferecidoId]).flat().filter(id => id != null);
         
         // 2. Filtra o catálogo
         const itensCatalogo = await Item.findAll({
             where: { 
-                // 1. Item NÃO é do usuário logado
-                UsuarioId: { [Sequelize.Op.ne]: userId }, 
-                // 2. Item NÃO está em troca pendente
-                id: { [Sequelize.Op.notIn]: itensEmTrocaIDs },
-                // FILTRO CRÍTICO: Item deve estar ATIVO (não pode ser Histórico)
-                statusPosse: 'Ativo' 
+                UsuarioId: { [Op.ne]: userId }, 
+                // Exclui itens que já estão em negociação
+                id: { [Op.notIn]: itensEmTrocaIDs }, 
+                statusPosse: 'Ativo' // Apenas itens ativos
             },
             include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
             order: [['createdAt', 'DESC']]
@@ -57,26 +61,27 @@ router.get("/catalogo", async (req, res) => {
 
     } catch (error) {
         console.error("ERRO AO CARREGAR CATÁLOGO:", error);
+        // Em caso de erro, renderiza com array vazio para evitar travamentos
         res.render('catalogo', { title: "Catálogo de Peças", itens: [] });
     }
 });
 
 
 // ==========================================================
-// ROTA 2: FORMULÁRIO DE PROPOSTA (CREATE VIEW) - CORRIGIDA: Filtra por statusPosse: 'Ativo'
+// ROTA 2: FORMULÁRIO DE PROPOSTA (CREATE VIEW)
 // ==========================================================
-router.get("/trocas/propor/:itemIdDesejado", async (req, res) => {
+// Rota: /trocas/propor/:itemIdDesejado
+router.get("/propor/:itemIdDesejado", async (req, res) => {
     try {
         const userId = req.session.userId;
         const itemIdDesejado = req.params.itemIdDesejado;
 
-        // 1. Busca o Item que o usuário quer (inclui o dono para a view)
+        // 1. Busca o Item que o usuário quer 
         const itemDesejado = await Item.findByPk(itemIdDesejado, {
             include: [{ model: Usuario, as: 'usuario', attributes: ['nome'] }] 
         });
         
-        // 2. Busca os Itens que o usuário tem para oferecer (Filtro por UsuarioId)
-        // ATENÇÃO: Apenas itens ativos podem ser oferecidos
+        // 2. Busca os Itens que o usuário tem para oferecer (Apenas itens ativos)
         const meusItens = await Item.findAll({
             where: { 
                 UsuarioId: userId,
@@ -101,22 +106,24 @@ router.get("/trocas/propor/:itemIdDesejado", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 3: ENVIAR PROPOSTA (CREATE ACTION) - OK
+// ROTA 3: ENVIAR PROPOSTA (CREATE ACTION)
 // ==========================================================
-router.post("/trocas/propor", async (req, res) => {
+// Rota: /trocas/propor
+router.post("/propor", async (req, res) => {
     try {
         const proponenteId = req.session.userId;
         const { itemIdDesejado, itemOferecido } = req.body; 
 
+        // 1. Busca dados do item desejado para obter o ReceptorId
         const itemDesejadoData = await Item.findByPk(itemIdDesejado);
 
         if (!itemDesejadoData) {
-            req.flash('error', 'Item desejado não encontrado.');
             return res.redirect('/catalogo');
         }
 
         const receptorId = itemDesejadoData.UsuarioId;
 
+        // 2. Cria a proposta de troca
         await Troca.create({
             ProponenteId: proponenteId,
             ReceptorId: receptorId,
@@ -125,19 +132,19 @@ router.post("/trocas/propor", async (req, res) => {
             status: 'Pendente' 
         });
         
-        req.flash('success', 'Proposta enviada com sucesso!');
         res.redirect('/trocas/enviadas');
 
     } catch (error) {
         console.error("ERRO AO ENVIAR PROPOSTA:", error);
-        req.flash('error', 'Não foi possível enviar a proposta de troca.');
         res.redirect('/trocas/enviadas');
     }
 });
+
 // ==========================================================
-// ROTA 4: MINHAS PROPOSTAS ENVIADAS (READ ALL do Proponente) - OK
+// ROTA 4: MINHAS PROPOSTAS ENVIADAS (READ ALL do Proponente)
 // ==========================================================
-router.get("/trocas/enviadas", async (req, res) => {
+// Rota: /trocas/enviadas
+router.get("/enviadas", async (req, res) => {
     try {
         const proponenteId = req.session.userId;
 
@@ -168,9 +175,10 @@ router.get("/trocas/enviadas", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 5: MINHAS PROPOSTAS RECEBIDAS (READ do Receptor) - OK
+// ROTA 5: MINHAS PROPOSTAS RECEBIDAS (READ do Receptor)
 // ==========================================================
-router.get("/trocas/recebidas", async (req, res) => {
+// Rota: /trocas/recebidas
+router.get("/recebidas", async (req, res) => {
     try {
         const receptorId = req.session.userId;
 
@@ -204,9 +212,10 @@ router.get("/trocas/recebidas", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 6: ACEITAR PROPOSTA (UPDATE de Status) - OK
+// ROTA 6: ACEITAR PROPOSTA (UPDATE de Status) 
 // ==========================================================
-router.post("/trocas/aceitar/:trocaId", async (req, res) => {
+// Rota: /trocas/aceitar/:trocaId
+router.post("/aceitar/:trocaId", async (req, res) => {
     try {
         const { trocaId } = req.params;
         const receptorId = req.session.userId;
@@ -215,13 +224,13 @@ router.post("/trocas/aceitar/:trocaId", async (req, res) => {
             include: [{ model: Item, as: 'itemDesejado' }]
         });
 
+        // Valida se a troca existe e pertence ao usuário logado
         if (!troca || troca.itemDesejado.UsuarioId !== receptorId) { 
-            req.flash('error', 'Proposta não encontrada ou você não é o receptor.');
             return res.redirect("/trocas/recebidas");
         }
 
+        // Valida o status
         if (troca.status !== 'Pendente') {
-            req.flash('error', 'A proposta já foi respondida.');
             return res.redirect("/trocas/recebidas");
         }
 
@@ -230,20 +239,19 @@ router.post("/trocas/aceitar/:trocaId", async (req, res) => {
             dataAceite: new Date()
         });
 
-        req.flash('success', 'Proposta aceita! Prossiga para a finalização da troca.');
         res.redirect("/trocas/recebidas");
 
     } catch (error) {
         console.error("ERRO AO ACEITAR PROPOSTA:", error);
-        req.flash('error', 'Erro ao aceitar a proposta.');
         res.redirect("/trocas/recebidas");
     }
 });
 
 // ==========================================================
-// ROTA 7: REJEITAR PROPOSTA (UPDATE de Status) - OK
+// ROTA 7: REJEITAR PROPOSTA (UPDATE de Status) 
 // ==========================================================
-router.post("/trocas/rejeitar/:trocaId", async (req, res) => {
+// Rota: /trocas/rejeitar/:trocaId
+router.post("/rejeitar/:trocaId", async (req, res) => {
     try {
         const { trocaId } = req.params;
         const receptorId = req.session.userId;
@@ -252,69 +260,69 @@ router.post("/trocas/rejeitar/:trocaId", async (req, res) => {
             include: [{ model: Item, as: 'itemDesejado' }]
         });
 
+        // Valida se a troca existe e pertence ao usuário logado
         if (!troca || troca.itemDesejado.UsuarioId !== receptorId) {
-            req.flash('error', 'Proposta não encontrada ou você não é o receptor.');
             return res.redirect("/trocas/recebidas");
         }
 
+        // Valida o status
         if (troca.status !== 'Pendente') {
-            req.flash('error', 'A proposta já foi respondida.');
             return res.redirect("/trocas/recebidas");
         }
 
+        // Atualiza o status
         await troca.update({ status: 'Rejeitada' });
 
-        req.flash('info', 'Proposta rejeitada.');
         res.redirect("/trocas/recebidas");
 
     } catch (error) {
         console.error("ERRO AO REJEITAR PROPOSTA:", error);
-        req.flash('error', 'Erro ao rejeitar a proposta.');
         res.redirect("/trocas/recebidas");
     }
 });
 
 // ==========================================================
-// ROTA 8: CANCELAR PROPOSTA (UPDATE do Proponente) - OK
+// ROTA 8: CANCELAR PROPOSTA (UPDATE do Proponente) 
 // ==========================================================
-router.post("/trocas/cancelar/:trocaId", async (req, res) => {
+// Rota: /trocas/cancelar/:trocaId
+router.post("/cancelar/:trocaId", async (req, res) => {
     try {
         const { trocaId } = req.params;
         const proponenteId = req.session.userId;
 
         const troca = await Troca.findByPk(trocaId);
 
+        // Valida se a troca existe e se o usuário é o proponente
         if (!troca || troca.ProponenteId !== proponenteId) {
-            req.flash('error', 'Proposta não encontrada ou você não é o proponente.');
             return res.redirect("/trocas/enviadas");
         }
         
+        // Valida o status
         if (troca.status !== 'Pendente') {
-            req.flash('error', 'A proposta não pode mais ser cancelada.');
             return res.redirect("/trocas/enviadas");
         }
 
+        // Atualiza o status
         await troca.update({ status: 'Cancelada' });
         
-        req.flash('info', 'Proposta cancelada.');
         res.redirect("/trocas/enviadas");
 
     } catch (error) {
         console.error("ERRO AO CANCELAR PROPOSTA:", error);
-        req.flash('error', 'Erro ao cancelar a proposta.');
         res.redirect("/trocas/enviadas");
     }
 });
 
 
-//==========================================================
-// ROTA 9: FINALIZAR TROCA (Troca a posse dos itens) - CORRIGIDA: Implementa update statusPosse
 // ==========================================================
-router.post("/trocas/finalizar/:trocaId", async (req, res) => {
+// ROTA 9: FINALIZAR TROCA (Troca a posse dos itens) 
+// ==========================================================
+// Rota: /trocas/finalizar/:trocaId
+router.post("/finalizar/:trocaId", async (req, res) => {
     const receptorId = req.session.userId; 
     const { trocaId } = req.params;
     
-    // Inicia a transação
+    // Inicia a transação CRÍTICA
     const t = await connection.transaction(); 
 
     try {
@@ -327,52 +335,24 @@ router.post("/trocas/finalizar/:trocaId", async (req, res) => {
             transaction: t
         });
 
-        // 2. Validação de Segurança
-        if (!troca) {
+        // 2. Validação de Segurança (Receptor e Status Aceita)
+        if (!troca || troca.ReceptorId !== receptorId || troca.status !== 'Aceita') {
             await t.rollback();
-            req.flash('error', 'Troca não encontrada.');
-            return res.redirect("/trocas/recebidas");
-        }
-        
-        if (troca.ReceptorId !== receptorId || troca.status !== 'Aceita') {
-            await t.rollback();
-            req.flash('error', 'Troca inválida para finalização.');
             return res.redirect("/trocas/recebidas");
         }
 
-        // 3. Transferência de Posse dos Itens
-        // Item Desejado (que o Receptor está entregando) vai para o Proponente
-        const updateDesejado = await Item.update(
-            { UsuarioId: troca.ProponenteId }, 
+        // 3. Transferência de Posse e marca como Histórico
+        // Item Desejado (do Receptor) vai para o Proponente
+        await Item.update(
+            { UsuarioId: troca.ProponenteId, statusPosse: 'Historico' }, 
             { where: { id: troca.ItemDesejadoId }, transaction: t }
         );
         
-        // Item Oferecido (que o Proponente está entregando) vai para o Receptor
-        const updateOferecido = await Item.update(
-            { UsuarioId: troca.ReceptorId }, 
+        // Item Oferecido (do Proponente) vai para o Receptor
+        await Item.update(
+            { UsuarioId: troca.ReceptorId, statusPosse: 'Historico' }, 
             { where: { id: troca.ItemOferecidoId }, transaction: t }
         );
-
-        // UPDATE CRÍTICO: Marcar ambos os itens como HISTÓRICO/INATIVOS (statusPosse)
-        const updateStatus = await Item.update(
-            { statusPosse: 'Historico' },
-            { 
-                where: { 
-                    [Sequelize.Op.or]: [
-                        { id: troca.ItemDesejadoId }, 
-                        { id: troca.ItemOferecidoId }
-                    ]
-                }, 
-                transaction: t 
-            }
-        );
-
-        // Se algum dos UPDATES de item falhou (checagem de segurança)
-        if (updateDesejado[0] === 0 || updateOferecido[0] === 0 || updateStatus[0] === 0) {
-            await t.rollback();
-            req.flash('error', 'Erro ao atualizar a posse ou status dos itens.');
-            return res.redirect("/trocas/recebidas");
-        }
 
         // 4. Atualiza o status da Troca
         await troca.update({ status: 'Finalizada', dataFinalizacao: new Date() }, { transaction: t });
@@ -380,15 +360,52 @@ router.post("/trocas/finalizar/:trocaId", async (req, res) => {
         // 5. Confirma todas as alterações
         await t.commit(); 
         
-        req.flash('success', 'Troca finalizada com sucesso! A posse dos itens foi transferida.');
         res.redirect("/trocas/recebidas");
 
     } catch (error) {
         await t.rollback(); 
         console.error("ERRO CRÍTICO AO FINALIZAR TROCA (Catch Block):", error);
-        req.flash('error', 'Ocorreu um erro crítico ao tentar finalizar a troca.');
         res.redirect("/trocas/recebidas");
     }
 });
+
+// ==========================================================
+// ROTA 10: HISTÓRICO DE TROCAS (FINALIZADAS, CANCELADAS, REJEITADAS)
+// ==========================================================
+// Rota: /trocas/historico
+router.get("/historico", async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        
+        const historicoTrocas = await Troca.findAll({
+            where: { 
+                [Op.or]: [ 
+                    { ProponenteId: userId },
+                    { ReceptorId: userId }
+                ],
+                // Apenas status de trocas concluídas (positiva ou negativa)
+                status: { [Op.in]: ['Finalizada', 'Cancelada', 'Rejeitada'] } 
+            },
+            include: [
+                { model: Item, as: 'itemOferecido', attributes: ['peca', 'tamanho'] },
+                { model: Item, as: 'itemDesejado', attributes: ['peca', 'tamanho'] }
+            ],
+            // Ordena pelo status final
+            order: [['dataFinalizacao', 'DESC'], ['createdAt', 'DESC']] 
+        });
+        
+        res.render('roupas', { // <-- ALTERADO DE 'historicoTrocas' PARA 'roupas'
+            title: "Histórico de Trocas",
+            historicoTrocas: historicoTrocas, // Renomeei 'historico' para 'historicoTrocas' para manter a consistência com o EJS que enviei
+            userId: userId,
+            mostrarHistorico: true // <-- ADICIONADO: Flag para o EJS exibir a seção correta
+        });
+
+    } catch (error) {
+        console.error("ERRO AO CARREGAR HISTÓRICO DE TROCAS:", error);
+        res.send("<h1>ERRO!</h1><p>Não foi possível carregar o histórico de trocas.</p>");
+    }
+});
+
 
 export default router;
