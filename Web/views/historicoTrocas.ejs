@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #333; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        .historico-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; 
+            margin-top: 20px;
+        }
+        .troca-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .status-Finalizada { background-color: #e8f5e9; border-left: 5px solid #4CAF50; } /* Verde */
+        .status-Rejeitada { background-color: #ffebee; border-left: 5px solid #F44336; } /* Vermelho */
+        .status-Cancelada { background-color: #fffde7; border-left: 5px solid #FFEB3B; } /* Amarelo */
+        
+        .role { font-weight: bold; margin-top: 10px; display: block; }
+        .item-info { font-size: 0.9em; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <h1><%= title %></h1>
+
+    <a href="/dashboard">Voltar para o Dashboard</a>
+    
+    <div class="historico-grid">
+        <% if (historico && historico.length > 0) { %>
+            <% historico.forEach(function(troca) { %>
+                <div class="troca-card status-<%= troca.status %>">
+                    <h2>Troca #<%= troca.id %> - <%= troca.status %></h2>
+                    
+                    <% 
+                        // Verifica se o usuário logado foi o Proponente ou o Receptor
+                        const foiProponente = troca.ProponenteId === userId;
+                        const foiReceptor = troca.ReceptorId === userId;
+                    %>
+
+                    <span class="role">
+                        Você foi o: 
+                        <%= foiProponente ? 'Proponente (Quem iniciou)' : '' %>
+                        <%= foiReceptor ? 'Receptor (Quem aceitou ou rejeitou)' : '' %>
+                    </span>
+
+                    <p>
+                        <strong>Item Oferecido:</strong> 
+                        <span class="item-info"><%= troca.itemOferecido ? troca.itemOferecido.peca + ' (' + troca.itemOferecido.tamanho + ')' : 'Item Desconhecido' %></span>
+                    </p>
+
+                    <p>
+                        <strong>Item Desejado:</strong> 
+                        <span class="item-info"><%= troca.itemDesejado ? troca.itemDesejado.peca + ' (' + troca.itemDesejado.tamanho + ')' : 'Item Desconhecido' %></span>
+                    </p>
+                    
+                    <% if (troca.dataFinalizacao) { %>
+                        <p style="font-size: 0.85em; color: #555;">Finalizada em: <%= new Date(troca.dataFinalizacao).toLocaleDateString('pt-BR') %></p>
+                    <% } else { %>
+                        <p style="font-size: 0.85em; color: #555;">Data da Proposta: <%= new Date(troca.createdAt).toLocaleDateString('pt-BR') %></p>
+                    <% } %>
+                    
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>Você não possui trocas em seu histórico (finalizadas, canceladas ou rejeitadas).</p>
+        <% } %>
+    </div>
+    
+    <p><a href="/dashboard">Voltar para o Dashboard</a></p>
+</body>
+</html>

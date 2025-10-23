@@ -20,6 +20,11 @@ const Item = connection.define('itens', {
         type: DataTypes.STRING(50),
         allowNull: false
     },
+    // NOVO CAMPO: Categoria da Peça
+    categoriaPeca: {
+        type: DataTypes.STRING(50),
+        allowNull: false // Tornamos obrigatório
+    },
     cor: {
         type: DataTypes.STRING(50),
         allowNull: true // Permite ser NULL
