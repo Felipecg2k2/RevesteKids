@@ -1,0 +1,36 @@
+<%
+// Define a classe do item base
+let itemClass = 'config-item';
+if (locals.is_switch) {
+    itemClass += ' switch-item';
+}
+
+// Define o conteúdo da ação (Link ou Switch/Botão)
+let actionContent = '';
+if (locals.is_switch) {
+    // SWITCH
+    actionContent = `
+        <label class="switch">
+            <input type="checkbox" ${locals.is_checked ? 'checked' : ''}>
+            <span class="slider round"></span>
+        </label>
+    `;
+} else if (locals.action_link) {
+    // LINK
+    const actionClass = locals.is_danger ? 'danger-button' : 'action-link';
+    actionContent = `<a href="${locals.action_link}" class="${actionClass}">${locals.action_label}</a>`;
+} else if (locals.is_danger && locals.action_label) {
+    // BOTÃO PERIGO (sem link, como 'Excluir Conta')
+    const actionClass = 'danger-button delete-button';
+    actionContent = `<button class="${actionClass}">${locals.action_label}</button>`;
+}
+%>
+
+<li class="<%= itemClass %>">
+    <div class="item-icon"><i class="fas <%= icon %>"></i></div>
+    <div class="item-content">
+        <p class="item-title"><%= title %></p>
+        <span class="item-description"><%= description %></span>
+    </div>
+    <%- actionContent %>
+</li>
