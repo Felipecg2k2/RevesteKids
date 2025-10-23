@@ -1,144 +1,143 @@
-@import url('https://fonts.googleapis.com/css2?family=Barrio&display=swap');
-
-/* Estilos Globais e Fundo */
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #D2FBF4; /* Cor de fundo */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    box-sizing: border-box;
-    flex-direction: column; /* Necessário para posicionar o footer p */
+:root {
+    --color-primary: #8347AA; --color-secondary: #35eecf; --color-background-mint: #D2FBF4; 
+    --color-gray-text: #6b7280; --color-gray-light: #d1d5db; --color-link: var(--color-primary); 
+    --color-text-dark: #111111; --color-divider: #e5e7eb;
 }
 
-/* Container Principal do Formulário */
-div {
-    background-color: #fff;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-    box-sizing: border-box;
+.login-body {
+    background-color: var(--color-background-mint); display: flex; flex-direction: column; 
+    align-items: center; justify-content: center; min-height: 100vh; margin: 0; 
+    font-family: 'Inter', Arial, sans-serif; 
 }
 
-/* Logo */
-img {
-    width: 80px;
-    margin-bottom: 20px;
+.login-container {
+    background-color: white; padding: 32px; border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+    width: 100%; max-width: 448px; text-align: center; margin: 20px auto; box-sizing: border-box; 
 }
 
-/* Títulos */
-h1 {
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 24px;
+.logo {
+    height: 64px; width: 64px; margin: 0 auto 8px; display: block; object-fit: contain; 
 }
 
-h2 {
-    font-family: 'Barrio', cursive; /* Fonte para "BEM-VINDO(A)!" */
-    color: #000000; /* Cor roxa */
-    margin-bottom: 15px;
-    font-size: 32px;
+.login-title {
+    font-size: 1.5rem; font-weight: bold; color: var(--color-text-dark); margin-bottom: 24px;
 }
 
-/* Parágrafo de Boas-Vindas */
-p {
-    color: #666;
-    margin-bottom: 25px;
-    font-size: 14px;
+.welcome-title-barrio {
+    font-family: 'Barrio', cursive; font-size: 3rem; color: var(--color-text-dark); 
+    text-shadow: 2px 2px 0px var(--color-divider); margin-bottom: 8px; 
 }
 
-/* Estilos do Formulário */
-form div {
+.login-subtitle {
+    font-size: 1rem; color: var(--color-gray-text); margin-bottom: 24px;
+}
+
+.login-form {
+    display: flex; flex-direction: column; gap: 15px; 
+}
+
+.input-group {
     text-align: left;
-    margin-bottom: 20px;
-    padding: 0;
-    background: none;
-    box-shadow: none;
 }
 
-form label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-    font-size: 14px;
+.input-label {
+    display: block; font-weight: bold; font-size: 0.875rem; color: var(--color-text-dark); 
+    margin-bottom: 4px; 
 }
 
-form input[type="text"],
-form input[type="password"] {
-    width: 100%; /* Simplificado para 100% */
-    padding: 12px 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
+.text-input {
+    box-sizing: border-box; width: 100%; padding: 8px 12px;
+    border: 1px solid var(--color-gray-light); border-radius: 6px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.05); transition: all 0.15s ease-in-out;
+    background-color: white; 
 }
 
-/* Container do Input de Senha + Link */
-/* Note que no HTML deve ser: <div><label>... <div class="password-group"> <input> <a href></div> </div> */
-/* Se você usar a estrutura que sugeri na resposta anterior, esta regra se aplica ao DIV interno que contém o input e o link "Esqueceu a senha?" */
-form div > div {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: none;
-    box-shadow: none;
-    padding: 0;
+.text-input:focus {
+    border-color: var(--color-primary); outline: none;
+    box-shadow: 0 0 0 3px rgba(131,71,170,.25); 
 }
 
-form div > div a {
-    color: #8247A9;
-    text-decoration: none;
-    font-size: 13px;
-    /* Adicionado margin-left para afastar do input, caso não esteja envolvido por outro div */
-    margin-left: 10px; 
+.input-with-icon {
+    position: relative;
 }
 
-/* Botão de Login */
-button[type="submit"] {
-    background-color: #8247A9; /* Cor roxa */
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 15px; /* Aumentado um pouco o margin para espaçamento */
+.input-with-icon .text-input {
+    padding-right: 40px; 
 }
 
-button[type="submit"]:hover {
-    background-color: #6a3a8a;
+.input-icon {
+    position: absolute; top: 50%; right: 12px; transform: translateY(-50%);
+    color: var(--color-gray-text); cursor: pointer; font-size: 1rem;
 }
 
-/* Link para Criar Conta (Botão Verde) */
-a[href="/cadastro"] {
-    display: block;
-    background-color: #38FEDD; /* Cor verde-água */
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 16px;
-    margin-top: 10px;
-    transition: background-color 0.3s ease;
+.forgot-password {
+    display: block; text-align: right; font-size: 0.75rem; color: var(--color-link);
+    margin-top: 4px; text-decoration: none;
 }
 
-a[href="/cadastro"]:hover {
-    background-color: #33e4c6;
+.forgot-password:hover {
+    text-decoration: underline;
 }
 
-/* Footer "Um produto RalKy Tech" */
-body > p {
-    /* Removido o 'position: absolute' para simplificar, mas mantido o posicionamento */
-    color: #999;
-    font-size: 12px;
-    margin-top: 20px; /* Espaço entre o container e o texto */
-    padding-bottom: 10px; /* Garante que não está grudado na borda inferior */
+.btn {
+    box-sizing: border-box; width: 100%; padding: 10px 16px; border-radius: 6px;
+    text-align: center; text-decoration: none; cursor: pointer;
+    transition: background-color 0.15s ease-in-out; font-weight: 600; border: none;
+    display: block; 
+}
+
+.btn-primary, .social-icon {
+    background-color: var(--color-primary); color: white; 
+}
+
+.btn-primary:hover {
+    background-color: #6f388b; 
+}
+
+.btn-secondary {
+    margin-top: 12px; background-color: var(--color-secondary); color: white; 
+}
+
+.btn-secondary:hover {
+    background-color: #2be6c9; 
+}
+
+.social-login {
+    margin-top: 24px;
+}
+
+.social-title {
+    display: flex; align-items: center; text-align: center; font-size: 0.875rem;
+    color: var(--color-gray-text); margin-bottom: 12px; font-weight: 600;
+}
+
+.social-title::before, .social-title::after {
+    content: ''; flex: 1; height: 1px; background-color: var(--color-divider);
+}
+
+.social-title::before {
+    margin-right: 15px; 
+}
+
+.social-title::after {
+    margin-left: 15px; 
+}
+
+.social-icons {
+    display: flex; justify-content: center; gap: 1rem; margin-bottom: 16px; 
+}
+
+.social-icon {
+    width: 40px; height: 40px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 1.25rem; 
+    cursor: pointer; transition: transform 0.2s; text-decoration: none; 
+}
+
+.social-icon:hover {
+    transform: scale(1.1);
+}
+
+.footer-text {
+    font-size: 0.75rem; color: #4b5563; margin-top: 16px; text-align: center;
 }
