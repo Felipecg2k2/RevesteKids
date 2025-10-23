@@ -1,0 +1,43 @@
+/* dashboard.css - Estilos restantes do seu código original */
+
+/* Variáveis de cor (repita aqui ou em um arquivo base, se preferir) */
+:root {
+    --color-background-dashboard: #f7f7f7;
+    --color-success: #10B981; 
+    --color-pending: #F59E0B; 
+    --color-shipped: #3B82F6; 
+    /* Repita outras variáveis globais se necessário */
+    --color-primary: #8347AA;
+    --color-secondary: #38FEDD;
+    --color-gray-text: #6b7280;
+    --color-text-dark: #111111;
+}
+
+/* ====================================
+   2. ESTILOS DO DASHBOARD
+   ==================================== */
+
+.dashboard-body {
+    display: flex; 
+    min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--color-background-dashboard);
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px; 
+    background-color: var(--color-primary); 
+    color: white;
+    padding: 24px 0;
+    flex-shrink: 0; 
+    position: sticky; 
+    top: 0;
+    height: 100vh; 
+    overflow-y: auto; 
+}
+
+/* ... (Todos os estilos de sidebar, nav, content-header, stat-cards, data-table, etc., vêm aqui) ... */
+
+/* Cole aqui a seção 2 e 3 inteira do seu CSS original */

@@ -3,74 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
+    <title>Cadastro - ReVeste Kids</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barrio&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link href="/css/style.css" rel="stylesheet"> 
+    <link href="/css/cadastro.css" rel="stylesheet">
 </head>
-<body>
-    <header>
-        <img src="/imgs/logo.jpg">
-        <h1>ReVeste Kids</h1>
-        <p>Crie sua conta e comece a trocar roupas</p>
+<body class="cadastro-body">
+
+    <header class="main-header">
+        <div class="logo-title-wrapper">
+            <img src="/imgs/logo.jpg" alt="ReVeste Kids Logo" class="cadastro-logo">
+            <h1 class="cadastro-title">ReVeste Kids</h1>
+        </div>
+        <p class="cadastro-subtitle">Crie sua conta e comece a trocar roupas</p>
     </header>
-    <div >
-        <form action="/cadastro" method="POST">
-            <div>
-                <div>
-                    <label for="nome">Nome</label>
-                    <input type="text" id="nome" name="nome" placeholder="Nome" required>
+
+    <div class="cadastro-container">
+        <form action="/cadastro" method="POST" class="cadastro-form">
+            <h3 class="section-title">Informações Pessoais</h3>
+            
+            <div class="grid-2-cols">
+                <div class="input-group">
+                    <label for="nome" class="input-label">Nome</label>
+                    <input type="text" id="nome" name="nome" placeholder="Nome" class="text-input" required>
                 </div>
-                <div>
-                    <label for="sobrenome">Sobrenome</label>
-                    <input type="text" id="sobrenome" name="sobrenome" placeholder="Sobrenome" required>
-                </div>
-            </div>
-            <div>
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="email" placeholder="seu@email.com" required>
-            </div>
-            <div>
-                <label for="senha">Senha</label>
-                <input type="password" id="senha" name="senha" placeholder="sua senha" required>
-            </div>
-            <div>
-                <label for="confirmacao_senha">Confirmação de Senha</label>
-                <input type="password" id="confirmacao_senha" name="confirmacao_senha" placeholder="Confirme sua senha" required>
-            </div>
-            <h3>Endereço</h3>
-            <div>
-                <div>
-                    <label for="cep">CEP</label>
-                    <input type="text" id="cep" name="cep" placeholder="00000-000" required>
-                </div>
-                <div>
-                    <label for="numero">Número</label>
-                    <input type="text" id="numero" name="numero" placeholder="Número" required>
+                <div class="input-group">
+                    <label for="sobrenome" class="input-label">Sobrenome</label>
+                    <input type="text" id="sobrenome" name="sobrenome" placeholder="Sobrenome" class="text-input" required>
                 </div>
             </div>
-            <div>
-                <label for="logradouro">Logradouro</label>
-                <input type="text" id="logradouro" name="logradouro" placeholder="Logradouro" required>
+
+            <div class="input-group">
+                <label for="email" class="input-label">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="seu@email.com" class="text-input" required>
             </div>
-            <div>
-                <div>
-                    <label for="bairro">Bairro</label>
-                    <input type="text" id="bairro" name="bairro" placeholder="Bairro" required>
+
+            <div class="grid-2-cols">
+                <div class="input-group input-with-icon">
+                    <label for="senha" class="input-label">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Mínimo 6 caracteres" class="text-input password-input" required minlength="6">
+                    <i class="fas fa-eye input-icon password-toggle" data-target="senha"></i>
                 </div>
-                <div>
-                    <label for="cidade">Cidade</label>
-                    <input type="text" id="cidade" name="cidade" placeholder="Cidade" required>
+                <div class="input-group input-with-icon">
+                    <label for="confirmacao_senha" class="input-label">Confirmação de Senha</label>
+                    <input type="password" id="confirmacao_senha" name="confirmacao_senha" placeholder="Confirme sua senha" class="text-input password-input" required minlength="6">
+                    <i class="fas fa-eye input-icon password-toggle" data-target="confirmacao_senha"></i>
                 </div>
             </div>
-            <div>
-                <label for="estado">Estado (UF)</label>
-                <input type="text" id="estado" name="estado" placeholder="Estado (UF)" required>
+            
+            <h3 class="section-title">Endereço</h3>
+
+            <div class="grid-2-cols">
+                <div class="input-group input-with-icon">
+                    <label for="cep" class="input-label">CEP</label>
+                    <input type="text" id="cep" name="cep" placeholder="00000-000" class="text-input" required>
+                    <i class="fas fa-search input-icon" style="top: calc(50% + 14px); cursor: default;"></i>
+                </div>
+                <div class="input-group">
+                    <label for="numero" class="input-label">Número</label>
+                    <input type="text" id="numero" name="numero" placeholder="Número" class="text-input" required>
+                </div>
             </div>
-            <button type="submit">
+            
+            <div class="input-group">
+                <label for="logradouro" class="input-label">Logradouro</label>
+                <input type="text" id="logradouro" name="logradouro" placeholder="Logradouro" class="text-input" required>
+            </div>
+            
+            <div class="grid-2-cols">
+                <div class="input-group">
+                    <label for="bairro" class="input-label">Bairro</label>
+                    <input type="text" id="bairro" name="bairro" placeholder="Bairro" class="text-input" required>
+                </div>
+                <div class="input-group">
+                    <label for="cidade" class="input-label">Cidade</label>
+                    <input type="text" id="cidade" name="cidade" placeholder="Cidade" class="text-input" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="estado" class="input-label">Estado (UF)</label>
+                <input type="text" id="estado" name="estado" placeholder="Estado (UF)" class="text-input" required maxlength="2">
+            </div>
+
+            <div class="terms-checkbox-group">
+                <input type="checkbox" id="termos" name="termos" class="terms-checkbox" required>
+                <label for="termos" class="terms-label">
+                    Declaro que li e aceito os <a href="#" class="action-link">termos de serviço</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-secondary btn-cadastro">
                 Criar conta
             </button>
         </form>
-        <div>
-            <p>Já tem uma conta? <a href="/">Fazer login</a></p>
+
+        <div class="login-link-container">
+            <p>Já tem uma conta? <a href="/login" class="login-link">Fazer login</a></p>
         </div>
     </div>
+    
+    <script>
+        document.querySelectorAll('.password-toggle').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput) {
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    this.classList.replace(isPassword ? 'fa-eye' : 'fa-eye-slash', isPassword ? 'fa-eye-slash' : 'fa-eye');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
