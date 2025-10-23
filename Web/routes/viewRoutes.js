@@ -26,8 +26,8 @@ const authMiddleware = (req, res, next) => {
 // ROTA RAIZ (/)
 router.get("/", function (req, res) {
     if (req.session.userId) {
-        // Usuário logado é levado para o Dashboard de Gerenciamento
-        return res.redirect('/dashboard');
+        // Usuário logado é levado diretamente para o Feed (/feed)
+        return res.redirect('/feed'); 
     }
     res.render("login", { title: "Login" }); 
 });
@@ -43,20 +43,7 @@ router.get("/cadastro", function (req, res) {
 });
 
 // =========================================================================
-// ROTA 1: DASHBOARD (SIMPLES, DE GERENCIAMENTO)
-// View: views/dashboard.ejs
-// =========================================================================
-
-router.get("/dashboard", authMiddleware, (req, res) => {
-    // Redireciona para a view de gerenciamento simples
-    res.render('dashboard', {
-        title: "Dashboard Principal"
-        // Adicione aqui métricas ou dados simples se necessário
-    });
-});
-
-// =========================================================================
-// ROTA 2: FEED (SWIPE CARD COM BUSCA NO BD)
+// ROTA DO FEED (SWIPE CARD COM BUSCA NO BD)
 // View: views/feed.ejs
 // =========================================================================
 
@@ -65,7 +52,6 @@ router.get("/feed", authMiddleware, async (req, res) => {
         const userId = req.session.userId;
 
         if (!userId) {
-             // Isso já é tratado pelo authMiddleware, mas é uma segurança extra.
              throw new Error("Usuário ID não encontrado na sessão.");
         }
 
@@ -79,7 +65,7 @@ router.get("/feed", authMiddleware, async (req, res) => {
             include: [{
                 model: Usuario,
                 as: 'usuario', 
-                attributes: ['nome', 'cidade', 'estado'] // Adicionei cidade/estado para a view de swipe
+                attributes: ['nome', 'cidade', 'estado'] 
             }],
             order: [['createdAt', 'DESC']]
         });
@@ -93,8 +79,8 @@ router.get("/feed", authMiddleware, async (req, res) => {
     } catch (error) {
         console.error("ERRO FATAL AO CARREGAR O FEED:", error.message || error); 
         req.flash('error', 'Ocorreu um erro ao carregar o Feed. Tente novamente mais tarde.');
-        // Em caso de erro, redireciona de volta para o Dashboard simples
-        res.status(500).redirect('/dashboard'); 
+        // Em caso de erro, redireciona para a raiz (que levará ao login ou exibirá a página de erro)
+        res.status(500).redirect('/'); 
     }
 });
 
@@ -104,7 +90,8 @@ router.get('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) {
             console.error("Erro ao destruir sessão:", err);
-            return res.redirect('/dashboard'); 
+            // Redireciona para a nova rota principal após logout
+            return res.redirect('/feed'); 
         }
         res.redirect('/');
     });

@@ -10,7 +10,7 @@ const router = express.Router();
 
 // ROTA POST: Cadastro de novo usuário
 router.post('/cadastro', (req, res) => {
-    const dadosUsuario = req.body;     
+    const dadosUsuario = req.body; 
     Usuario.create(dadosUsuario)
         .then(() => {
             res.redirect('/login'); 
@@ -31,7 +31,10 @@ router.post('/login', (req, res) => {
         if (usuario && usuario.senha === senha) {
             req.session.userId = usuario.id; 
             req.session.email = usuario.email; 
-            res.redirect('/dashboard');
+            
+            // CORRIGIDO: Redireciona para /feed (nova rota principal)
+            res.redirect('/feed'); 
+            
         } else {
             res.send('<h1>Falha no Login</h1><p>E-mail ou senha incorretos.</p><a href="/login">Tentar Novamente</a>');
         }
@@ -43,6 +46,7 @@ router.post('/login', (req, res) => {
 });
 
 // ROTA GET: Logout (DESTRUIR SESSÃO)
+// OBS: Rota de Logout também existe em viewRoutes.js. Mantenha a versão mais completa.
 router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -134,9 +138,6 @@ router.get('/perfil/apagar', (req, res) => {
         res.send('<h1>ERRO!</h1><p>Não foi possível apagar o perfil.</p>');
     });
 });
-
-
-// Bloco CRUD GERAL (ADMIN/LISTAGEM) REMOVIDO conforme solicitado.
 
 
 export default router;
