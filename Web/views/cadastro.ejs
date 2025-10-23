@@ -22,7 +22,7 @@
 
     <div class="cadastro-container">
         <form action="/cadastro" method="POST" class="cadastro-form">
-            <h3 class="section-title">Informações Pessoais</h3>
+            
             
             <div class="grid-2-cols">
                 <div class="input-group">
@@ -41,26 +41,20 @@
             </div>
 
             <div class="grid-2-cols">
-                <div class="input-group input-with-icon">
-                    <label for="senha" class="input-label">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="Mínimo 6 caracteres" class="text-input password-input" required minlength="6">
-                    <i class="fas fa-eye input-icon password-toggle" data-target="senha"></i>
-                </div>
-                <div class="input-group input-with-icon">
-                    <label for="confirmacao_senha" class="input-label">Confirmação de Senha</label>
+                <div class="input-group"> <label for="senha" class="input-label">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Senha" class="text-input password-input" required minlength="6">
+                    </div>
+                <div class="input-group"> <label for="confirmacao_senha" class="input-label">Confirmação de Senha</label>
                     <input type="password" id="confirmacao_senha" name="confirmacao_senha" placeholder="Confirme sua senha" class="text-input password-input" required minlength="6">
-                    <i class="fas fa-eye input-icon password-toggle" data-target="confirmacao_senha"></i>
-                </div>
+                    </div>
             </div>
             
             <h3 class="section-title">Endereço</h3>
 
             <div class="grid-2-cols">
-                <div class="input-group input-with-icon">
-                    <label for="cep" class="input-label">CEP</label>
+                <div class="input-group"> <label for="cep" class="input-label">CEP</label>
                     <input type="text" id="cep" name="cep" placeholder="00000-000" class="text-input" required>
-                    <i class="fas fa-search input-icon" style="top: calc(50% + 14px); cursor: default;"></i>
-                </div>
+                    </div>
                 <div class="input-group">
                     <label for="numero" class="input-label">Número</label>
                     <input type="text" id="numero" name="numero" placeholder="Número" class="text-input" required>
@@ -88,13 +82,6 @@
                 <input type="text" id="estado" name="estado" placeholder="Estado (UF)" class="text-input" required maxlength="2">
             </div>
 
-            <div class="terms-checkbox-group">
-                <input type="checkbox" id="termos" name="termos" class="terms-checkbox" required>
-                <label for="termos" class="terms-label">
-                    Declaro que li e aceito os <a href="#" class="action-link">termos de serviço</a>
-                </label>
-            </div>
-
             <button type="submit" class="btn btn-secondary btn-cadastro">
                 Criar conta
             </button>
@@ -105,19 +92,5 @@
         </div>
     </div>
     
-    <script>
-        document.querySelectorAll('.password-toggle').forEach(icon => {
-            icon.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
-                
-                if (passwordInput) {
-                    const isPassword = passwordInput.type === 'password';
-                    passwordInput.type = isPassword ? 'text' : 'password';
-                    this.classList.replace(isPassword ? 'fa-eye' : 'fa-eye-slash', isPassword ? 'fa-eye-slash' : 'fa-eye');
-                }
-            });
-        });
-    </script>
-</body>
+    </body>
 </html>
