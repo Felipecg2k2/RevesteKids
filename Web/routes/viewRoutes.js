@@ -1,44 +1,114 @@
 // routes/viewRoutes.js
 
 import express from 'express';
-const router = express.Router();
+import Sequelize from 'sequelize'; 
+import Item from '../models/Item.js'; 
+import Usuario from '../models/Usuario.js'; 
 
-// ROTA PRINCIPAL E ROTA DE LOGIN
+const router = express.Router();
+const { Op } = Sequelize; 
+
+// =========================================================================
+// Middleware de Autenticação
+// =========================================================================
+const authMiddleware = (req, res, next) => {
+    if (!req.session.userId) {
+        req.flash('error', 'Você precisa estar logado para acessar esta página.');
+        return res.redirect('/login');
+    }
+    next();
+};
+
+// =========================================================================
+// ROTAS DE VISUALIZAÇÃO PÚBLICAS (Login, Cadastro, Home)
+// =========================================================================
+
+// ROTA RAIZ (/)
 router.get("/", function (req, res) {
-    res.render("login"); 
+    if (req.session.userId) {
+        // Usuário logado é levado para o Dashboard de Gerenciamento
+        return res.redirect('/dashboard');
+    }
+    res.render("login", { title: "Login" }); 
 });
 
-// Rota de Login separada (caso o usuário digite /login)
+// Rota de Login separada
 router.get("/login", function (req, res) {
-    res.render("login");
+    res.render("login", { title: "Login" });
 });
 
 // ROTA DE CADASTRO
 router.get("/cadastro", function (req, res) {
-    res.render("cadastro");
+    res.render("cadastro", { title: "Cadastro" });
 });
 
-// ROTA DE SUCESSO APÓS LOGIN (DASHBOARD)
-router.get("/dashboard", function (req, res) {
-    if (!req.session.userId) {
-        return res.redirect('/login');
+// =========================================================================
+// ROTA 1: DASHBOARD (SIMPLES, DE GERENCIAMENTO)
+// View: views/dashboard.ejs
+// =========================================================================
+
+router.get("/dashboard", authMiddleware, (req, res) => {
+    // Redireciona para a view de gerenciamento simples
+    res.render('dashboard', {
+        title: "Dashboard Principal"
+        // Adicione aqui métricas ou dados simples se necessário
+    });
+});
+
+// =========================================================================
+// ROTA 2: FEED (SWIPE CARD COM BUSCA NO BD)
+// View: views/feed.ejs
+// =========================================================================
+
+router.get("/feed", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+
+        if (!userId) {
+             // Isso já é tratado pelo authMiddleware, mas é uma segurança extra.
+             throw new Error("Usuário ID não encontrado na sessão.");
+        }
+
+        // 1. Busca todas as peças ATIVAS que NÃO pertencem ao usuário logado
+        const pecasDisponiveis = await Item.findAll({
+            where: {
+                statusPosse: 'Ativo',
+                UsuarioId: { [Op.not]: userId } 
+            },
+            // Inclui o modelo Usuario (ALIAS CORRETO: 'usuario')
+            include: [{
+                model: Usuario,
+                as: 'usuario', 
+                attributes: ['nome', 'cidade', 'estado'] // Adicionei cidade/estado para a view de swipe
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+        
+        // 2. Renderiza a view 'feed.ejs' (com o swipe card)
+        res.render('feed', {
+            title: "Feed de Trocas",
+            pecasDisponiveis: pecasDisponiveis
+        });
+
+    } catch (error) {
+        console.error("ERRO FATAL AO CARREGAR O FEED:", error.message || error); 
+        req.flash('error', 'Ocorreu um erro ao carregar o Feed. Tente novamente mais tarde.');
+        // Em caso de erro, redireciona de volta para o Dashboard simples
+        res.status(500).redirect('/dashboard'); 
     }
-    
-    // ATUALIZADO: Inclui links para o fluxo de trocas
-    res.send("<h1>BEM-VINDO! Você está logado!</h1>" + 
-             "<hr>" + 
-             
-             "<h2>Área de Trocas</h2>" +
-             "<p><a href='/catalogo'>🔍 Explorar o Catálogo de Trocas</a></p>" +
-             "<p><a href='/roupas'>📦 Minhas Roupas (Gerenciar Meus Itens)</a></p>" + 
-             "<p><a href='/trocas/recebidas'>📥 Propostas de Troca Recebidas</a></p>" +
-             "<p><a href='/trocas/enviadas'>📤 Propostas de Troca Enviadas</a></p>" +
-
-             "<hr>" + 
-
-             "<h2>Minha Conta</h2>" +
-             "<p><a href='/perfil'>👤 Meu Perfil</a></p>" + 
-             "<p><a href='/logout'>🚪 Fazer Logout</a></p>");
 });
+
+
+// ROTA DE LOGOUT (mantida)
+router.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error("Erro ao destruir sessão:", err);
+            return res.redirect('/dashboard'); 
+        }
+        res.redirect('/');
+    });
+});
+
 
 export default router;

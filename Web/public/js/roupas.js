@@ -1,3 +1,5 @@
+// public/js/roupas.js
+
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('modal-cadastro');
     const btnAbrir = document.getElementById('btn-abrir-modal');
@@ -6,12 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitulo = document.getElementById('modal-titulo');
     const btnSubmit = document.getElementById('btn-submit');
     
-    // VARIÁVEL DE EDIÇÃO SERÁ DEFINIDA FORA DESTE ARQUIVO
+    // VARIÁVEL DE EDIÇÃO É ESPERADA COMO GLOBAL (window.itemParaEditar)
+    // E DEVE SER INJETADA NO EJS ANTES DESTE SCRIPT SER CARREGADO.
 
     // Função para resetar o formulário para MODO CADASTRO
     function resetarFormulario() {
         form.reset();
-        form.action = "/roupas/salvar";
+        // Garante que o action padrão seja o de criação
+        form.action = "/roupas/salvar"; 
         modalTitulo.innerText = "Cadastrar Nova Peça para Troca";
         btnSubmit.innerText = "Cadastrar Roupa";
         document.getElementById('item-id').value = ""; // Limpa o ID
@@ -25,13 +29,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Ação: Fecha o modal pelo botão X ou clique externo
+    // Ação: Fecha o modal pelo botão X
     if(btnFechar) {
         btnFechar.onclick = function() {
             modal.style.display = "none";
+            // É importante resetar ao fechar para que o próximo clique não inicie como edição
             resetarFormulario(); 
         }
     }
+    
+    // Ação: Fecha o modal pelo clique externo (já estava no EJS, mas incluído aqui para robustez)
+    /* window.onclick é uma função que sobrescreve qualquer outro onclick do window,
+    por isso é geralmente melhor deixar no EJS onde foi definido. No entanto,
+    se você está carregando este script no final, a sua lógica aqui é válida:
+    */
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
@@ -40,25 +51,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // LÓGICA DE EDIÇÃO: Verifica se a variável global existe
-    // É CRUCIAL que esta variável seja injetada no EJS antes de carregar este script!
     if (window.itemParaEditar) {
+        const item = window.itemParaEditar;
+        
         // 1. Preenche os campos com os dados do item
-        document.getElementById('item-id').value = window.itemParaEditar.id;
-        document.getElementById('peca').value = window.itemParaEditar.peca;
-        document.getElementById('tipo').value = window.itemParaEditar.tipo;
-        document.getElementById('tamanho').value = window.itemParaEditar.tamanho;
-        document.getElementById('cor').value = window.itemParaEditar.cor;
-        document.getElementById('tecido').value = window.itemParaEditar.tecido;
-        document.getElementById('estacao').value = window.itemParaEditar.estacao;
-        document.getElementById('condicao').value = window.itemParaEditar.condicao;
-        document.getElementById('descricao').value = window.itemParaEditar.descricao;
+        document.getElementById('item-id').value = item.id;
+        document.getElementById('peca').value = item.peca;
+        
+        // CRÍTICO: Preenche o SELECT categoriaPeca
+        document.getElementById('categoriaPeca').value = item.categoriaPeca; 
+        
+        // CRÍTICO: Preenche o SELECT tipo (Gênero)
+        document.getElementById('tipo').value = item.tipo;
+        
+        document.getElementById('tamanho').value = item.tamanho;
+        document.getElementById('cor').value = item.cor;
+        document.getElementById('tecido').value = item.tecido;
+        document.getElementById('estacao').value = item.estacao;
+        document.getElementById('condicao').value = item.condicao;
+        document.getElementById('descricao').value = item.descricao;
 
         // 2. Ajusta o Formulário para MODO EDIÇÃO
-        form.action = "/roupas/editar/" + window.itemParaEditar.id;
-        modalTitulo.innerText = "Editar Peça: " + window.itemParaEditar.peca;
+        // A rota de edição POST deve incluir o ID
+        form.action = "/roupas/editar/" + item.id; 
+        modalTitulo.innerText = "Editar Peça: " + item.peca;
         btnSubmit.innerText = "Salvar Alterações";
         
-        // 3. Abre o modal automaticamente 
+        // 3. Abre o modal automaticamente (Esta ação foi colocada no EJS no último código, 
+        // mas tê-la aqui também não prejudica, apenas garante que abra)
         modal.style.display = "block";
     }
 });

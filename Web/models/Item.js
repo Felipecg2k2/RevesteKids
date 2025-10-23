@@ -65,7 +65,8 @@ Usuario.hasMany(Item, {
 
 // 2. O Item pertence a um Usuário
 Item.belongsTo(Usuario, {
-    foreignKey: 'UsuarioId'
+    foreignKey: 'UsuarioId',
+    as: 'usuario'
 });
 
 // Nota: O Sequelize irá criar a coluna 'UsuarioId' na tabela 'itens' automaticamente

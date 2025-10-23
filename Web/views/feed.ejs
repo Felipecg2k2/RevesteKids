@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f8f8;
+        }
+        .main-container {
+            display: flex;
+            gap: 40px; /* Aumentei o espaçamento para melhor visualização */
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .filters-column {
+            width: 250px; /* Largura fixa para a coluna de filtros */
+            flex-shrink: 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            height: fit-content; /* Ajusta a altura ao conteúdo */
+        }
+        .filters-column h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        #swipe-container {
+            flex-grow: 1;
+            position: relative; /* Importante para o posicionamento absolute das cartas */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 70vh;
+            padding-top: 20px;
+        }
+        .card-item {
+            position: absolute;
+            width: 95%;
+            max-width: 420px;
+            padding: 25px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: white;
+            transition: transform 0.3s ease-in-out; /* Adiciona transição para o "swipe" visual */
+            display: none; /* Inicialmente oculto, JS irá exibir */
+        }
+        .card-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            align-items: center;
+        }
+        .btn-ignorar, .btn-voltar, .btn-trocar {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+        }
+        .btn-voltar {
+            background-color: #ffc107; 
+            color: black;
+        }
+        .btn-ignorar {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-trocar {
+            background-color: #4caf50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Feed de Peças Disponíveis para Troca</h1>
+    <p>Explore as peças que outros usuários cadastraram.</p>
+
+    <div class="main-container">
+        <div class="filters-column">
+            <h2>Filtros</h2>
+            <div>
+                <p>Gênero:</p>
+                <input type="checkbox" id="feminino" name="genero" value="Feminino" />
+                <label for="feminino">Feminino</label><br />
+                <input type="checkbox" id="masculino" name="genero" value="Masculino" />
+                <label for="masculino">Masculino</label><br />
+            </div>
+            </div>
+
+        <div id="swipe-container">
+            
+            <% if (pecasDisponiveis.length === 0) { %>
+            <p style="width: 100%; text-align: center">
+                Parece que não há novas peças no catálogo por enquanto!
+            </p>
+            <% } %> 
+            
+            <% pecasDisponiveis.forEach((item, index) => { %>
+            <div
+                class="card-item"
+                data-id="<%= item.id %>"
+                data-index="<%= index %>"
+            >
+                <h2><%= item.peca %></h2>
+                <div style="height: 250px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; border-radius: 8px;">
+                     [IMAGEM AQUI - <%= item.peca %>]
+                    </div>
+
+                <p>
+                    <strong>Dono:</strong> <%= item.usuario.nome %> 
+                    </p>
+                <p><strong>Gênero:</strong> <%= item.genero %></p>
+                <p><strong>Tamanho:</strong> <%= item.tamanho %></p>
+                <p><strong>Condição:</strong> <%= item.condicao %></p>
+
+                <div class="card-actions">
+                    <button
+                        class="btn-voltar"
+                        data-item-id="<%= item.id %>"
+                        style="display: none;" 
+                    >
+                        Voltar (↩️)
+                    </button>
+
+                    <button
+                        class="btn-ignorar"
+                        data-item-id="<%= item.id %>"
+                    >
+                        Ignorar (❌)
+                    </button>
+
+                    <a
+                        href="/trocas/propor/<%= item.id %>"
+                        class="btn-trocar"
+                    >
+                        Propor Troca (✅)
+                    </a>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cardContainer = document.getElementById('swipe-container');
+            // Nota: Se a query for feita antes da função, ela pega apenas os elementos existentes no DOM no load
+            const cards = document.querySelectorAll('.card-item'); 
+            let currentIndex = 0; 
+
+            // Função para mostrar apenas a carta atual e ajustar o botão 'Voltar'
+            function updateCardDisplay() {
+                cards.forEach((card, index) => {
+                    card.style.display = 'none';
+                    
+                    if (index === currentIndex) {
+                        card.style.display = 'block';
+                        
+                        // Ajuste do botão Voltar na carta atual
+                        const currentCardBtnVoltar = card.querySelector('.btn-voltar');
+                        if (currentCardBtnVoltar) {
+                            // Oculta o botão Voltar APENAS na primeira carta (índice 0)
+                            currentCardBtnVoltar.style.display = currentIndex === 0 ? 'none' : 'inline-block';
+                        }
+                    }
+                });
+
+                // Fim do Catálogo
+                if (currentIndex >= cards.length) {
+                    cardContainer.innerHTML = '<p style="width: 100%; text-align: center; padding: 50px;">Você viu todas as peças do catálogo! Volte mais tarde.</p>';
+                }
+            }
+
+            // 1. Lógica para Avançar: Ignorar ou Trocar (avança o índice)
+            function setupActionButtons() {
+                // Seleciona todos os botões 'Ignorar' e links 'Propor Troca'
+                document.querySelectorAll('.btn-ignorar, .btn-trocar').forEach(button => {
+                    // Previne a adição de múltiplos listeners se a função for chamada novamente
+                    button.removeEventListener('click', handleNextCard); 
+                    button.addEventListener('click', handleNextCard);
+                });
+
+                // Seleciona todos os botões 'Voltar'
+                document.querySelectorAll('.btn-voltar').forEach(button => {
+                    button.removeEventListener('click', handlePrevCard);
+                    button.addEventListener('click', handlePrevCard);
+                });
+            }
+            
+            // Handler para Avançar
+            function handleNextCard(event) {
+                // Se for o botão Ignorar, ou o link Propor Troca não for a navegação padrão:
+                if (event.currentTarget.classList.contains('btn-ignorar')) {
+                     // Aqui você pode adicionar uma chamada AJAX para registrar a ação de ignorar, se desejar.
+                }
+                
+                // Se for o link Propor Troca, a navegação padrão fará o redirecionamento.
+                
+                // Avança o índice (se não for um link, ou se o link for apenas para teste de visualização)
+                // Se o Propor Troca é um link de redirecionamento, o avanço do índice deve ocorrer após o retorno do servidor.
+                // Para manter a funcionalidade de "swipe" visual, avançamos aqui:
+                currentIndex++;
+                updateCardDisplay();
+            }
+            
+            // Handler para Voltar
+            function handlePrevCard(event) {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCardDisplay();
+                    // Aqui você pode adicionar uma chamada AJAX para registrar o "desfazer" de ignorar, se desejar.
+                }
+            }
+
+            // Inicializa a exibição e os listeners
+            if (cards.length > 0) {
+                updateCardDisplay(); 
+                setupActionButtons(); // Adiciona os listeners
+            }
+        });
+    </script>
+</body>
+</html>
