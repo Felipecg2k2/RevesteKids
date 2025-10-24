@@ -1,27 +1,35 @@
-// index.js
+// index.js - CORRIGIDO PARA PARAR O ALTER TABLE EXCESSIVO
 
 import express from "express";
 import session from "express-session";
 import flash from 'connect-flash';
 import connection from "./config/sequelize-config.js";
+import Sequelize from 'sequelize'; 
 
-// Iniciando o Express
+
+// =========================================================================
+// 1. INICIALIZAÇÃO DA APLICAÇÃO E VARIÁVEIS GLOBAIS
+// =========================================================================
 const app = express();
 const port = 8080; 
 
 // =========================================================================
-// === 1. IMPORTAÇÃO DOS MODELS E DAS ROTAS ===
+// 2. IMPORTAÇÃO DOS MODELS E DAS ROTAS (Models Primeiro!)
+// (Garante que os modelos sejam carregados na instância de conexão antes de sync)
 // =========================================================================
 import Usuario from './models/Usuario.js';
 import Item from './models/Item.js';
 import Troca from './models/Troca.js';
+
 import usuarioRoutes from './routes/usuarioRoutes.js'; 
 import itemRoutes from './routes/itemRoutes.js';       
 import viewRoutes from './routes/viewRoutes.js';
+// NOTA: TrocaRoutes agora exporta as funções que itemRoutes precisa!
 import trocaRoutes from './routes/trocaRoutes.js';       
 
+
 // =========================================================================
-// 2. CONFIGURAÇÕES GERAIS (Middleware)
+// 3. CONFIGURAÇÕES GERAIS (Middleware)
 // =========================================================================
 
 app.use(express.urlencoded({extended: false}));
@@ -35,7 +43,7 @@ app.use(session({
     resave: false, 
     saveUninitialized: false, 
     cookie: {
-        maxAge: 3600000 
+        maxAge: 3600000 // 1 hora
     }
 }));
 
@@ -51,71 +59,49 @@ app.use((req, res, next) => {
 
 
 // =========================================================================
-// 3. FUNÇÃO DE INICIALIZAÇÃO DO BANCO DE DADOS
+// 4. CONEXÃO E INICIALIZAÇÃO DO BANCO DE DADOS (SEQUELIZE)
 // =========================================================================
 
-const initializeDatabase = async () => {
-    try {
-        await connection.authenticate();
+connection.authenticate()
+    .then(() => {
         console.log("Conexão com o banco de dados realizada com sucesso!");
         
-        await connection.query(`CREATE DATABASE IF NOT EXISTS RevesteKids;`);
+        // Tenta criar o banco de dados (se não existir)
+        return connection.query(`CREATE DATABASE IF NOT EXISTS RevesteKids;`);
+    })
+    .then(() => {
         console.log("O banco de dados está criado (ou já existia).");
-
-        await Usuario.sync({ force: false });
-        console.log("Tabela 'usuarios' sincronizada e pronta para uso.");
-        await Item.sync({ force: false });
-        console.log("Tabela 'itens' sincronizada e pronta para uso.");
-        await Troca.sync({ force: false }); 
-        console.log("Tabela 'trocas' sincronizada e pronta para uso.");
         
-    } catch (error) {
-        console.error("Erro fatal na inicialização do banco de dados:", error);
+        // CORREÇÃO APLICADA AQUI: Removido { alter: true } para parar os logs excessivos.
+        // O padrão (sem parâmetros) é { force: false, alter: false }, que apenas cria o que falta.
+        return connection.sync(); 
+    }) 
+    .then(() => {
+        console.log("Todas as tabelas foram sincronizadas e estão prontas para uso.");
+
+        // === REGISTRO DAS ROTAS MODULARIZADAS (DEPOIS DO DB SYNC) ===
+        app.use('/', viewRoutes);
+        app.use('/', usuarioRoutes);
+        app.use('/', itemRoutes);
+        app.use('/trocas', trocaRoutes); 
+        // =========================================================
+
+        // TRATAMENTO DE ERRO: Rota não encontrada (404)
+        app.use((req, res, next) => {
+            res.status(404).render('404', { title: "Página não encontrada" });
+        });
+
+        // 5. INICIA O SERVIDOR
+        app.listen(port, function (error) {
+            if (error) {
+                console.log(`Não foi possível iniciar o servidor. Erro: ${error}`);
+            } else {
+                console.log(`Servidor iniciado com sucesso em http://localhost:${port} !`);
+            }
+        });
+    })
+    .catch((error) => {
+        console.error("Erro fatal na inicialização (Verifique suas credenciais do DB e/ou o arquivo sequelize-config.js):", error);
         process.exit(1); 
-    }
-}
-
-
-// =========================================================================
-// 4. FUNÇÃO DE REGISTRO DE ROTAS
-// =========================================================================
-
-const registerRoutes = () => {
-    // CORREÇÃO CRÍTICA: MOVE O usuarioRoutes PARA O TOPO
-    // Isso garante que rotas como /configuracoes sejam verificadas antes de outras rotas genéricas.
-    
-    app.use('/', usuarioRoutes);  // Rota de Usuário (CRUD, /configuracoes) - PRIORIDADE 1
-    app.use('/', viewRoutes);     // Rotas de views (ex: /login, /cadastro)
-    app.use('/', itemRoutes);     // Rotas de Itens (CRUD)
-    app.use('/', trocaRoutes);    // Rotas de Trocas 
-    
-    // =========================================================================
-    // 5. TRATAMENTO DE ERRO: Rota não encontrada (404)
-    // =========================================================================
-
-    // Handler 404 (DEVE ser o ÚLTIMO middleware)
-    app.use((req, res, next) => {
-        res.status(404).render('404', { title: "Página não encontrada" });
-    });
-}
-
-
-// =========================================================================
-// 6. INÍCIO DA APLICAÇÃO
-// =========================================================================
-
-// Inicia o processo: Conecta, sincroniza e inicia o servidor
-initializeDatabase().then(() => {
-    
-    // Registra as rotas e o handler 404 após o sucesso da conexão
-    registerRoutes();
-    
-    // INICIA O SERVIDOR
-    app.listen(port, function (error) {
-        if (error) {
-            console.log(`Não foi possível iniciar o servidor. Erro: ${error}`);
-        } else {
-            console.log(`Servidor iniciado com sucesso em http://localhost:${port} !`);
-        }
     });
-});
+

@@ -103,7 +103,6 @@ body {
 }
 
 
-/* CONTAINER DO SWIPE CARDS */
 #swipe-container {
     flex-grow: 1;
     position: relative; 
@@ -111,9 +110,10 @@ body {
     flex-direction: column; 
     justify-content: flex-start; 
     align-items: center; 
-    min-height: 70vh;
-    padding-top: 0; /* Removido o padding-top pois já está no .content-area */
-    gap: 30px; 
+    /* Reduzindo para alinhar melhor o card e os botões */
+    min-height: 60vh; 
+    padding-top: 0; 
+    gap: 30px; /* Garante espaço entre o card e os botões */
 }
 .card-item {
     position: relative; 
@@ -160,7 +160,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 20px; /* Aumentei um pouco o gap */
-    margin-top: 20px; 
+    margin-top: 5px; 
 }
 
 /* Tamanho do ícone base */
@@ -198,90 +198,75 @@ body {
 }
 
 
-/* 2. Botão VOLTAR (Seta de Retorno Azul/Inativo) */
+/* ---------------------------------------------------------------------- */
+/* 2. Botão VOLTAR (Seta de Retorno Azul/Inativo) - CORRIGIDO PARA SVG */
+/* ---------------------------------------------------------------------- */
 .btn-voltar {
-    background-color: #fff; 
-    border: 2px solid #a3e6ff; 
-    color: #00bfff; 
-    box-shadow: 0 2px 5px rgba(0, 191, 255, 0.3); 
+    /* Fundo e borda claros (Estado Inicial/Padrão) */
+    background-color: #E6F7FF; /* Azul muito claro (Base do protótipo) */
+    border: 2px solid #B3E0FF; /* Borda suave */
+    box-shadow: none; 
+    color: transparent; /* A cor é definida pelo stroke do SVG */
 }
 
+/* Estilo para o ícone SVG dentro do botão voltar */
+.btn-voltar .icon svg {
+    /* Dimensões do SVG: ajusta ao tamanho do botão */
+    width: 28px; 
+    height: 28px;
+    /* Define a cor do traço do ícone (Azul Principal) */
+    stroke: #007bff; /* COR DA LINHA INICIAL */
+    stroke-width: 2;
+    transition: stroke 0.2s ease-in-out; 
+}
+
+/* ESTILO: Estado Hover */
+.btn-voltar:hover:not(.inactive) {
+    background-color: #007bff; /* Fundo Azul Sólido */
+    border-color: #007bff;     /* Borda da mesma cor */
+}
+
+/* ESTILO: Ícone no estado Hover */
+.btn-voltar:hover:not(.inactive) .icon svg {
+    stroke: white; /* Cor do ícone fica Branca */
+}
+
+/* ---------------------------------------------------------------------- */
 /* ESTILO PARA O BOTÃO VOLTAR "EM OFF" (INACTIVE) */
+/* ---------------------------------------------------------------------- */
 .btn-voltar.inactive {
-    background-color: #f0f0f0; 
-    border-color: #ccc; 
+    background-color: #f0f0f0; /* Cinza claro */
+    border-color: #ccc; /* Borda Cinza */
     cursor: default; 
     pointer-events: none; 
     box-shadow: none; 
 }
-.btn-voltar.inactive .icon {
-    color: #aaa; 
+/* Ícone inativo */
+.btn-voltar.inactive .icon svg {
+    stroke: #aaa; /* Cor do ícone cinza quando inativo */
 }
 
-/* 3. Botão TROCAR (Setas Roxo) */
+/* 3. Botão TROCAR (Ícone Câmera/Expandir) */
 .btn-trocar {
     background-color: #7b1fa2; 
     border: none;
-    color: white; 
+    color: white; /* Cor do stroke do SVG herdada daqui */
     width: 70px; 
     height: 70px;
     font-size: 30px;
     box-shadow: 0 4px 10px rgba(123, 31, 162, 0.4); 
 }
 
-/* Hover effects */
-/* Esta regra se aplica a todos os action-buttons (incluindo o Ignorar) */
-.action-button:hover:not(.inactive) { 
-    transform: scale(1.05); 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+/* NOVO AJUSTE: O SVG não precisa de 'fill' (é um ícone de linha) */
+.btn-trocar .icon svg {
+    /* REMOVEMOS: fill: white; */
+    width: 35px; /* Deixamos um pouco maior para preencher melhor o botão */
+    height: 35px;
+    /* Adicionando um pequeno hover para acompanhar os outros botões */
+    transition: transform 0.2s ease;
 }
 
-/* ANTERIOR: Você pode remover ou manter esta regra de hover do Ignorar. 
-   Eu a removi na minha sugestão acima e criei uma nova para o visual do protótipo.
-   Se quiser um box-shadow diferente para ele, mantenha-a. Se não, a regra geral .action-button:hover já serve.
-*/
-/* .btn-ignorar:hover:not(.inactive) {
+/* Opcional: Adicionar um efeito de hover específico para o ícone de troca */
+.btn-trocar:hover .icon svg {
     transform: scale(1.05);
-    box-shadow: 0 0px 5px rgba(255, 100, 100, 0.4); 
-} */
-
-.btn-trocar:hover:not(.inactive) {
-    transform: scale(1.1); 
-    box-shadow: 0 6px 15px rgba(123, 31, 162, 0.6);
-}
-
-/* MEDIA QUERIES para responsividade */
-@media (max-width: 768px) {
-    .feed-content-and-filters {
-        flex-direction: column;
-        gap: 20px;
-        padding-top: 0;
-    }
-    .filters-column {
-        width: 90%;
-        margin: 0 auto;
-    }
-    #swipe-container {
-        min-height: 50vh;
-    }
-    .card-item {
-        max-width: 90%;
-    }
-    .global-card-actions {
-        gap: 15px;
-    }
-    .action-button {
-        width: 50px;
-        height: 50px;
-    }
-    .btn-trocar {
-        width: 60px;
-        height: 60px;
-    }
-    .action-button .icon {
-        font-size: 24px;
-    }
-    .btn-trocar .icon {
-        font-size: 28px;
-    }
 }

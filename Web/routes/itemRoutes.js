@@ -1,12 +1,20 @@
+// routes/itemRoutes.js - CORRIGIDO E ROBUSTO
+
 import express from 'express';
 import Item from '../models/Item.js'; 
-import Troca from '../models/Troca.js'; 
+// import Troca from '../models/Troca.js'; // REMOVIDO: A responsabilidade de usar Troca.js é de trocaRoutes.js
+import Usuario from '../models/Usuario.js'; // Mantido se necessário para associações EAGER loading (embora não esteja sendo usado nas buscas atuais)
 import { Op } from 'sequelize';
 const router = express.Router();
 
 // ==========================================================
-// MIDDLEWARE: VERIFICAÇÃO DE LOGIN
+// IMPORTAÇÃO CRÍTICA (RESOLVE O ERRO Troca.count is not a function)
 // ==========================================================
+// Importa as funções auxiliares que utilizam o modelo Troca, 
+// garantindo que o modelo Troca já esteja totalmente inicializado em trocaRoutes.js
+import { contarTrocasRealizadas, buscarHistoricoTrocas } from './trocaRoutes.js'; 
+
+// ... MIDDLEWARE requireLogin (Mantido) ...
 function requireLogin(req, res, next) {
     if (!req.session.userId) {
         return res.redirect('/login');
@@ -16,117 +24,71 @@ function requireLogin(req, res, next) {
 router.use(requireLogin); 
 
 // ==========================================================
-// FUNÇÕES AUXILIARES
+// ROTA GET: LISTAR AS ROUPAS DO USUÁRIO LOGADO (READ ALL)
 // ==========================================================
-async function contarTrocasRealizadas(userId) {
-    return Troca.count({
-        where: {
-            [Op.or]: [
-                { ProponenteId: userId },
-                { ReceptorId: userId }
-            ],
-            status: 'Finalizada' 
-        }
-    });
-}
-
-// Função auxiliar para buscar o histórico completo (Trocas Finalizadas, Rejeitadas, Canceladas)
-async function buscarHistoricoTrocas(userId) {
-    try {
-        const historico = await Troca.findAll({
-            where: {
-                [Op.or]: [{ ProponenteId: userId }, { ReceptorId: userId }],
-                status: { [Op.in]: ['Finalizada', 'Cancelada', 'Rejeitada'] }
-            },
-            include: [
-                { model: Item, as: 'itemOferecido', attributes: ['peca', 'tamanho'] },
-                { model: Item, as: 'itemDesejado', attributes: ['peca', 'tamanho'] }
-            ],
-            // Ordena pelo campo corrigido (dataFinalizacao), com fallback para createdAt
-            order: [['dataFinalizacao', 'DESC'], ['createdAt', 'DESC']] 
-        });
-        return historico;
-    } catch (error) {
-        console.error("ERRO AO BUSCAR HISTÓRICO NO INVENTÁRIO:", error.message);
-        return []; 
-    }
-}
-
-
-// ==========================================================
-// ROTA GET: LISTAR AS ROUPAS DO USUÁRIO LOGADO (READ ALL) - AJUSTE NA LÓGICA DE FILTRO/CONTADORES
-// ==========================================================
+// Rota GET /roupas 
 router.get("/roupas", async (req, res) => {
     const idUsuario = req.session.userId;
     
-    // 1. FILTRO DE STATUS POSSE
-    // Garante que, se não houver filtro na URL, o padrão é 'Ativo' para mostrar a lista de itens.
+    // Lógica de filtro: 'Ativo' é o padrão se não for 'EmTroca' ou 'Historico'
     const statusFiltro = req.query.status || 'Ativo'; 
-    
-    // 2. FLAG PARA HISTÓRICO 
-    const mostrarHistorico = req.query.historico === 'true'; 
+    const mostrarHistorico = statusFiltro === 'Historico'; 
     
     let whereClause = { UsuarioId: idUsuario }; 
     
-    // Define a cláusula WHERE para filtrar os itens de posse (Ativo ou EmTroca)
     if (statusFiltro === 'EmTroca') {
         whereClause.statusPosse = 'EmTroca'; 
-    } else {
-        // Se não for 'EmTroca', o padrão é 'Ativo'
+    } else if (statusFiltro === 'Ativo') {
         whereClause.statusPosse = 'Ativo'; 
-    }
+    } // Se for 'Historico', o whereClause não é usado para buscar itens (a busca é feita em historicoTrocas)
     
     try {
-        // 1. Busca os itens filtrados (só executa se NÃO for para mostrar histórico)
         let itens = [];
-        if (!mostrarHistorico) {
-            // CRÍTICO: whereClause já contém o filtro statusPosse: 'Ativo' OU 'EmTroca'
+        let historicoTrocas = [];
+        
+        if (mostrarHistorico) {
+            // Usa a função IMPORTADA de TrocaRoutes para buscar histórico
+            historicoTrocas = await buscarHistoricoTrocas(idUsuario);
+        } else {
+            // Busca apenas se não for histórico (Ativo ou EmTroca)
             itens = await Item.findAll({ 
                 where: whereClause,
                 order: [['createdAt', 'DESC']],
-                raw: true // Garante que o objeto retornado é plano e não contém métodos Sequelize
+                raw: true // Para retornar objetos JSON simples e evitar problemas de serialização
             });
         }
-        
-        // 2. Busca do Histórico (mantido)
-        let historicoTrocas = [];
-        if (mostrarHistorico) {
-             historicoTrocas = await buscarHistoricoTrocas(idUsuario);
-        }
 
-        // 3. Busca das métricas (Contadores)
+        // Busca de contadores de status (independentes do filtro de exibição)
         const totalAtivas = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'Ativo' } });
         const emTroca = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'EmTroca' } });
+        
+        // A chamada que estava falhando: agora usa a função IMPORTADA
         const trocasRealizadas = await contarTrocasRealizadas(idUsuario); 
 
-        // Renderiza a view 'roupas' com todos os dados
         res.render('roupas', { 
             userId: idUsuario, 
             itens: itens, 
-            
-            // CORREÇÃO/CLAREZA: totalCadastradas deve ser a soma total de itens no inventário que não foram para Histórico.
             totalCadastradas: totalAtivas + emTroca, 
-            
-            // ADIÇÃO CRÍTICA: Passando totalAtivas separadamente para o frontend
-            totalAtivas: totalAtivas, // <--- ADIÇÃO CRÍTICA
-            
+            totalAtivas: totalAtivas, 
             emTroca: emTroca,
             trocasRealizadas: trocasRealizadas, 
             itemParaEditar: null,
-            filtroStatus: statusFiltro, // Passa o status para a view saber qual aba está ativa
-            
+            filtroStatus: statusFiltro,
             mostrarHistorico: mostrarHistorico,
             historicoTrocas: historicoTrocas
         }); 
         
     } catch (error) {
         console.error("ERRO AO CARREGAR VIEW DE GERENCIAMENTO/HISTÓRICO:", error);
+        // Resposta de erro para o frontend
         res.send('<h1>ERRO!</h1><p>Não foi possível carregar o painel de gerenciamento.</p>');
     }
 });
 
 
-// ROTA GET: BUSCAR ITEM E EXIBIR FORMULÁRIO DE EDIÇÃO (READ ONE) - Mantido, exceto o valor de totalCadastradas
+// ==========================================================
+// ROTA GET: BUSCAR ITEM PARA EDIÇÃO (READ ONE)
+// ==========================================================
 router.get("/roupas/editar/:id", async (req, res) => {
     const idItem = req.params.id;
     const idUsuario = req.session.userId;
@@ -140,22 +102,20 @@ router.get("/roupas/editar/:id", async (req, res) => {
         });
 
         if (item) {
-            // Busca as métricas também
             const totalAtivas = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'Ativo' } });
             const emTroca = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'EmTroca' } });
+            // Usa a função IMPORTADA de TrocaRoutes
             const trocasRealizadas = await contarTrocasRealizadas(idUsuario); 
             
             res.render('roupas', { 
                 userId: idUsuario, 
                 itens: [], 
                 itemParaEditar: item.get({ plain: true }), 
-                totalCadastradas: totalAtivas + emTroca, // Mantém a soma total
-                // ADIÇÃO CRÍTICA: Passando totalAtivas separadamente
-                totalAtivas: totalAtivas, // <--- ADIÇÃO CRÍTICA
+                totalCadastradas: totalAtivas + emTroca, 
+                totalAtivas: totalAtivas, 
                 emTroca: emTroca,
                 trocasRealizadas: trocasRealizadas,
                 filtroStatus: item.statusPosse || 'Ativo',
-                // Necessário para o EJS não quebrar ao renderizar o bloco de histórico vazio
                 mostrarHistorico: false, 
                 historicoTrocas: []
             }); 
@@ -169,19 +129,24 @@ router.get("/roupas/editar/:id", async (req, res) => {
     }
 });
 
-// ==========================================================
-// ROTAS DE AÇÃO (POST / DELETE) - CRUD (Mantidas inalteradas)
-// ==========================================================
 
-// ROTA POST: Salva um novo item (CREATE)
+// ==========================================================
+// ROTA POST: CRIA OU ATUALIZA UM ITEM (UNIFICADO: CREATE & UPDATE)
+// ==========================================================
 router.post('/roupas/salvar', async (req, res) => {
     const idUsuario = req.session.userId;
     const dadosItem = req.body;
     
-    if(dadosItem.id) delete dadosItem.id; 
+    const itemId = dadosItem.id || null; 
     
-    const itemParaCriar = {
-        UsuarioId: idUsuario,
+    // Validação básica
+    if (!dadosItem.peca || !dadosItem.tipo || !dadosItem.tamanho || !dadosItem.condicao || !dadosItem.categoriaPeca) {
+        // Redireciona com erro se a rota for de edição, senão para a lista
+        return res.redirect(itemId ? `/roupas/editar/${itemId}?error=CamposObrigatorios` : '/roupas'); 
+    }
+
+    // Campos permitidos
+    const itemDados = {
         peca: dadosItem.peca,
         categoriaPeca: dadosItem.categoriaPeca,
         tipo: dadosItem.tipo,
@@ -191,50 +156,37 @@ router.post('/roupas/salvar', async (req, res) => {
         estacao: dadosItem.estacao,
         condicao: dadosItem.condicao,
         descricao: dadosItem.descricao,
-        statusPosse: 'Ativo' 
+        UsuarioId: idUsuario 
     };
-
-    if (!itemParaCriar.peca || !itemParaCriar.tipo || !itemParaCriar.tamanho || !itemParaCriar.condicao || !itemParaCriar.categoriaPeca) {
-        return res.redirect('/roupas'); 
-    }
-
+    
     try {
-        await Item.create(itemParaCriar);
-        res.redirect('/roupas'); 
+        if (itemId) {
+            // --- LÓGICA DE UPDATE (EDIÇÃO) ---
+            const [rowsAffected] = await Item.update(itemDados, {
+                where: {
+                    id: itemId,
+                    UsuarioId: idUsuario 
+                }
+            });
+            res.redirect('/roupas'); 
+            
+        } else {
+            // --- LÓGICA DE CREATE (CRIAÇÃO) ---
+            const itemParaCriar = { ...itemDados, statusPosse: 'Ativo' }; 
+            await Item.create(itemParaCriar);
+            res.redirect('/roupas'); 
+        }
+        
     } catch (error) {
-        console.error("ERRO AO CADASTRAR ITEM:", error);
+        console.error(`ERRO AO SALVAR ITEM (ID: ${itemId || 'novo'}):`, error);
         res.redirect('/roupas');
     }
 });
 
-// ROTA POST: Salva as alterações do item (UPDATE)
-router.post("/roupas/editar/:id", async (req, res) => {
-    const idItem = req.params.id;
-    const idUsuario = req.session.userId;
-    const novosDados = req.body;
 
-    delete novosDados.statusPosse; 
-
-    if (!novosDados.peca || !novosDados.tipo || !novosDados.tamanho || !novosDados.condicao || !novosDados.categoriaPeca) {
-        return res.redirect(`/roupas/editar/${idItem}`); 
-    }
-
-    try {
-        const [rowsAffected] = await Item.update(novosDados, {
-            where: {
-                id: idItem,
-                UsuarioId: idUsuario 
-            }
-        });
-
-        res.redirect('/roupas'); 
-    } catch (error) {
-        console.error("ERRO AO SALVAR EDIÇÃO DO ITEM:", error);
-        res.redirect('/roupas');
-    }
-});
-
-// ROTA POST/GET: Exclui um item (DELETE)
+// ==========================================================
+// ROTA GET: Exclui um item (DELETE)
+// ==========================================================
 router.get('/roupas/excluir/:id', async (req, res) => {
     const idItem = req.params.id;
     const idUsuario = req.session.userId;
@@ -260,11 +212,8 @@ router.get('/roupas/excluir/:id', async (req, res) => {
             }
         });
 
-        if (rowsDeleted > 0) {
-            res.redirect('/roupas'); 
-        } else {
-            res.redirect('/roupas');
-        }
+        res.redirect('/roupas'); 
+        
     } catch (error) {
         console.error("ERRO AO EXCLUIR ITEM:", error);
         res.redirect('/roupas');
