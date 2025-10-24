@@ -1,6 +1,11 @@
 // public/js/roupas.js
 
+console.log("Script roupas.js carregado."); 
+
+// O listener DOMContentLoaded garante que o script só rode depois que todos os elementos HTML existam.
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOMContentLoaded disparado no roupas.js.");
+
     const modal = document.getElementById('modal-cadastro');
     const btnAbrir = document.getElementById('btn-abrir-modal');
     const btnFechar = document.getElementById('btn-fechar-modal');
@@ -8,29 +13,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitulo = document.getElementById('modal-titulo');
     const btnSubmit = document.getElementById('btn-submit');
     
-    // VARIÁVEL DE EDIÇÃO É ESPERADA COMO GLOBAL (window.itemParaEditar)
-    // E DEVE SER INJETADA NO EJS ANTES DESTE SCRIPT SER CARREGADO.
+    // Verificações de depuração
+    console.log("Modal encontrado?", !!modal);
+    console.log("Botão de Abrir encontrado?", !!btnAbrir);
 
+    // Se qualquer um dos elementos críticos não for encontrado, o script não deve prosseguir
+    if (!modal || !form || !modalTitulo || !btnSubmit) {
+        console.error("Erro: Um ou mais elementos essenciais do modal (modal-cadastro, form-roupa, etc.) não foram encontrados.");
+        // O restante do código pode ser executado, mas a lógica de abertura/fechamento pode falhar.
+    }
+    
     // Função para resetar o formulário para MODO CADASTRO
     function resetarFormulario() {
+        if (!form) return; // Proteção extra
         form.reset();
-        // Garante que o action padrão seja o de criação
         form.action = "/roupas/salvar"; 
-        modalTitulo.innerText = "Cadastrar Nova Peça para Troca";
-        btnSubmit.innerText = "Cadastrar Roupa";
-        document.getElementById('item-id').value = ""; // Limpa o ID
+        if (modalTitulo) modalTitulo.innerText = "Cadastrar Nova Peça para Troca";
+        if (btnSubmit) btnSubmit.innerText = "Cadastrar Roupa";
+        const itemId = document.getElementById('item-id');
+        if (itemId) itemId.value = ""; // Limpa o ID
     }
 
     // Ação do Tópico 1: Abre o modal para NOVO CADASTRO
-    if(btnAbrir) {
-        btnAbrir.onclick = function() {
+    if(btnAbrir && modal) {
+        // Usando addEventListener para maior robustez, conforme sugerido
+        btnAbrir.addEventListener('click', function(event) {
+            event.preventDefault(); // Boa prática
+            console.log("Botão de Abrir Clicado! Tentando abrir o modal.");
             resetarFormulario();
             modal.style.display = "block";
-        }
+        });
     }
 
     // Ação: Fecha o modal pelo botão X
-    if(btnFechar) {
+    if(btnFechar && modal) {
         btnFechar.onclick = function() {
             modal.style.display = "none";
             // É importante resetar ao fechar para que o próximo clique não inicie como edição
@@ -38,47 +54,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Ação: Fecha o modal pelo clique externo (já estava no EJS, mas incluído aqui para robustez)
-    /* window.onclick é uma função que sobrescreve qualquer outro onclick do window,
-    por isso é geralmente melhor deixar no EJS onde foi definido. No entanto,
-    se você está carregando este script no final, a sua lógica aqui é válida:
-    */
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-            resetarFormulario();
+    // Ação: Fecha o modal pelo clique externo
+    if (modal) {
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                resetarFormulario();
+            }
         }
     }
 
     // LÓGICA DE EDIÇÃO: Verifica se a variável global existe
-    if (window.itemParaEditar) {
+    if (window.itemParaEditar && modal && form) {
         const item = window.itemParaEditar;
         
         // 1. Preenche os campos com os dados do item
-        document.getElementById('item-id').value = item.id;
-        document.getElementById('peca').value = item.peca;
-        
-        // CRÍTICO: Preenche o SELECT categoriaPeca
-        document.getElementById('categoriaPeca').value = item.categoriaPeca; 
-        
-        // CRÍTICO: Preenche o SELECT tipo (Gênero)
-        document.getElementById('tipo').value = item.tipo;
-        
-        document.getElementById('tamanho').value = item.tamanho;
-        document.getElementById('cor').value = item.cor;
-        document.getElementById('tecido').value = item.tecido;
-        document.getElementById('estacao').value = item.estacao;
-        document.getElementById('condicao').value = item.condicao;
-        document.getElementById('descricao').value = item.descricao;
+        document.getElementById('item-id').value = item.id || '';
+        document.getElementById('peca').value = item.peca || '';
+        document.getElementById('categoriaPeca').value = item.categoriaPeca || ''; 
+        document.getElementById('tipo').value = item.tipo || '';
+        document.getElementById('tamanho').value = item.tamanho || '';
+        document.getElementById('cor').value = item.cor || '';
+        document.getElementById('tecido').value = item.tecido || '';
+        document.getElementById('estacao').value = item.estacao || '';
+        document.getElementById('condicao').value = item.condicao || '';
+        document.getElementById('descricao').value = item.descricao || '';
 
         // 2. Ajusta o Formulário para MODO EDIÇÃO
-        // A rota de edição POST deve incluir o ID
         form.action = "/roupas/editar/" + item.id; 
-        modalTitulo.innerText = "Editar Peça: " + item.peca;
-        btnSubmit.innerText = "Salvar Alterações";
+        if (modalTitulo) modalTitulo.innerText = "Editar Peça: " + item.peca;
+        if (btnSubmit) btnSubmit.innerText = "Salvar Alterações";
         
-        // 3. Abre o modal automaticamente (Esta ação foi colocada no EJS no último código, 
-        // mas tê-la aqui também não prejudica, apenas garante que abra)
+        // 3. Abre o modal automaticamente (garantido)
         modal.style.display = "block";
     }
 });

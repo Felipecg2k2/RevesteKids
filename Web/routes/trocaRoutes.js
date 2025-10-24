@@ -24,31 +24,20 @@ function requireLogin(req, res, next) {
 router.use(requireLogin); 
 
 // ==========================================================
-// ROTA 1: CATÁLOGO DE ITENS (FEED)
+// ROTA 1: CATÁLOGO DE ITENS (FEED) - VERSÃO FINAL CORRIGIDA
 // ==========================================================
 router.get("/catalogo", async (req, res) => {
     try {
         const userId = req.session.userId; 
 
-        // 1. Busca IDs de itens em trocas Pendentes ou Aceitas para exclusão do Catálogo
-        const itensEmTroca = await Troca.findAll({
-            attributes: ['ItemDesejadoId', 'ItemOferecidoId'],
-            where: {
-                status: { [Op.in]: ['Pendente', 'Aceita'] } 
-            },
-            raw: true 
-        });
-        
-        // Cria um array plano de todos os IDs envolvidos
-        const itensEmTrocaIDs = itensEmTroca.map(t => [t.ItemDesejadoId, t.ItemOferecidoId]).flat().filter(id => id != null);
-        
-        // 2. Filtra o catálogo
+        // ESTA É A LÓGICA MAIS LIMPA E CORRETA
         const itensCatalogo = await Item.findAll({
             where: { 
+                // 1. Não mostra o item do próprio usuário
                 UsuarioId: { [Op.ne]: userId }, 
-                // Exclui itens que já estão em negociação
-                id: { [Op.notIn]: itensEmTrocaIDs }, 
-                statusPosse: 'Ativo' // Apenas itens ativos
+                // 2. Só mostra itens que estão livres para troca.
+                // Itens 'EmTroca' (statusPosse: 'EmTroca') são automaticamente excluídos.
+                statusPosse: 'Ativo' 
             },
             include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
             order: [['createdAt', 'DESC']]
@@ -106,40 +95,67 @@ router.get("/propor/:itemIdDesejado", async (req, res) => {
 });
 
 // ==========================================================
-// ROTA 3: ENVIAR PROPOSTA (CREATE ACTION)
+// ROTA 3: ENVIAR PROPOSTA (CREATE ACTION) - CORRIGIDA
 // ==========================================================
 // Rota: /trocas/propor
 router.post("/propor", async (req, res) => {
-    try {
-        const proponenteId = req.session.userId;
-        const { itemIdDesejado, itemOferecido } = req.body; 
+    const proponenteId = req.session.userId;
+    const { itemIdDesejado, itemOferecido } = req.body; 
 
-        // 1. Busca dados do item desejado para obter o ReceptorId
-        const itemDesejadoData = await Item.findByPk(itemIdDesejado);
+    // 1. Inicia a transação
+    const t = await connection.transaction(); 
+
+    try {
+        // Busca dados do item desejado para obter o ReceptorId (usando a transação)
+        const itemDesejadoData = await Item.findByPk(itemIdDesejado, { transaction: t });
 
         if (!itemDesejadoData) {
+            await t.rollback(); // Desfaz a transação se o item não for encontrado
             return res.redirect('/catalogo');
         }
 
         const receptorId = itemDesejadoData.UsuarioId;
 
-        // 2. Cria a proposta de troca
+        // 2. Cria a proposta de troca (usando a transação)
         await Troca.create({
             ProponenteId: proponenteId,
             ReceptorId: receptorId,
             ItemOferecidoId: itemOferecido,
             ItemDesejadoId: itemIdDesejado,
             status: 'Pendente' 
+        }, { transaction: t }); // CRÍTICO: Passar o objeto transaction
+
+        // 3. ATUALIZAÇÃO CRÍTICA DO STATUS DOS ITENS
+        
+        // Atualiza o item oferecido pelo proponente
+        await Item.update({ 
+            statusPosse: 'EmTroca' 
+        }, { 
+            where: { id: itemOferecido },
+            transaction: t 
         });
+
+        // Atualiza o item desejado pelo proponente (que pertence ao receptor)
+        await Item.update({ 
+            statusPosse: 'EmTroca' 
+        }, { 
+            where: { id: itemIdDesejado },
+            transaction: t 
+        });
+
+        // 4. Confirma todas as alterações no banco de dados
+        await t.commit(); 
         
         res.redirect('/trocas/enviadas');
 
     } catch (error) {
-        console.error("ERRO AO ENVIAR PROPOSTA:", error);
-        res.redirect('/trocas/enviadas');
+        // 5. Desfaz tudo em caso de erro
+        await t.rollback(); 
+        console.error("ERRO CRÍTICO AO ENVIAR PROPOSTA E ATUALIZAR STATUS:", error);
+        // Tenta manter a navegação, mas o usuário deve saber que houve falha
+        res.redirect('/trocas/enviadas'); 
     }
 });
-
 // ==========================================================
 // ROTA 4: MINHAS PROPOSTAS ENVIADAS (READ ALL do Proponente)
 // ==========================================================
@@ -183,7 +199,10 @@ router.get("/recebidas", async (req, res) => {
         const receptorId = req.session.userId;
 
         const propostas = await Troca.findAll({
-            where: { ReceptorId: receptorId },
+            where: { 
+                ReceptorId: receptorId,
+                status: 'Pendente' 
+            },
 
             include: [
                 { model: Item, as: 'itemDesejado', attributes: ['peca', 'tamanho'] },
