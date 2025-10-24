@@ -25,7 +25,7 @@
 
 .sidebar-menu {
     width: 250px; 
-    background-color: #9370DB; /* Roxo principal */
+    background-color: #8446AB; /* Roxo principal */
     color: white;
     padding-top: 20px;
     flex-shrink: 0; /* Impede que a barra lateral encolha */
@@ -59,11 +59,11 @@
 
 /* Estado de Hover e de Item Ativo */
 .sidebar-item:hover {
-    background-color: #7B68EE; /* Roxo ligeiramente mais escuro */
+    background-color: #934ebe; /* Roxo ligeiramente mais escuro */
 }
 .sidebar-item.active {
     background-color: white; /* Fundo branco para o item ativo */
-    color: #9370DB; /* Texto roxo */
+    color: #8446AB; /* Texto roxo */
     border-radius: 0 50px 50px 0;
     margin-right: 15px; /* Para dar espaço ao efeito de canto arredondado */
 }
