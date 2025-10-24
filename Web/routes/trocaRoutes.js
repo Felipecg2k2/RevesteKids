@@ -76,9 +76,12 @@ router.get("/catalogo", async (req, res) => {
     try {
         const userId = req.session.userId; 
 
+        // ESTA É A LÓGICA MAIS LIMPA E CORRETA
         const itensCatalogo = await Item.findAll({
             where: { 
+                // 1. Não mostra o item do próprio usuário
                 UsuarioId: { [Op.ne]: userId }, 
+                // 2. Só mostra itens que estão livres para troca.
                 statusPosse: 'Ativo' 
             },
             include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
@@ -92,6 +95,7 @@ router.get("/catalogo", async (req, res) => {
 
     } catch (error) {
         console.error("ERRO AO CARREGAR CATÁLOGO:", error);
+
         res.render('catalogo', { title: "Catálogo de Peças", itens: [] });
     }
 });
@@ -105,10 +109,12 @@ router.get("/propor/:itemIdDesejado", async (req, res) => {
         const userId = req.session.userId;
         const itemIdDesejado = req.params.itemIdDesejado;
 
+
         const itemDesejado = await Item.findByPk(itemIdDesejado, {
             include: [{ model: Usuario, as: 'usuario', attributes: ['nome'] }] 
         });
         
+
         const meusItens = await Item.findAll({
             where: { 
                 UsuarioId: userId,
@@ -140,6 +146,8 @@ router.post("/propor", async (req, res) => {
     const proponenteId = req.session.userId;
     const { itemIdDesejado, itemOferecido } = req.body; 
 
+
+    // 1. Inicia a transação
     const t = await connection.transaction(); 
 
     try {
@@ -147,18 +155,19 @@ router.post("/propor", async (req, res) => {
 
         if (!itemDesejadoData || itemDesejadoData.statusPosse !== 'Ativo') {
             await t.rollback(); 
+
             return res.redirect('/catalogo');
         }
 
         const receptorId = itemDesejadoData.UsuarioId;
 
-        // Cria a proposta de troca
         await Troca.create({
             ProponenteId: proponenteId,
             ReceptorId: receptorId,
             ItemOferecidoId: itemOferecido,
             ItemDesejadoId: itemIdDesejado,
             status: 'Pendente' 
+
         }, { transaction: t });
 
         // ATUALIZA O STATUS DOS ITENS PARA 'EmTroca'
@@ -181,6 +190,8 @@ router.post("/propor", async (req, res) => {
     } catch (error) {
         await t.rollback(); 
         console.error("ERRO CRÍTICO AO ENVIAR PROPOSTA E ATUALIZAR STATUS:", error);
+        // Tenta manter a navegação, mas o usuário deve saber que houve falha
+
         res.redirect('/trocas/enviadas'); 
     }
 });
@@ -383,6 +394,7 @@ router.post("/cancelar/:trocaId", async (req, res) => {
         await t.rollback();
         console.error("ERRO AO CANCELAR PROPOSTA:", error);
         res.redirect("/trocas/enviadas");
+
     }
 });
 

@@ -6,6 +6,7 @@ import flash from 'connect-flash';
 import connection from "./config/sequelize-config.js";
 import Sequelize from 'sequelize'; 
 
+
 // =========================================================================
 // 1. INICIALIZAÇÃO DA APLICAÇÃO E VARIÁVEIS GLOBAIS
 // =========================================================================
@@ -103,3 +104,4 @@ connection.authenticate()
         console.error("Erro fatal na inicialização (Verifique suas credenciais do DB e/ou o arquivo sequelize-config.js):", error);
         process.exit(1); 
     });
+
