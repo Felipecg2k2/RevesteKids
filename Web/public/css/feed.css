@@ -49,6 +49,57 @@ body {
     margin-bottom: 15px;
 }
 
+/* NOVO: Estilo para agrupar filtros e dar um espaçamento entre grupos */
+.filter-group {
+    margin-bottom: 20px; /* Espaço entre Gênero, Tamanho e Tipo de Peça */
+}
+
+/* NOVO: Estilo para o parágrafo (título do grupo) no filtro */
+.filter-group p {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333; /* Cor para o título (Gênero, Tamanho, Tipo de Peça) */
+}
+
+/* NOVO: Estilo para o container dos botões (para criar a grade de 3 colunas) */
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas iguais */
+    gap: 10px; /* Espaçamento entre os botões */
+}
+
+/* NOVO: Estilo para os botões de filtro (Tamanho e Tipo de Peça) */
+.filter-button {
+    background-color: #F8F4FF; /* Cor de fundo clara para o botão (lilás suave) */
+    color: black; /* <--- ALTERADO PARA PRETO (black) */
+    border: 1px solid #E0BFFF; /* Borda mais escura */
+    border-radius: 6px;
+    padding: 8px 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease;
+    /* Para garantir que o texto não quebre e o botão se ajuste */
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* NOVO: Estilo para o botão de filtro quando selecionado (ativo) */
+.filter-button.active {
+    background-color: #6A1B9A; /* Cor de fundo roxa */
+    color: white; /* Texto branco (mantido para contraste) */
+    border-color: #6A1B9A;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* NOVO: Estilo para hover (opcional, mas recomendado para usabilidade) */
+.filter-button:hover:not(.active) {
+    background-color: #E0BFFF; 
+}
+
+
 /* CONTAINER DO SWIPE CARDS (Mantendo seus estilos) */
 #swipe-container {
     flex-grow: 1;

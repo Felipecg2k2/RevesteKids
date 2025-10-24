@@ -23,13 +23,41 @@
                 
                 <div class="filters-column">
                     <h2>Filtros</h2>
-                    <div>
-                        <p>Gênero:</p>
+                    
+                    <div class="filter-group">
+                        <p>Gênero</p>
                         <input type="checkbox" id="feminino" name="genero" value="Feminino" />
                         <label for="feminino">Feminino</label><br />
                         <input type="checkbox" id="masculino" name="genero" value="Masculino" />
                         <label for="masculino">Masculino</label><br />
+                        <input type="checkbox" id="unissex" name="genero" value="Unissex" />
+                        <label for="unissex">Unissex</label><br />
                     </div>
+
+                    <div class="filter-group">
+                        <p>Tamanho</p>
+                        <div class="button-group">
+                            <button class="filter-button" data-filter-type="tamanho" data-value="0-3">0-3</button>
+                            <button class="filter-button" data-filter-type="tamanho" data-value="3-6">3-6</button>
+                            <button class="filter-button" data-filter-type="tamanho" data-value="6+">6+</button>
+                            <button class="filter-button" data-filter-type="tamanho" data-value="1-2">1-2</button>
+                            <button class="filter-button" data-filter-type="tamanho" data-value="2-3">2-3</button>
+                            <button class="filter-button" data-filter-type="tamanho" data-value="3-4">3-4</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <p>Tipo de Peça</p>
+                        <div class="button-group">
+                            <button class="filter-button" data-filter-type="peca" data-value="Camiseta">Camiseta</button>
+                            <button class="filter-button" data-filter-type="peca" data-value="Calça">Calça</button>
+                            <button class="filter-button" data-filter-type="peca" data-value="Vestido">Vestido</button>
+                            <button class="filter-button" data-filter-type="peca" data-value="Suéter">Suéter</button>
+                            <button class="filter-button" data-filter-type="peca" data-value="Tênis">Tênis</button>
+                            <button class="filter-button" data-filter-type="peca" data-value="Shorts">Shorts</button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div id="swipe-container">
@@ -48,8 +76,8 @@
                     >
                         <h2><%= item.peca %></h2>
                         <div style="height: 250px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; border-radius: 8px;">
-                                [IMAGEM AQUI - <%= item.peca %>]
-                            </div>
+                            [IMAGEM AQUI - <%= item.peca %>]
+                        </div>
 
                         <p>
                             <strong>Dono:</strong> <%= item.usuario.nome %> 
@@ -131,6 +159,11 @@
                     button.removeEventListener('click', handlePrevCard);
                     button.addEventListener('click', handlePrevCard);
                 });
+
+                // NOVO: Adiciona a lógica de clique para os botões de filtro
+                document.querySelectorAll('.filter-button').forEach(button => {
+                    button.addEventListener('click', toggleFilter);
+                });
             }
             
             // Handler para Avançar
@@ -152,11 +185,39 @@
                 }
             }
 
+            // NOVO: Lógica de clique para os botões de filtro (simples toggle visual)
+            function toggleFilter(event) {
+                const button = event.currentTarget;
+                // Alterna a classe 'active' para indicar se o filtro está selecionado
+                button.classList.toggle('active');
+
+                // Em uma aplicação real, você faria uma chamada AJAX/fetch aqui 
+                // para recarregar o catálogo com base nos filtros selecionados.
+                
+                // Exemplo de como pegar todos os filtros selecionados:
+                // const selectedFilters = {
+                //     tamanho: Array.from(document.querySelectorAll('.filter-button[data-filter-type="tamanho"].active')).map(btn => btn.dataset.value),
+                //     peca: Array.from(document.querySelectorAll('.filter-button[data-filter-type="peca"].active')).map(btn => btn.dataset.value),
+                //     genero: Array.from(document.querySelectorAll('input[name="genero"]:checked')).map(input => input.value)
+                // };
+                // console.log("Filtros selecionados:", selectedFilters);
+            }
+
             // Inicializa a exibição e os listeners
             if (cards.length > 0) {
                 updateCardDisplay(); 
                 setupActionButtons(); // Adiciona os listeners
             }
+            
+            // NOVO: Adiciona listener para checkboxes de Gênero, apenas para fins de estado/feedback visual
+            document.querySelectorAll('input[name="genero"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    // Em uma aplicação real, você faria uma chamada AJAX/fetch aqui
+                    // para recarregar o catálogo com base nos filtros selecionados.
+                    // console.log("Filtro de Gênero alterado");
+                });
+            });
+
         });
     </script>
 </body>
