@@ -1,28 +1,34 @@
-// index.js
+// index.js - CORRIGIDO PARA PARAR O ALTER TABLE EXCESSIVO
 
 import express from "express";
 import session from "express-session";
 import flash from 'connect-flash';
 import connection from "./config/sequelize-config.js";
-// import Sequelize from 'sequelize'; // REMOVIDO: A importação completa do Sequelize não é necessária aqui, apenas o objeto 'connection' e os Models.
+import Sequelize from 'sequelize'; 
 
-// Iniciando o Express
+// =========================================================================
+// 1. INICIALIZAÇÃO DA APLICAÇÃO E VARIÁVEIS GLOBAIS
+// =========================================================================
 const app = express();
 const port = 8080; 
 
 // =========================================================================
-// === 1. IMPORTAÇÃO DOS MODELS E DAS ROTAS ===
+// 2. IMPORTAÇÃO DOS MODELS E DAS ROTAS (Models Primeiro!)
+// (Garante que os modelos sejam carregados na instância de conexão antes de sync)
 // =========================================================================
 import Usuario from './models/Usuario.js';
 import Item from './models/Item.js';
 import Troca from './models/Troca.js';
+
 import usuarioRoutes from './routes/usuarioRoutes.js'; 
 import itemRoutes from './routes/itemRoutes.js';       
 import viewRoutes from './routes/viewRoutes.js';
+// NOTA: TrocaRoutes agora exporta as funções que itemRoutes precisa!
 import trocaRoutes from './routes/trocaRoutes.js';       
 
+
 // =========================================================================
-// 2. CONFIGURAÇÕES GERAIS (Middleware)
+// 3. CONFIGURAÇÕES GERAIS (Middleware)
 // =========================================================================
 
 app.use(express.urlencoded({extended: false}));
@@ -36,7 +42,7 @@ app.use(session({
     resave: false, 
     saveUninitialized: false, 
     cookie: {
-        maxAge: 3600000 
+        maxAge: 3600000 // 1 hora
     }
 }));
 
@@ -45,69 +51,46 @@ app.use(flash());
 
 // Middleware para injetar 'messages' e 'userId' em todas as views
 app.use((req, res, next) => {
-    // res.locals são variáveis globais para o EJS
     res.locals.messages = req.flash();
-    // Injete a userId na sessão para uso fácil no template
     res.locals.userId = req.session.userId || null;
     next();
 });
 
 
-// Bloco de verificação de Sequelize (Mantido, mas menos crítico agora que a importação foi removida)
-/* if (Sequelize && Sequelize.Op) {
-    console.log("SUCESSO: Sequelize e Op.ne estão importados corretamente!");
-} else {
-    console.error("FALHA: O objeto Sequelize não foi carregado corretamente na sua aplicação.");
-}
-*/
-
-
 // =========================================================================
-// 3. CONEXÃO E USO DAS ROTAS
+// 4. CONEXÃO E INICIALIZAÇÃO DO BANCO DE DADOS (SEQUELIZE)
 // =========================================================================
 
-// Realizando a conexão com o banco de dados
 connection.authenticate()
     .then(() => {
         console.log("Conexão com o banco de dados realizada com sucesso!");
         
-        // Criando o banco de dados (se ele ainda não existir)
-        // NOTA: A criação do DB deve ser feita fora da Promise se a string de conexão já estiver apontando para o DB.
-        // Se a string de conexão apontar para o MySQL sem DB, esta linha está correta.
+        // Tenta criar o banco de dados (se não existir)
         return connection.query(`CREATE DATABASE IF NOT EXISTS RevesteKids;`);
     })
     .then(() => {
         console.log("O banco de dados está criado (ou já existia).");
         
-        // Sincroniza os Models
-        return Usuario.sync({ force: false });
-    })
-    .then(() => {
-        console.log("Tabela 'usuarios' sincronizada e pronta para uso.");
-        return Item.sync({ force: false });
-    })
-    .then(() => {
-        console.log("Tabela 'itens' sincronizada e pronta para uso.");
-        return Troca.sync({ force: false }); 
+        // CORREÇÃO APLICADA AQUI: Removido { alter: true } para parar os logs excessivos.
+        // O padrão (sem parâmetros) é { force: false, alter: false }, que apenas cria o que falta.
+        return connection.sync(); 
     }) 
     .then(() => {
-        console.log("Tabela 'trocas' sincronizada e pronta para uso.");
+        console.log("Todas as tabelas foram sincronizadas e estão prontas para uso.");
 
-        // === REGISTRO DAS ROTAS MODULARIZADAS ===
-        // NOTA: Se todas as rotas usam prefixo '/' (raiz), está OK. 
-        // Se, por exemplo, 'trocaRoutes' só tem rotas tipo '/recebidas', o '/trocas' na linha abaixo não é necessário, mas é uma boa prática.
+        // === REGISTRO DAS ROTAS MODULARIZADAS (DEPOIS DO DB SYNC) ===
         app.use('/', viewRoutes);
         app.use('/', usuarioRoutes);
         app.use('/', itemRoutes);
         app.use('/trocas', trocaRoutes); 
-        // ======================================
+        // =========================================================
 
         // TRATAMENTO DE ERRO: Rota não encontrada (404)
         app.use((req, res, next) => {
-            res.status(404).render('404', { title: "Página não encontrada" }); // Melhor renderizar uma view 404.ejs
+            res.status(404).render('404', { title: "Página não encontrada" });
         });
 
-        // 4. INICIA O SERVIDOR
+        // 5. INICIA O SERVIDOR
         app.listen(port, function (error) {
             if (error) {
                 console.log(`Não foi possível iniciar o servidor. Erro: ${error}`);
@@ -117,5 +100,6 @@ connection.authenticate()
         });
     })
     .catch((error) => {
-        console.log("Erro fatal na inicialização:", error);
+        console.error("Erro fatal na inicialização (Verifique suas credenciais do DB e/ou o arquivo sequelize-config.js):", error);
+        process.exit(1); 
     });

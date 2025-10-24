@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="/css/sidebar.css">
     
     <style>
-        /* Estilos CSS (Mantidos inalterados) */
-        
+        /* ESTILOS CSS (MANTIDOS INALTERADOS) */
         /* 1. RESET BÁSICO PARA INTEGRAR COM A SIDEBAR */
         body {
             font-family: sans-serif;
@@ -126,7 +125,8 @@
         }
         .itens-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            /* AJUSTE PARA O BOTÃO EXCLUIR: Aumenta o min-width do grid */
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 30px;
         }
         .item-card {
@@ -136,6 +136,9 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             text-align: center;
             background-color: white;
+            /* AJUSTE: Adiciona um pequeno padding lateral para garantir espaço para os links */
+            padding-left: 10px; 
+            padding-right: 10px;
         }
         .empty-message {
             grid-column: 1 / -1; 
@@ -297,31 +300,31 @@
                         %>
                         
                         <% if (itens && itens.length > 0) { %>
-                            <h2> <%= statusAtual === 'Ativo' ? 'Disponível (Ativo)' : '' %></h2>
-                            
-                            
                             <% itens.forEach(function(item) { %>
                                 
                                 <div class="item-card">
                                     <div style="height: 150px; background-color: #f0f0f0; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
                                         [Imagem da Peça]
-                                    </div>                                   
+                                    </div>                                   
                                     <h3><%= item.peca %></h3>
                                     <p>Tamanho: <%= item.tamanho %></p>
                                     <p style="font-size: 0.9em; color: #666; margin-top: -10px;">
                                         <%= item.categoriaPeca %>
-                                    </p>                                 
+                                    </p>                                 
                                     <p class="status <%= item.statusPosse === 'Ativo' ? 'status-ativo' : 'status-troca' %>">
                                         <%= item.statusPosse === 'Ativo' ? 'Disponível' : 'Em Processo de Troca' %>
                                     </p> 
                                     
-                                    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
-                                        <a href="/roupas/editar/<%= item.id %>" title="Editar" style="text-decoration: none; font-size: 1.2em;">✏️ Editar</a> 
-                                        
-                                        <% if (item.statusPosse === 'Ativo') { %>
-                                            <a href="/roupas/excluir/<%= item.id %>" onclick="return confirm('Excluir <%= item.peca %>?');" title="Excluir" style="color: red; text-decoration: none; font-size: 1.2em;">🗑️ Excluir</a>
-                                        <% } %>
-                                    </div>
+                                    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px; flex-wrap: wrap;">
+    
+    <% if (item.statusPosse === 'Ativo') { %>
+        <a href="/roupas/editar/<%= item.id %>" title="Editar" style="text-decoration: none; font-size: 1.1em; white-space: nowrap;">✏️ Editar</a> 
+        <a href="/roupas/excluir/<%= item.id %>" onclick="return confirm('Excluir <%= item.peca %>?');" title="Excluir" style="color: red; text-decoration: none; font-size: 1.1em; white-space: nowrap;">🗑️ Excluir</a>
+    <% } else { %>
+        <span style="color: #666; font-size: 0.9em;">Ações Bloqueadas (Em Troca)</span>
+    <% } %>
+    
+</div>
                                 </div>
                             <% }); %>
                             
@@ -360,7 +363,9 @@
         <div class="modal-content">
             <span id="btn-fechar-modal" class="close">&times;</span>
             <h1 id="modal-titulo">Cadastrar Nova Peça para Troca</h1>
+            
             <form id="form-roupa" method="POST" action="/roupas/salvar"> 
+                
                 <input type="hidden" id="item-id" name="id" value=""> 
 
                 <label for="peca">Nome da Peça (Ex: Vestido Floral, Calça Jeans):</label>
@@ -414,43 +419,9 @@
         id="item-data-container" 
         style="display: none;"
         data-item='<%- typeof itemParaEditar !== 'undefined' && itemParaEditar ? JSON.stringify(itemParaEditar) : 'null' %>'
+        data-filtro-status='<%= typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo' %>'
     ></div>
 
-    <script>
-        // 1. LÓGICA DE PARSING (Mantido)
-        const dataContainer = document.getElementById('item-data-container');
-        let itemData = dataContainer.getAttribute('data-item');
-
-        // Garante que o itemParaEditar seja injetado no window
-        if (itemData && itemData !== 'null') {
-             try {
-                 window.itemParaEditar = JSON.parse(itemData);
-             } catch (e) {
-                 // Fallback para caracteres HTML (mantido)
-                 itemData = itemData.replace(/&#34;/g, '"').replace(/&#39;/g, "'");
-                 try {
-                     window.itemParaEditar = JSON.parse(itemData);
-                 } catch (e) {
-                     window.itemParaEditar = null; 
-                 }
-             }
-        } else {
-             window.itemParaEditar = null;
-        }
-
-        // 2. LÓGICA DO ESTADO ATIVO DO FILTRO (Visual)
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            // Prioriza 'historico', depois 'status', senão 'Ativo'
-            const statusFiltro = urlParams.get('historico') ? 'Historico' : (urlParams.get('status') || 'Ativo'); 
-            
-            const filtroBtn = document.querySelector(`.filtro-item[data-filtro="${statusFiltro}"]`);
-            if (filtroBtn) {
-                filtroBtn.classList.add('active');
-            }
-        });
-    </script>
-    
     <script src="/js/roupas.js"></script> 
 
 </body>
