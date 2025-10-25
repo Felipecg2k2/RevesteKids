@@ -18,14 +18,13 @@
     /* max-width pode ser ajustado se necessário, mas flex-grow 1 é o suficiente */
 }
 
-
 /* ========================================================== */
 /* ESTILOS DA SIDEBAR (Conforme image_55be3d.png) */
 /* ========================================================== */
 
 .sidebar-menu {
     width: 250px; 
-    background-color: #8446AB; /* Roxo principal */
+    background-color: #8446abe8; /* Roxo principal */
     color: white;
     padding-top: 20px;
     flex-shrink: 0; /* Impede que a barra lateral encolha */
@@ -51,21 +50,19 @@
     display: flex;
     align-items: center;
     padding: 12px 20px;
+    margin-right: 10px;
+    border-radius: 0 50px 50px 0;
     color: white;
     text-decoration: none;
     font-weight: 500;
     transition: background-color 0.2s;
 }
 
-/* Estado de Hover e de Item Ativo */
 .sidebar-item:hover {
-    background-color: #934ebe; /* Roxo ligeiramente mais escuro */
-}
-.sidebar-item.active {
-    background-color: white; /* Fundo branco para o item ativo */
+    background-color: #D2FBF4;
     color: #8446AB; /* Texto roxo */
     border-radius: 0 50px 50px 0;
-    margin-right: 15px; /* Para dar espaço ao efeito de canto arredondado */
+    margin-right: 10px;
 }
 
 .sidebar-item .icon {
