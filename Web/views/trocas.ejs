@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Trocas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/css/trocas.css"> </head>
+<body>
+    
+    <div id="app-container">
+        <%- include('partials/_sidebar') %> 
+
+        <main id="main-content">
+            <div class="tabs-navigation">
+                <button class="tab-button active" data-tab="propostas-recebidas">Propostas Recebidas <span class="badge"><%= propostasRecebidas.length %></span></button>
+                <button class="tab-button" data-tab="propostas-enviadas">Propostas Enviadas</button>
+                <button class="tab-button" data-tab="historico">Histórico (Finalizadas)</button>
+            </div>
+
+            
+            <div id="propostas-recebidas" class="tab-content active">
+                <% if (propostasRecebidas.length > 0) { %>
+                    <div class="proposta-list">
+                        <% propostasRecebidas.forEach(proposta => { %>
+                            <%- include('partials/troca_list_card', { item: proposta, tipo: 'recebida' }) %>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>Você não recebeu nenhuma proposta de troca ainda.</p>
+                    </div>
+                <% } %>
+            </div>
+
+            
+            <div id="propostas-enviadas" class="tab-content" style="display: none;">
+                <% if (propostasEnviadas.length > 0) { %>
+                    <div class="proposta-list">
+                        <% propostasEnviadas.forEach(proposta => { %>
+                            <%- include('partials/troca_list_card', { item: proposta, tipo: 'enviada' }) %>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>Você não enviou nenhuma proposta de troca.</p>
+                    </div>
+                <% } %>
+            </div>
+
+
+            <div id="historico" class="tab-content" style="display: none;">
+                <% if (historicoTrocas.length > 0) { %>
+                    <div class="proposta-list">
+                        <% historicoTrocas.forEach(troca => { %>
+                            <%- include('partials/troca_list_card', { item: troca, tipo: 'historico' }) %>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>Seu histórico de trocas finalizadas está vazio.</p>
+                    </div>
+                <% } %>
+            </div>
+
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const tabs = document.querySelectorAll('.tab-button');
+                    const contents = document.querySelectorAll('.tab-content');
+
+                    tabs.forEach(tab => {
+                        tab.addEventListener('click', () => {
+                            const targetId = tab.getAttribute('data-tab');
+
+                            // Remove 'active' de todos os botões e esconde todo o conteúdo
+                            tabs.forEach(b => b.classList.remove('active'));
+                            contents.forEach(c => c.style.display = 'none');
+
+                            // Adiciona 'active' ao botão clicado e mostra o conteúdo correspondente
+                            tab.classList.add('active');
+                            document.getElementById(targetId).style.display = 'block';
+                        });
+                    });
+                });
+            </script>
+        </main>
+    </div>
+</body>
+</html>
