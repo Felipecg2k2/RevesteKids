@@ -1,0 +1,89 @@
+/* ======================================================= */
+/* ESTILOS DO MODAL DE DETALHES DO ITEM (rk = Reveste Kids) */
+/* ARQUIVO DEDICADO PARA MAIOR ORGANIZAÇÃO */
+/* ======================================================= */
+
+/* Fundo que cobre toda a tela e centraliza o conteúdo */
+.rk-detalhes-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro semi-transparente */
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    z-index: 9000; /* Garante que fique acima de tudo */
+}
+
+/* A caixa branca do Conteúdo do Modal */
+.rk-detalhes-content {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px; /* Largura boa para detalhes */
+    position: relative;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    max-height: 90vh; /* Limita a altura para evitar que ocupe a tela toda */
+    overflow-y: auto; /* Permite rolar se o conteúdo for muito longo */
+}
+
+/* Título dentro do modal */
+.rk-detalhes-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Botão de Fechar (o 'X') */
+.rk-detalhes-content .fechar-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #555;
+    z-index: 9001;
+}
+
+/* Estilo para a imagem no Modal */
+.rk-detalhes-content .detalhe-imagem img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Estilos para as informações de texto */
+.rk-detalhes-content .detalhes-info p {
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.rk-detalhes-content .detalhes-info hr {
+    margin: 15px 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+/* Estilo para o botão Propor Troca */
+.propor-troca-btn {
+    background-color: #8446AB; /* Roxo (Sugestão baseada em outras cores vistas) */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%; /* Ocupa toda a largura do modal */
+    margin-top: 20px;
+    transition: background-color 0.2s;
+}
+
+.propor-troca-btn:hover {
+    background-color: #6a378b;
+}

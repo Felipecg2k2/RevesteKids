@@ -2,38 +2,427 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Item</title>
+    <title>Gerenciamento de Peças (Minhas Roupas)</title>
+    
+    <link rel="stylesheet" href="/css/sidebar.css">
+    
+    <style>
+        /* ESTILOS CSS (MANTIDOS INALTERADOS) */
+        /* 1. RESET BÁSICO PARA INTEGRAR COM A SIDEBAR */
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0; 
+            background-color: #f8f8f8;
+        }
+        .content-area-pad {
+            padding: 20px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 2. ESTILOS DO MODAL - CRÍTICO PARA ABRIR CORRETAMENTE */
+        #modal-cadastro { 
+            display: none; /* ESSENCIAL: Esconde por padrão */
+            position: fixed; /* ESSENCIAL: Fixa na tela */
+            z-index: 1000; /* ESSENCIAL: Alto para sobrepor tudo */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Fundo semi-transparente escuro */
+            padding-top: 50px; /* Espaço para centralizar o conteúdo */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 0 auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* 3. ESTILOS DE FORMULÁRIO DENTRO DO MODAL */
+        #form-roupa label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #form-roupa input[type="text"], 
+        #form-roupa select, 
+        #form-roupa textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Garante que padding não estoure o width */
+        }
+        #form-roupa textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        #btn-submit {
+            background-color: #9370DB;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        /* 4. ESTILOS DE CONTEÚDO (Filtros, Grid, Cards, etc.) */
+        .filtros-status {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .filtro-item-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .filtro-item {
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            text-align: center;
+            min-width: 150px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filtro-item.active {
+            border-color: #9370DB;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+        }
+        .filtro-item strong {
+            display: block;
+            font-size: 2.0em;
+            margin-bottom: 5px;
+        }
+        .filtro-item p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .itens-grid {
+            display: grid;
+            /* AJUSTE PARA O BOTÃO EXCLUIR: Aumenta o min-width do grid */
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .item-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            background-color: white;
+            /* AJUSTE: Adiciona um pequeno padding lateral para garantir espaço para os links */
+            padding-left: 10px; 
+            padding-right: 10px;
+        }
+        .empty-message {
+            grid-column: 1 / -1; 
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .historico-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .troca-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .status-ativo { color: #007bff; font-weight: bold; }
+        .status-troca { color: #ffa500; font-weight: bold; }
+        
+    </style>
 </head>
 <body>
-    <h1>Editar Peça: <%= item.peca %></h1>
     
-    <form method="POST" action="/roupas/editar/<%= item.id %>">
-        
-        <label for="peca">Nome da Peça:</label>
-        <input type="text" id="peca" name="peca" value="<%= item.peca %>" required><br><br>
-
-        <label for="tipo">Tipo:</label>
-        <select id="tipo" name="tipo" required>
-            <option value="Feminino" <%= item.tipo === 'Feminino' ? 'selected' : '' %>>Feminino</option>
-            <option value="Masculino" <%= item.tipo === 'Masculino' ? 'selected' : '' %>>Masculino</option>
-            <option value="Unissex" <%= item.tipo === 'Unissex' ? 'selected' : '' %>>Unissex</option>
-        </select><br><br>
-
-        <label for="tamanho">Tamanho:</label>
-        <input type="text" id="tamanho" name="tamanho" value="<%= item.tamanho %>" required><br><br>
-        
-        <label for="cor">Cor:</label>
-        <input type="text" id="cor" name="cor" value="<%= item.cor %>"><br><br>
-        
-        <label for="condicao">Condição:</label>
-        <input type="text" id="condicao" name="condicao" value="<%= item.condicao %>" required><br><br>
-
-        <label for="descricao">Descrição Detalhada:</label>
-        <textarea id="descricao" name="descricao"><%= item.descricao %></textarea><br><br>
-
-        <button type="submit">Salvar Alterações</button>
-    </form>
     
-    <p><a href="/roupas">Voltar para a Lista</a></p>
+    <div class="app-layout">
+        
+        <%- include('partials/_sidebar') %> 
+        
+        <div class="content-area">
+            <div class="content-area-pad">
+                
+                <div class="header-actions">
+                    <h1>Gerenciamento de Peças</h1>
+                    <% if (!mostrarHistorico) { %>
+                        <button id="btn-abrir-modal" style="
+                            background-color: #9370DB; 
+                            color: white; 
+                            padding: 10px 20px; 
+                            border: none; 
+                            border-radius: 4px; 
+                            cursor: pointer; 
+                            font-size: 16px;
+                            font-weight: bold;
+                            white-space: nowrap; 
+                        ">
+                            Adicionar Roupa
+                        </button>
+                    <% } %>
+                </div>
+            
+                <div class="filtros-status">
+                    <a href="/roupas" class="filtro-item-link">
+                        <div 
+                            class="filtro-item" 
+                            style="background-color: #e0f7fa;"
+                            id="filtro-cadastradas"
+                            data-filtro="Ativo"
+                        >
+                        <strong><%= typeof totalAtivas !== 'undefined' ? totalAtivas : 0 %></strong> 
+                        <p>Roupas Disponíveis</p> </div>
+                    </a>
+                    
+                    <a href="/roupas?status=EmTroca" class="filtro-item-link">
+                        <div 
+                            class="filtro-item" 
+                            style="background-color: #fffde7;"
+                            id="filtro-emtroca"
+                            data-filtro="EmTroca"
+                        >
+                            <strong><%= typeof emTroca !== 'undefined' ? emTroca : 0 %></strong>
+                            <p>Roupas em Troca</p>
+                        </div>
+                    </a>
+
+                    <a href="/roupas?historico=true" class="filtro-item-link">
+                        <div 
+                            class="filtro-item" 
+                            style="background-color: #e8f5e9;"
+                            id="filtro-historico"
+                            data-filtro="Historico"
+                        >
+                            <strong><%= typeof trocasRealizadas !== 'undefined' ? trocasRealizadas : 0 %></strong>
+                            <p>Trocas Finalizadas</p>
+                        </div>
+                    </a>
+                </div>
+
+                <% if (mostrarHistorico) { %>
+                    
+                    <h2>Histórico de Trocas Concluídas</h2>
+
+                    <div class="historico-grid">
+                        
+                        <% 
+                            const formatarData = (dataStr) => {
+                                if (!dataStr) return 'N/A';
+                                try {
+                                    return new Date(dataStr).toLocaleDateString('pt-BR');
+                                } catch (e) {
+                                    return 'Data Inválida';
+                                }
+                            };
+                        %>
+
+                        <% if (historicoTrocas && historicoTrocas.length > 0) { %>
+                            
+                            <% historicoTrocas.forEach(function(troca) { %>
+                                <div class="troca-card status-<%= troca.status %>">
+                                    <h3>Troca #<%= troca.id %> - <%= troca.status %></h3>
+                                    
+                                    <% 
+                                        const idUsuarioLogado = typeof userId !== 'undefined' ? userId : null;
+                                    %>
+
+                                    <p>
+                                        <strong>Item Enviado:</strong> 
+                                        <span class="item-info"><%= troca.itemOferecido ? troca.itemOferecido.peca + ' (' + troca.itemOferecido.tamanho + ')' : 'Item Desconhecido' %></span>
+                                    </p>
+
+                                    <p>
+                                        <strong>Item Recebido:</strong> 
+                                        <span class="item-info"><%= troca.itemDesejado ? troca.itemDesejado.peca + ' (' + troca.itemDesejado.tamanho + ')' : 'Item Desconhecido' %></span>
+                                    </p>
+                                    
+                                    <% if (troca.status === 'Finalizada' && troca.dataFinalizacao) { %>
+                                        <p style="font-size: 0.85em; color: #4CAF50; font-weight: bold;">Finalizada em: <%= formatarData(troca.dataFinalizacao) %></p>
+                                    <% } else { %>
+                                        <p style="font-size: 0.85em; color: #555;">Proposta enviada em: <%= formatarData(troca.createdAt) %></p>
+                                    <% } %>
+                                </div>
+                            <% }); %>
+                            
+                        <% } else { %>
+                            <div class="empty-message">
+                                <h2>Histórico Vazio</h2>
+                                <p>Você ainda não possui trocas em seu histórico.</p>
+                                <p>Que tal começar uma nova troca no <a href="/feed">feed</a>?</p>
+                            </div>
+                        <% } %>
+                    </div>
+
+                <% } else { %>
+                    
+                    <div class="itens-grid">
+                        
+                        <% 
+                            const statusAtual = typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo';
+                        %>
+                        
+                        <% if (itens && itens.length > 0) { %>
+                            <% itens.forEach(function(item) { %>
+                                
+                                <div class="item-card">
+                                    <div style="height: 150px; background-color: #f0f0f0; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; border-radius: 4px;">
+                                        [Imagem da Peça]
+                                    </div>                                   
+                                    <h3><%= item.peca %></h3>
+                                    <p>Tamanho: <%= item.tamanho %></p>
+                                    <p style="font-size: 0.9em; color: #666; margin-top: -10px;">
+                                        <%= item.categoriaPeca %>
+                                    </p>                                 
+                                    <p class="status <%= item.statusPosse === 'Ativo' ? 'status-ativo' : 'status-troca' %>">
+                                        <%= item.statusPosse === 'Ativo' ? 'Disponível' : 'Em Processo de Troca' %>
+                                    </p> 
+                                    
+                                    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px; flex-wrap: wrap;">
+    
+    <% if (item.statusPosse === 'Ativo') { %>
+        <a href="/roupas/editar/<%= item.id %>" title="Editar" style="text-decoration: none; font-size: 1.1em; white-space: nowrap;">✏️ Editar</a> 
+        <a href="/roupas/excluir/<%= item.id %>" onclick="return confirm('Excluir <%= item.peca %>?');" title="Excluir" style="color: red; text-decoration: none; font-size: 1.1em; white-space: nowrap;">🗑️ Excluir</a>
+    <% } else { %>
+        <span style="color: #666; font-size: 0.9em;">Ações Bloqueadas (Em Troca)</span>
+    <% } %>
+    
+</div>
+                                </div>
+                            <% }); %>
+                            
+                        <% } else { %>
+                            <% if (statusAtual === 'EmTroca') { %>
+                                <div class="empty-message">
+                                    <h2>Nenhuma Peça em Processo de Troca </h2>
+                                    <p>Você não possui nenhuma peça atualmente em negociação.</p>
+                                    <p>Clique <a href="/roupas">aqui</a> para ver as peças disponíveis.</p>
+                                </div>
+                            <% } else { %>
+                                <div class="empty-message">
+                                    <h2>Nenhuma Peça Disponível Para Troca</h2>
+                                    
+                                    <% if (emTroca > 0) { %>
+                                        <p>Você possui <%= emTroca %> peça(s) em <a href="/roupas?status=EmTroca">negociação</a>.</p>
+                                    <% } else { %>
+                                        <p>Você ainda não cadastrou nenhuma peça disponível para troca.</p>
+                                    <% } %>
+                                    
+                                    <p>Clique no botão Adicionar Roupa para começar a trocar!</p>
+                                </div>
+                            <% } %>
+                        <% } %>
+                    </div>
+                    
+                <% } %>
+                
+                <p style="clear: both; margin-top: 30px;"><a href="/feed">Voltar para o feed</a></p>
+
+            </div> 
+        </div> 
+    </div> 
+    
+    <div id="modal-cadastro">
+        <div class="modal-content">
+            <span id="btn-fechar-modal" class="close">&times;</span>
+            <h1 id="modal-titulo">Cadastrar Nova Peça para Troca</h1>
+            
+            <form id="form-roupa" method="POST" action="/roupas/salvar"> 
+                
+                <input type="hidden" id="item-id" name="id" value=""> 
+
+                <label for="peca">Nome da Peça (Ex: Vestido Floral, Calça Jeans):</label>
+                <input type="text" id="peca" name="peca" required>
+
+                <label for="categoriaPeca">Tipo da Peça (Categoria):</label>
+                <select id="categoriaPeca" name="categoriaPeca" required>
+                    <option value="">Selecione a Categoria</option>
+                    <option value="Blusa">Blusa</option>
+                    <option value="Camisa">Camisa</option>
+                    <option value="Calça">Calça</option>
+                    <option value="Vestido">Vestido</option>
+                    <option value="Saia">Saia</option>
+                    <option value="Macacão">Macacão</option>
+                    <option value="Shorts">Shorts</option>
+                    <option value="Sapato">Sapato/Calçado</option>
+                    <option value="Acessorio">Acessório</option>
+                </select>
+
+                <label for="tipo">Gênero:</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Unissex">Unissex</option>
+                </select>
+                
+                <label for="tamanho">Tamanho (Ex: 3-4, M, G):</label>
+                <input type="text" id="tamanho" name="tamanho" required>
+                
+                <label for="cor">Cor:</label>
+                <input type="text" id="cor" name="cor">
+
+                <label for="tecido">Tecido:</label>
+                <input type="text" id="tecido" name="tecido">
+
+                <label for="estacao">Estação (Ex: Verão, Inverno):</label>
+                <input type="text" id="estacao" name="estacao">
+                
+                <label for="condicao">Condição (Ex: Novo, Com pouco uso):</label>
+                <input type="text" id="condicao" name="condicao" required>
+
+                <label for="descricao">Descrição Detalhada:</label>
+                <textarea id="descricao" name="descricao"></textarea>
+
+                <button type="submit" id="btn-submit">Cadastrar Roupa</button>
+            </form>
+        </div>
+    </div>
+    
+    <div 
+        id="item-data-container" 
+        style="display: none;"
+        data-item='<%- typeof itemParaEditar !== 'undefined' && itemParaEditar ? JSON.stringify(itemParaEditar) : 'null' %>'
+        data-filtro-status='<%= typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo' %>'
+    ></div>
+
+    <script src="/js/roupas.js"></script> 
+
 </body>
 </html>

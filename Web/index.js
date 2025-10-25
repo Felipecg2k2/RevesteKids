@@ -1,10 +1,10 @@
-// index.js - CORRIGIDO PARA PARAR O ALTER TABLE EXCESSIVO
+// index.js - CORRIGIDO PARA ROTEAMENTO E SINCRONIZAÇÃO DO DB
 
 import express from "express";
 import session from "express-session";
 import flash from 'connect-flash';
 import connection from "./config/sequelize-config.js";
-import Sequelize from 'sequelize'; 
+// import Sequelize from 'sequelize'; // Sequilize não é usado diretamente aqui, pode ser removido
 
 
 // =========================================================================
@@ -15,7 +15,6 @@ const port = 8080;
 
 // =========================================================================
 // 2. IMPORTAÇÃO DOS MODELS E DAS ROTAS (Models Primeiro!)
-// (Garante que os modelos sejam carregados na instância de conexão antes de sync)
 // =========================================================================
 import Usuario from './models/Usuario.js';
 import Item from './models/Item.js';
@@ -24,7 +23,6 @@ import Troca from './models/Troca.js';
 import usuarioRoutes from './routes/usuarioRoutes.js'; 
 import itemRoutes from './routes/itemRoutes.js';       
 import viewRoutes from './routes/viewRoutes.js';
-// NOTA: TrocaRoutes agora exporta as funções que itemRoutes precisa!
 import trocaRoutes from './routes/trocaRoutes.js';       
 
 
@@ -32,7 +30,7 @@ import trocaRoutes from './routes/trocaRoutes.js';      
 // 3. CONFIGURAÇÕES GERAIS (Middleware)
 // =========================================================================
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true})); // Melhor prática: use 'true' para objetos aninhados
 app.use(express.json());
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -51,8 +49,11 @@ app.use(session({
 app.use(flash()); 
 
 // Middleware para injetar 'messages' e 'userId' em todas as views
+// Nota: Seu itemRoutes/viewRoutes também definem userId. Manter este aqui é seguro.
 app.use((req, res, next) => {
+    // Limpa o flash e injeta messages, mesmo que o middleware de rotas já faça isso
     res.locals.messages = req.flash();
+    // Usa req.session.userId para views que não passam por rotas específicas
     res.locals.userId = req.session.userId || null;
     next();
 });
@@ -72,21 +73,28 @@ connection.authenticate()
     .then(() => {
         console.log("O banco de dados está criado (ou já existia).");
         
-        // CORREÇÃO APLICADA AQUI: Removido { alter: true } para parar os logs excessivos.
-        // O padrão (sem parâmetros) é { force: false, alter: false }, que apenas cria o que falta.
+        // Sincroniza tabelas (cria o que falta, sem alterar colunas existentes)
         return connection.sync(); 
     }) 
     .then(() => {
         console.log("Todas as tabelas foram sincronizadas e estão prontas para uso.");
 
-        // === REGISTRO DAS ROTAS MODULARIZADAS (DEPOIS DO DB SYNC) ===
+        // === REGISTRO DAS ROTAS MODULARIZADAS (CORREÇÃO APLICADA AQUI) ===
+        
+        // Rotas de Visualização Padrão (Feed, Login, Cadastro, Logout)
         app.use('/', viewRoutes);
-        app.use('/', usuarioRoutes);
-        app.use('/', itemRoutes);
+        
+        // Rotas de Autenticação/CRUD de Usuário
+        app.use('/', usuarioRoutes); 
+        
+        // Rotas de Itens/Roupas (Montadas sob o prefixo '/roupas')
+        app.use('/roupas', itemRoutes); // <-- CORRIGIDO AQUI!
+        
+        // Rotas de Trocas (Montadas sob o prefixo '/trocas')
         app.use('/trocas', trocaRoutes); 
         // =========================================================
 
-        // TRATAMENTO DE ERRO: Rota não encontrada (404)
+        // TRATAMENTO DE ERRO: Rota não encontrada (404) - Deve ser o último app.use
         app.use((req, res, next) => {
             res.status(404).render('404', { title: "Página não encontrada" });
         });
@@ -101,7 +109,6 @@ connection.authenticate()
         });
     })
     .catch((error) => {
-        console.error("Erro fatal na inicialização (Verifique suas credenciais do DB e/ou o arquivo sequelize-config.js):", error);
+        console.error("Erro fatal na inicialização:", error);
         process.exit(1); 
     });
-

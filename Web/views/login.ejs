@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ReVeste Kids</title>
+    <title>Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Barrio&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="/css/login.css" rel="stylesheet">
@@ -13,13 +13,12 @@
         <img src="/imgs/logo.jpg" alt="ReVeste Kids Logo" class="logo">
         <h1 class="login-title">ReVeste Kids</h1>
         <h2 class="welcome-title-barrio">BEM-VINDO(A)!</h2>
-        <p class="login-subtitle">Entre em sua conta para começar a trocar roupas</p>
+        <br>
         <form action="/login" method="POST" class="login-form">
             <div class="input-group">
                 <label for="email" class="input-label">Email</label>
                 <input type="text" id="email" name="email" placeholder="email" class="text-input">
             </div>
-
             <div class="input-group password-field">
                 <label for="senha" class="input-label">Senha</label>
                 <div class="input-with-icon">
@@ -41,7 +40,9 @@
             </div>
         </div>
     </div>
-    <p class="footer-text">Um produto RalKy Tech</p>
+    <p class="footer-text">Um produto
+        <a href="https://developersrgt.online/ralkytech/">RalKy Tech</a>
+    </p>
     <script>
         const toggleIcon = document.getElementById('password-toggle');
         const passwordInput = document.getElementById('senha');
@@ -50,8 +51,7 @@
                 const isPassword = passwordInput.type === 'password';
                 passwordInput.type = isPassword ? 'text' : 'password';    
                 toggleIcon.classList.replace(isPassword ? 'fa-eye' : 'fa-eye-slash', isPassword ? 'fa-eye-slash' : 'fa-eye');
-            });
-        }
+            });};
     </script>
 </body>
 </html>

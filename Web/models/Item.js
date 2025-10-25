@@ -16,6 +16,10 @@ const Item = connection.define('itens', {
         type: DataTypes.STRING(10),
         allowNull: false
     },
+    descricao: {
+    type: DataTypes.TEXT, // Usa o tipo TEXT para a descrição
+    allowNull: true       // Permite que a descrição seja opcional
+    },
     peca: {
         type: DataTypes.STRING(50),
         allowNull: false

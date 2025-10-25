@@ -1,223 +1,267 @@
-// routes/itemRoutes.js - CORRIGIDO E ROBUSTO
+// routes/itemRoutes.js - FINAL CORRIGIDO E OTIMIZADO
 
 import express from 'express';
 import Item from '../models/Item.js'; 
-// import Troca from '../models/Troca.js'; // REMOVIDO: A responsabilidade de usar Troca.js é de trocaRoutes.js
-import Usuario from '../models/Usuario.js'; // Mantido se necessário para associações EAGER loading (embora não esteja sendo usado nas buscas atuais)
+import Usuario from '../models/Usuario.js'; 
 import { Op } from 'sequelize';
 const router = express.Router();
 
-// ==========================================================
-// IMPORTAÇÃO CRÍTICA (RESOLVE O ERRO Troca.count is not a function)
-// ==========================================================
-// Importa as funções auxiliares que utilizam o modelo Troca, 
-// garantindo que o modelo Troca já esteja totalmente inicializado em trocaRoutes.js
+// AVISO: Mantida a importação com dependência circular para TrocaRoutes
+// (Você precisa garantir que 'trocaRoutes.js' exporte estas duas funções)
 import { contarTrocasRealizadas, buscarHistoricoTrocas } from './trocaRoutes.js'; 
 
-// ... MIDDLEWARE requireLogin (Mantido) ...
+// ==========================================================
+// MIDDLEWARE DE AUTENTICAÇÃO
+// Aplica a lógica de login e define res.locals.userId
+// ==========================================================
 function requireLogin(req, res, next) {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    next();
+    // Tratamento de parse (Se não for string, não faz)
+    if (req.session.userId && typeof req.session.userId === 'string') {
+        req.session.userId = parseInt(req.session.userId, 10);
+    }
+    
+    // Verifica autenticação
+    if (!req.session.userId) {
+        if (req.flash) {
+            req.flash('error', 'Você precisa estar logado para acessar esta página.');
+        }
+        return res.redirect('/login');
+    }
+    
+    // Define res.locals para fácil acesso em todas as rotas
+    res.locals.userId = req.session.userId;
+    next();
 }
+// Aplica o middleware a TODAS as rotas neste roteador
 router.use(requireLogin); 
 
 // ==========================================================
 // ROTA GET: LISTAR AS ROUPAS DO USUÁRIO LOGADO (READ ALL)
+// URL Externa: GET /roupas
 // ==========================================================
-// Rota GET /roupas 
-router.get("/roupas", async (req, res) => {
-    const idUsuario = req.session.userId;
-    
-    // Lógica de filtro: 'Ativo' é o padrão se não for 'EmTroca' ou 'Historico'
-    const statusFiltro = req.query.status || 'Ativo'; 
-    const mostrarHistorico = statusFiltro === 'Historico'; 
-    
-    let whereClause = { UsuarioId: idUsuario }; 
-    
-    if (statusFiltro === 'EmTroca') {
-        whereClause.statusPosse = 'EmTroca'; 
-    } else if (statusFiltro === 'Ativo') {
-        whereClause.statusPosse = 'Ativo'; 
-    } // Se for 'Historico', o whereClause não é usado para buscar itens (a busca é feita em historicoTrocas)
-    
-    try {
-        let itens = [];
-        let historicoTrocas = [];
-        
-        if (mostrarHistorico) {
-            // Usa a função IMPORTADA de TrocaRoutes para buscar histórico
-            historicoTrocas = await buscarHistoricoTrocas(idUsuario);
-        } else {
-            // Busca apenas se não for histórico (Ativo ou EmTroca)
-            itens = await Item.findAll({ 
-                where: whereClause,
-                order: [['createdAt', 'DESC']],
-                raw: true // Para retornar objetos JSON simples e evitar problemas de serialização
-            });
-        }
+router.get("/", async (req, res) => { 
+    const idUsuario = res.locals.userId;
+    
+    // Filtros
+    const statusFiltro = req.query.status || 'Ativo'; 
+    const mostrarHistorico = statusFiltro === 'Historico'; 
+    
+    let whereClause = { UsuarioId: idUsuario }; 
+    
+    if (statusFiltro === 'EmTroca') {
+        whereClause.statusPosse = 'EmTroca'; 
+    } else if (statusFiltro === 'Ativo') {
+        whereClause.statusPosse = 'Ativo'; 
+    } 
+    
+    try {
+        let itens = [];
+        let historicoTrocas = [];
+        
+        if (mostrarHistorico) {
+            historicoTrocas = await buscarHistoricoTrocas(idUsuario);
+        } else {
+            itens = await Item.findAll({ 
+                where: whereClause,
+                order: [['createdAt', 'DESC']],
+                raw: true 
+            });
+        }
 
-        // Busca de contadores de status (independentes do filtro de exibição)
-        const totalAtivas = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'Ativo' } });
-        const emTroca = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'EmTroca' } });
-        
-        // A chamada que estava falhando: agora usa a função IMPORTADA
-        const trocasRealizadas = await contarTrocasRealizadas(idUsuario); 
+        // Contadores
+        const totalAtivas = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'Ativo' } });
+        const emTroca = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'EmTroca' } });
+        const trocasRealizadas = await contarTrocasRealizadas(idUsuario); 
 
-        res.render('roupas', { 
-            userId: idUsuario, 
-            itens: itens, 
-            totalCadastradas: totalAtivas + emTroca, 
-            totalAtivas: totalAtivas, 
-            emTroca: emTroca,
-            trocasRealizadas: trocasRealizadas, 
-            itemParaEditar: null,
-            filtroStatus: statusFiltro,
-            mostrarHistorico: mostrarHistorico,
-            historicoTrocas: historicoTrocas
-        }); 
-        
-    } catch (error) {
-        console.error("ERRO AO CARREGAR VIEW DE GERENCIAMENTO/HISTÓRICO:", error);
-        // Resposta de erro para o frontend
-        res.send('<h1>ERRO!</h1><p>Não foi possível carregar o painel de gerenciamento.</p>');
-    }
+        const messages = req.flash ? req.flash() : {};
+
+        res.render('roupas', { 
+            title: 'Minhas Roupas', 
+            userId: idUsuario, 
+            itens: itens, 
+            totalCadastradas: totalAtivas + emTroca, 
+            totalAtivas: totalAtivas, 
+            emTroca: emTroca,
+            trocasRealizadas: trocasRealizadas, 
+            itemParaEditar: null,
+            filtroStatus: statusFiltro,
+            mostrarHistorico: mostrarHistorico,
+            historicoTrocas: historicoTrocas,
+            messages: messages
+        }); 
+        
+    } catch (error) {
+        console.error("ERRO AO CARREGAR VIEW DE GERENCIAMENTO/HISTÓRICO:", error);
+        if (req.flash) req.flash('error', 'Ocorreu um erro ao carregar seus itens.');
+        res.redirect('/feed'); 
+    }
 });
 
 
 // ==========================================================
 // ROTA GET: BUSCAR ITEM PARA EDIÇÃO (READ ONE)
+// URL Externa: GET /roupas/editar/:id
 // ==========================================================
-router.get("/roupas/editar/:id", async (req, res) => {
-    const idItem = req.params.id;
-    const idUsuario = req.session.userId;
-    
-    try {
-        const item = await Item.findOne({
-            where: {
-                id: idItem,
-                UsuarioId: idUsuario 
-            }
-        });
+router.get("/editar/:id", async (req, res) => { 
+    const idItem = req.params.id;
+    const idUsuario = res.locals.userId; 
+    
+    try {
+        const item = await Item.findOne({
+            where: {
+                id: idItem,
+                UsuarioId: idUsuario 
+            }
+        });
 
-        if (item) {
-            const totalAtivas = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'Ativo' } });
-            const emTroca = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'EmTroca' } });
-            // Usa a função IMPORTADA de TrocaRoutes
-            const trocasRealizadas = await contarTrocasRealizadas(idUsuario); 
-            
-            res.render('roupas', { 
-                userId: idUsuario, 
-                itens: [], 
-                itemParaEditar: item.get({ plain: true }), 
-                totalCadastradas: totalAtivas + emTroca, 
-                totalAtivas: totalAtivas, 
-                emTroca: emTroca,
-                trocasRealizadas: trocasRealizadas,
-                filtroStatus: item.statusPosse || 'Ativo',
-                mostrarHistorico: false, 
-                historicoTrocas: []
-            }); 
-        } else {
-            res.redirect('/roupas');
-        }
+        if (item) {
+            // Recarrega todos os itens para a lista lateral/card
+            const itensLista = await Item.findAll({ 
+                where: { UsuarioId: idUsuario, statusPosse: { [Op.ne]: 'Historico' } }, 
+                order: [['createdAt', 'DESC']], 
+                raw: true 
+            }); 
+            
+            const totalAtivas = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'Ativo' } });
+            const emTroca = await Item.count({ where: { UsuarioId: idUsuario, statusPosse: 'EmTroca' } });
+            const trocasRealizadas = await contarTrocasRealizadas(idUsuario); 
+            
+            const messages = req.flash ? req.flash() : {};
 
-    } catch (error) {
-        console.error("ERRO AO BUSCAR ITEM PARA EDIÇÃO:", error);
-        res.redirect('/roupas');
-    }
+            res.render('roupas', { 
+                title: 'Editar Peça', 
+                userId: idUsuario, 
+                itens: itensLista, // Lista de itens para manter a navegação
+                itemParaEditar: item.get({ plain: true }), 
+                totalCadastradas: totalAtivas + emTroca, 
+                totalAtivas: totalAtivas, 
+                emTroca: emTroca,
+                trocasRealizadas: trocasRealizadas,
+                filtroStatus: item.statusPosse || 'Ativo',
+                mostrarHistorico: false, 
+                historicoTrocas: [],
+                messages: messages
+            }); 
+        } else {
+            if (req.flash) req.flash('error', 'Item não encontrado ou você não tem permissão para editá-lo.');
+            res.redirect('/roupas');
+        }
+
+    } catch (error) {
+        console.error("ERRO AO BUSCAR ITEM PARA EDIÇÃO:", error);
+        if (req.flash) req.flash('error', 'Erro ao carregar item para edição.');
+        res.redirect('/roupas');
+    }
 });
 
 
 // ==========================================================
 // ROTA POST: CRIA OU ATUALIZA UM ITEM (UNIFICADO: CREATE & UPDATE)
+// URL Externa: POST /roupas/salvar
+// ** ISTO RESOLVE O ERRO 404 DO 'SALVAR' **
 // ==========================================================
-router.post('/roupas/salvar', async (req, res) => {
-    const idUsuario = req.session.userId;
-    const dadosItem = req.body;
-    
-    const itemId = dadosItem.id || null; 
-    
-    // Validação básica
-    if (!dadosItem.peca || !dadosItem.tipo || !dadosItem.tamanho || !dadosItem.condicao || !dadosItem.categoriaPeca) {
-        // Redireciona com erro se a rota for de edição, senão para a lista
-        return res.redirect(itemId ? `/roupas/editar/${itemId}?error=CamposObrigatorios` : '/roupas'); 
-    }
+router.post('/salvar', async (req, res) => { 
+    const idUsuario = res.locals.userId; 
+    const dadosItem = req.body;
+    
+    const itemId = dadosItem.id || null; 
+    
+    // Validação básica
+    if (!dadosItem.peca || !dadosItem.tipo || !dadosItem.tamanho || !dadosItem.condicao || !dadosItem.categoriaPeca) {
+        if (req.flash) req.flash('error', 'Todos os campos obrigatórios devem ser preenchidos.');
+        
+        // Redireciona de volta para a edição ou para a lista
+        return res.redirect(itemId ? `/roupas/editar/${itemId}` : '/roupas'); 
+    }
 
-    // Campos permitidos
-    const itemDados = {
-        peca: dadosItem.peca,
-        categoriaPeca: dadosItem.categoriaPeca,
-        tipo: dadosItem.tipo,
-        tamanho: dadosItem.tamanho,
-        cor: dadosItem.cor,
-        tecido: dadosItem.tecido,
-        estacao: dadosItem.estacao,
-        condicao: dadosItem.condicao,
-        descricao: dadosItem.descricao,
-        UsuarioId: idUsuario 
-    };
-    
-    try {
-        if (itemId) {
-            // --- LÓGICA DE UPDATE (EDIÇÃO) ---
-            const [rowsAffected] = await Item.update(itemDados, {
-                where: {
-                    id: itemId,
-                    UsuarioId: idUsuario 
-                }
-            });
-            res.redirect('/roupas'); 
-            
-        } else {
-            // --- LÓGICA DE CREATE (CRIAÇÃO) ---
-            const itemParaCriar = { ...itemDados, statusPosse: 'Ativo' }; 
-            await Item.create(itemParaCriar);
-            res.redirect('/roupas'); 
-        }
-        
-    } catch (error) {
-        console.error(`ERRO AO SALVAR ITEM (ID: ${itemId || 'novo'}):`, error);
-        res.redirect('/roupas');
-    }
+    // Campos permitidos e sanitização
+    const itemDados = {
+        peca: dadosItem.peca,
+        categoriaPeca: dadosItem.categoriaPeca,
+        tipo: dadosItem.tipo,
+        tamanho: dadosItem.tamanho,
+        cor: dadosItem.cor,
+        tecido: dadosItem.tecido,
+        estacao: dadosItem.estacao,
+        condicao: dadosItem.condicao,
+        descricao: dadosItem.descricao, 
+        UsuarioId: idUsuario,
+        // Mantém a fotoUrl se estiver sendo passada, ou ignora se for um processo de upload separado
+        // fotoUrl: dadosItem.fotoUrl, 
+    };
+    
+    try {
+        if (itemId) {
+            // --- UPDATE (EDIÇÃO) ---
+            await Item.update(itemDados, {
+                where: {
+                    id: itemId,
+                    UsuarioId: idUsuario 
+                }
+            });
+            if (req.flash) req.flash('success', 'Item atualizado com sucesso!');
+            res.redirect('/roupas'); 
+            
+        } else {
+            // --- CREATE (CRIAÇÃO) ---
+            const itemParaCriar = { ...itemDados, statusPosse: 'Ativo' }; 
+            await Item.create(itemParaCriar);
+            if (req.flash) req.flash('success', 'Nova peça cadastrada com sucesso!');
+            res.redirect('/roupas'); 
+        }
+        
+    } catch (error) {
+        console.error(`ERRO AO SALVAR ITEM (ID: ${itemId || 'novo'}):`, error);
+        if (req.flash) req.flash('error', 'Erro interno ao salvar o item.');
+        res.redirect('/roupas');
+    }
 });
 
 
 // ==========================================================
 // ROTA GET: Exclui um item (DELETE)
+// URL Externa: GET /roupas/excluir/:id
 // ==========================================================
-router.get('/roupas/excluir/:id', async (req, res) => {
-    const idItem = req.params.id;
-    const idUsuario = req.session.userId;
-    
-    try {
-        const item = await Item.findOne({
-            where: { id: idItem, UsuarioId: idUsuario }
-        });
+router.get('/excluir/:id', async (req, res) => {
+    const idItem = req.params.id;
+    const idUsuario = res.locals.userId;
+    
+    try {
+        const item = await Item.findOne({
+            where: { id: idItem, UsuarioId: idUsuario }
+        });
 
-        if (!item) {
-            return res.redirect('/roupas');
-        }
+        if (!item) {
+            if (req.flash) req.flash('error', 'Item não encontrado ou você não tem permissão.');
+            return res.redirect('/roupas');
+        }
 
-        // Previne exclusão de itens em processo de troca
-        if (item.statusPosse !== 'Ativo') {
-            return res.redirect('/roupas?status=EmTroca'); 
-        }
+        // Previne exclusão de itens em processo de troca
+        if (item.statusPosse !== 'Ativo') {
+            if (req.flash) req.flash('warning', 'Esta peça não pode ser excluída pois está envolvida em uma troca pendente.');
+            return res.redirect('/roupas?status=EmTroca'); 
+        }
 
-        const rowsDeleted = await Item.destroy({
-            where: {
-                id: idItem,
-                UsuarioId: idUsuario 
-            }
-        });
+        const rowsDeleted = await Item.destroy({
+            where: {
+                id: idItem,
+                UsuarioId: idUsuario 
+            }
+        });
 
-        res.redirect('/roupas'); 
-        
-    } catch (error) {
-        console.error("ERRO AO EXCLUIR ITEM:", error);
-        res.redirect('/roupas');
-    }
+        if (rowsDeleted > 0) {
+            if (req.flash) req.flash('success', `Peça "${item.peca}" excluída com sucesso!`);
+        } else {
+            if (req.flash) req.flash('error', 'O item não pôde ser excluído.');
+        }
+
+        res.redirect('/roupas'); 
+        
+    } catch (error) {
+        console.error("ERRO AO EXCLUIR ITEM:", error);
+        if (req.flash) req.flash('error', 'Erro interno ao tentar excluir o item.');
+        res.redirect('/roupas');
+    }
 });
 
 

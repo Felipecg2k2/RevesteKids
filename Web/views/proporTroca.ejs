@@ -1,64 +1,241 @@
+<style>
+    /* ------------------------------------------- */
+    /* 1. ESTILOS GERAIS */
+    /* ------------------------------------------- */
+    .proposta-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 40px;
+        flex-wrap: wrap; /* Permite quebrar em telas menores */
+    }
+    .item-desejado-card, .item-oferecido-form {
+        flex: 1 1 45%; /* Flexível, ocupa 45% do espaço */
+        min-width: 300px; /* Garante que não fiquem muito pequenos */
+    }
+    .item-desejado-card {
+        border: 1px solid #007bff;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .item-oferecido-form {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+    .item-info ul {
+        list-style: none;
+        padding: 0;
+    }
+    .item-info li {
+        margin: 5px 0;
+        font-size: 0.95em;
+    }
+
+    /* ------------------------------------------- */
+    /* 2. ESTILOS DO NOVO SELETOR DE CARDS (OFERTA) */
+    /* ------------------------------------------- */
+    .lista-de-pecas-oferecer {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .item-card-oferta {
+        display: block; 
+        cursor: pointer;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-align: center;
+        padding: 0; /* Removido padding interno para controle visual total */
+        background-color: white;
+    }
+
+    .item-card-oferta:hover {
+        border-color: #9370DB; /* Cor roxa para feedback visual */
+        box-shadow: 0 0 5px rgba(147, 112, 219, 0.5);
+    }
+    
+    .card-conteudo {
+        padding: 10px; /* Padding aplicado ao conteúdo */
+    }
+
+    .card-imagem {
+        height: 100px;
+        background-color: #f0f0f0;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8em;
+        color: #555;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+    }
+
+    .card-conteudo p {
+        margin: 0;
+        font-size: 0.9em;
+    }
+    .card-conteudo .condicao {
+        font-size: 0.8em;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    .card-conteudo .status-ativo {
+        font-weight: bold;
+        color: #007bff; /* Garante que o status 'Ativo' seja visível */
+    }
+
+    /* ESTILO CRÍTICO: Quando o radio button é marcado, mude o estilo do card */
+    input[type="radio"]:checked + .card-conteudo {
+        /* Adiciona um fundo azul claro para indicar seleção */
+        background-color: #e3f2fd; 
+        border-radius: 6px;
+    }
+
+    input[type="radio"]:checked + .card-conteudo .card-imagem {
+        border: 2px solid #28a745; /* Borda verde na imagem ao selecionar */
+    }
+    
+    .botao-selecionar {
+        display: none; /* Esconde o texto/botão extra */
+    }
+
+    /* Estilo para mensagem de erro/alerta */
+    .mensagem-alerta {
+        padding: 15px;
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+</style>
+
 <h1>Proposta de Troca</h1>
+
+<% if (messages && messages.warning) { %>
+    <p style="color: orange; border: 1px solid orange; padding: 10px; background-color: #fff3cd; border-radius: 5px;">
+        <%= messages.warning %>
+    </p>
+<% } %>
+
 <p>Você está prestes a enviar uma proposta de troca para <%= itemDesejado.usuario.nome %>.</p>
 <hr>
 
-<div class="proposta-container" style="display: flex; justify-content: space-between; gap: 40px;">
+<div class="proposta-container">
 
-    <section class="item-desejado-card" style="width: 45%; border: 1px solid #007bff; padding: 20px;">
-        <h2>Item que você quer receber:</h2>
-        
-        <div class="item-info">
-            <ul style="list-style: none; padding: 0;">
+    <section class="item-desejado-card">
+        <h2>Item que você quer receber:</h2>
+
+        <div style="margin-bottom: 15px; background-color: #eee; text-align: center; padding: 10px; border-radius: 5px;">
+            <% if (itemDesejado.imagem_url || itemDesejado.fotoUrl) { %>
+                <img src="<%= itemDesejado.imagem_url || itemDesejado.fotoUrl %>" alt="<%= itemDesejado.peca %>" style="max-width: 100%; height: auto; max-height: 200px; display: block; margin: 0 auto;">
+            <% } else { %>
+                [IMAGEM indisponível para <%= itemDesejado.peca %>]
+            <% } %>
+        </div>
+        
+        <div class="item-info">
+            <ul style="list-style: none; padding: 0;">
                 <li>Peça: <strong><%= itemDesejado.peca %></strong></li>
                 <hr>
-                <li>Tamanho: <strong><%= itemDesejado.tamanho %></strong></li>
-<hr>
-                <li>Gênero: <strong><%= itemDesejado.genero %></strong></li>
-<hr>
-                <li>Dono: <strong><%= itemDesejado.usuario.nome %></strong></li>
-<hr>
-                <li>Descrição: <strong><%= itemDesejado.descricao %></strong></li>
-            </ul>
-        </div>
-    </section>
+                <li>Gênero: <strong><%= itemDesejado.tipo %></strong></li> 
+                <hr>
+                <li>Tamanho: <strong><%= itemDesejado.tamanho %></strong></li>
+                <hr>
+                <li>Condição: <strong><%= itemDesejado.condicao %></strong></li>
+                <hr>
+                <li>Cor: <strong><%= itemDesejado.cor || 'Não especificada' %></strong></li>
+                <hr>
+                <li>Dono: <strong><%= itemDesejado.usuario.nome %></strong></li>
+                <hr>
+                <li>Descrição: <strong><%= itemDesejado.descricao || 'Nenhuma descrição detalhada.' %></strong></li>
+            </ul>
+        </div>
+    </section>
 
-    <section class="item-oferecido-form" style="width: 45%; background-color: #f9f9f9; padding: 20px; border-radius: 5px;">
-        <h2>Peça que você oferece:</h2>
-        
-        <form action="/trocas/propor" method="POST">
-            
-            <input type="hidden" name="itemIdDesejado" value="<%= itemDesejado.id %>">
-            
-            <% if (meusItens && meusItens.length > 0) { %>
-                
-                <label for="itemOferecido">Escolha um item da sua lista:</label>
-                <select name="itemOferecido" id="itemOferecido" required style="width: 100%; padding: 10px; margin-bottom: 20px;">
-                    <option value="">-- Selecione uma de suas peças --</option>
-                    
-                    <% meusItens.forEach(item => { %>
-                        <option value="<%= item.id %>">
-                            <%= item.nome %> | Tam: <%= item.tamanho %> | Condição: <%= item.condicao %>
-                        </option>
-                    <% }); %>
-                    
-                </select>
+    <section class="item-oferecido-form">
+        <h2>Peça que você oferece:</h2>
+        
+        <form action="/trocas/propor" method="POST">
+            
+            <input type="hidden" name="itemIdDesejado" value="<%= itemDesejado.id %>">
+            
+            <% 
+                // 💡 FILTRAGEM CRÍTICA: Assume que a lista de itens é 'meusItens' e o status de disponível é 'Ativo'
+                const itensDoUsuario = typeof meusItens !== 'undefined' ? meusItens : [];
+                const roupasDisponiveis = itensDoUsuario.filter(item => item.statusPosse === 'Ativo');
+            %>
 
-                <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; cursor: pointer;">
-                    ENVIAR PROPOSTA DE TROCA
-                </button>
+            <% if (roupasDisponiveis && roupasDisponiveis.length > 0) { %>
+                
+                <p>Escolha um item da sua lista para oferecer em troca:</p>
 
-            <% } else { %>
-                <p>Você não possui itens cadastrados para oferecer. Cadastre uma peça primeiro!</p>
-                <a href="/roupas" style="display: inline-block; padding: 10px; background-color: #ffc107; color: #333; text-decoration: none;">
-                    Cadastrar Minha Primeira Peça
-                </a>
-            <% } %>
+                <div class="lista-de-pecas-oferecer">
+                    <% roupasDisponiveis.forEach(function(item) { %>
+                        
+                        <label class="item-card-oferta" for="peca-<%= item.id %>">
+                            
+                            <input 
+                                type="radio" 
+                                name="itemOferecido" 
+                                id="peca-<%= item.id %>" 
+                                value="<%= item.id %>" 
+                                required 
+                                style="display: none;" 
+                            >
+                            
+                            <div class="card-conteudo">
+                                <div class="card-imagem">
+                                    [Foto de <%= item.peca.substring(0, 10) %>...]
+                                </div>
+                                
+                                <p><strong><%= item.peca %></strong></p>
+                                <p>Tam: <%= item.tamanho %></p>
+                                <p class="condicao"><%= item.condicao %></p>
+                            </div>
+                        </label>
 
-        </form>
-    </section>
+                    <% }); %>
+                </div>
+
+
+                <button 
+                    type="submit" 
+                    class="btn-enviar-proposta"
+                    style="
+                        padding: 10px 20px; 
+                        background-color: #9370DB; 
+                        color: white; 
+                        border: none; 
+                        cursor: pointer;
+                        margin-top: 20px;
+                        width: 100%;
+                        font-weight: bold;
+                    "
+                >
+                    ENVIAR PROPOSTA DE TROCA
+                </button>
+
+            <% } else { %>
+                <div class="mensagem-alerta">
+                    <p>Você não possui itens **DISPONÍVEIS** para oferecer em troca.</p>
+                    <p>Cadastre uma peça ou verifique o status das suas peças em <a href="/roupas">Gerenciamento</a>.</p>
+                </div>
+                <a href="/roupas" style="display: inline-block; padding: 10px; background-color: #ffc107; color: #333; text-decoration: none; border-radius: 4px;">
+                    Cadastrar Minha Primeira Peça
+                </a>
+            <% } %>
+
+        </form>
+    </section>
 
 </div>
 
 <p style="margin-top: 30px;">
-    <a href="/feed">Voltar ao feed</a>
+    <a href="/feed">Voltar ao feed</a>
 </p>
