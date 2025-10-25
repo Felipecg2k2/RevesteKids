@@ -1,0 +1,47 @@
+<%
+    // Helper para determinar se a troca está finalizada (como na imagem)
+    const isFinalizada = item.status === 'finalizada'; 
+    
+    // Simulação dos dados que virão do banco
+    const itemTitle = item.item_principal ? item.item_principal.nome : 'Item Não Encontrado';
+    const otherUserName = item.outro_usuario ? item.outro_usuario.nome : 'Usuário Desconhecido';
+    const timeAgo = item.data_criacao || 'Agora mesmo'; 
+    const itemId = item._id; // O ID do documento para links de detalhes
+    
+    // Texto de descrição
+    let descriptionText = '';
+    if (tipo === 'recebida') {
+        descriptionText = `Proposta de ${otherUserName}`;
+    } else if (tipo === 'enviada') {
+        descriptionText = `Proposta para ${otherUserName}`;
+    } else if (tipo === 'historico') {
+        descriptionText = `Com ${otherUserName}`;
+    }
+%>
+
+<div class="troca-list-card <%= isFinalizada ? 'finalizada' : '' %>">
+    
+    <div class="card-info">
+        <div class="text-content">
+            <h4 class="item-title"><%= itemTitle %></h4>
+            <p class="item-description"><%= descriptionText %></p>
+            <span class="time-ago"><%= timeAgo %></span>
+        </div>
+    </div>
+
+    <div class="card-actions">
+        
+        <% if (isFinalizada) { %>
+            <span class="finalizada-status"><i class="fas fa-check"></i> Finalizada</span>
+        <% } %>
+        
+        <div class="action-buttons">
+            <a href="/troca/<%= itemId %>" class="btn-detalhes">Ver Detalhes</a>
+            
+            <% if (tipo !== 'historico') { %>
+                <button class="btn-delete"><i class="fas fa-trash-alt"></i> Deletar</button>
+            <% } %>
+
+        </div>
+    </div>
+</div>
