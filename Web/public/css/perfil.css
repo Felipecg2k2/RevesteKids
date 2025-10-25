@@ -1,0 +1,165 @@
+/* Estilos Globais e Reset Simples */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #D2FBF4; /* Cor de fundo suave para a página */
+    margin: 0;
+    padding: 20px;
+    /* CORREÇÃO: Remove display: flex para que o link-feed possa ir para a esquerda */
+}
+
+/* Container principal do perfil */
+.perfil-container {
+    width: 100%;
+    max-width: 600px; /* Reduzindo max-width para um cartão mais estreito e elegante */
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px; /* Aumentando o arredondamento das bordas */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra mais suave e proeminente */
+
+    /* CORREÇÃO: Centraliza o container principal na página */
+    margin: 0 auto; 
+    
+    /* NOVO: Alinhamento de texto principal é para a esquerda agora */
+    text-align: left; 
+}
+
+/* Título Principal */
+h1 {
+    font-size: 2em;
+    color: #333;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    margin-top: 0; 
+    text-align: center; /* Mantém o título principal centralizado */
+}
+
+/* Subtítulos (Informações Pessoais, Endereço de Entrega, Ações) */
+h2 {
+    font-size: 1.3em; /* Levemente menor */
+    color: #555;
+    /* Reduzindo margens para aproximar das linhas */
+    margin-top: 15px;    
+    margin-bottom: 8px;
+    text-align: left; /* Garante que os títulos de seção fiquem à esquerda */
+    font-weight: 700; /* Deixa o título mais forte */
+}
+
+/* Estilo para as seções de conteúdo (Informações Pessoais, Endereço, Ações) */
+.secao {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee; 
+    margin-bottom: 10px; /* Mais espaço para respirar */
+    text-align: left; /* Conteúdo da seção alinhado à esquerda */
+}
+
+.secao:last-of-type {
+    border-bottom: none; 
+    padding-top: 15px;
+    margin-bottom: 0;
+}
+
+/* Estilo para os parágrafos de informação */
+.secao p {
+    margin: 6px 0; /* Mais espaço entre as linhas */
+    line-height: 1.4; 
+    color: #444;
+}
+
+.secao p strong {
+    font-weight: bold;
+    /* Usando largura fixa para criar um alinhamento visual em duas colunas */
+    min-width: 150px; 
+    display: inline-block;
+    color: #333; /* Cor mais escura para os rótulos */
+}
+
+/* Estilo do Botão Principal (Editar Meu Perfil) */
+.botao {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    
+    margin-bottom: 0; 
+    margin-right: 10px; 
+}
+
+.botao:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo do Link de Apagar Conta - BOTÃO SÓLIDO */
+.link-apagar {
+    background-color: #dc3545;
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    
+    display: inline-block;
+    padding: 10px 20px; 
+    border: none; 
+    border-radius: 5px;
+    font-weight: 600;
+    
+    margin-top: 15px; 
+    transition: background-color 0.3s;
+    
+    margin-right: 10px; 
+}
+
+/* Efeito Hover (passar o mouse) */
+.link-apagar:hover {
+    background-color: #c82333; 
+    text-decoration: none; 
+    color: white;
+}
+
+/* NOVO: Centraliza os botões na seção Ações */
+.secao.acoes {
+    text-align: center;
+    padding-top: 15px;
+}
+
+/* Estilo do Link Voltar para o feed - AJUSTE DE POSIÇÃO MAIS À ESQUERDA */
+.link-feed {
+    /* Estilo de Botão Roxo */
+    background-color: #8446AB; 
+    color: white; 
+    text-decoration: none;
+    font-weight: 600; 
+    font-size: 1em;
+    
+    /* Estilos de Botão */
+    padding: 10px 20px; 
+    border-radius: 5px;
+    border: none;
+    
+    /* POSICIONAMENTO */
+    display: block; 
+    width: fit-content; 
+    
+    /* Centraliza o bloco do link */
+    margin-top: 30px; 
+
+    /* CORREÇÃO FINAL: Força o alinhamento da margem esquerda mais para a esquerda */
+    /* NOVO AJUSTE: Aumentando o valor para puxar mais para a esquerda (50% - 320px) */
+    margin-left: calc(50% - 320px); 
+    margin-right: auto;
+    
+    text-align: center; 
+
+    transition: background-color 0.3s;
+}
+
+.link-feed:hover {
+    background-color: #6a378b;
+    text-decoration: none;
+}
