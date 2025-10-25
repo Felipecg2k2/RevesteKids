@@ -1,90 +1,189 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Trocas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="/css/trocas.css"> </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Trocas</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/css/trocas.css">
+    </head>
 <body>
-    
-    <div id="app-container">
-        <%- include('partials/_sidebar') %> 
+    
+    <div class="app-layout">
+        <%- include('partials/_sidebar') %> 
 
-        <main id="main-content">
-            <div class="tabs-navigation">
-                <button class="tab-button active" data-tab="propostas-recebidas">Propostas Recebidas <span class="badge"><%= propostasRecebidas.length %></span></button>
-                <button class="tab-button" data-tab="propostas-enviadas">Propostas Enviadas</button>
-                <button class="tab-button" data-tab="historico">Histórico (Finalizadas)</button>
-            </div>
+        <main class="content-area">
+            
+            <h2 class="page-title">Gerenciamento de Trocas</h2>
 
-            
-            <div id="propostas-recebidas" class="tab-content active">
-                <% if (propostasRecebidas.length > 0) { %>
-                    <div class="proposta-list">
-                        <% propostasRecebidas.forEach(proposta => { %>
-                            <%- include('partials/troca_list_card', { item: proposta, tipo: 'recebida' }) %>
-                        <% }); %>
-                    </div>
-                <% } else { %>
-                    <div class="empty-state">
-                        <p>Você não recebeu nenhuma proposta de troca ainda.</p>
-                    </div>
-                <% } %>
-            </div>
+            <div class="tabs-navigation">
+                <button class="tab-button active" data-tab="recebidas">
+                    Propostas Recebidas 
+                    <span class="badge badge-recebidas"><%= propostasRecebidas.length %></span>
+                </button>
+                <button class="tab-button" data-tab="enviadas">
+                    Propostas Enviadas
+                    <span class="badge badge-enviadas"><%= propostasEnviadas.length %></span>
+                </button>
+                <button class="tab-button" data-tab="historico">
+                    Histórico 
+                    <span class="badge badge-historico"><%= historicoTrocas.length %></span>
+                </button>
+            </div>
+            
+            <div class="tab-content-area">
+                
+                <div id="recebidas" class="tab-pane proposta-list">
+                    <% if (propostasRecebidas.length > 0) { %>
+                        <% propostasRecebidas.forEach(proposta => { %>
+                            <%- include('partials/troca_list_card', { item: proposta, tipo: 'recebida', userId: userId }) %> 
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-inbox fa-3x"></i>
+                            <p>Nenhuma proposta de troca recebida no momento.</p>
+                        </div>
+                    <% } %>
+                </div>
 
-            
-            <div id="propostas-enviadas" class="tab-content" style="display: none;">
-                <% if (propostasEnviadas.length > 0) { %>
-                    <div class="proposta-list">
-                        <% propostasEnviadas.forEach(proposta => { %>
-                            <%- include('partials/troca_list_card', { item: proposta, tipo: 'enviada' }) %>
-                        <% }); %>
-                    </div>
-                <% } else { %>
-                    <div class="empty-state">
-                        <p>Você não enviou nenhuma proposta de troca.</p>
-                    </div>
-                <% } %>
-            </div>
-
-
-            <div id="historico" class="tab-content" style="display: none;">
-                <% if (historicoTrocas.length > 0) { %>
-                    <div class="proposta-list">
-                        <% historicoTrocas.forEach(troca => { %>
-                            <%- include('partials/troca_list_card', { item: troca, tipo: 'historico' }) %>
-                        <% }); %>
-                    </div>
-                <% } else { %>
-                    <div class="empty-state">
-                        <p>Seu histórico de trocas finalizadas está vazio.</p>
-                    </div>
-                <% } %>
-            </div>
+                <div id="enviadas" class="tab-pane proposta-list" style="display: none;">
+                    <% if (propostasEnviadas.length > 0) { %>
+                        <% propostasEnviadas.forEach(proposta => { %>
+                            <%- include('partials/troca_list_card', { item: proposta, tipo: 'enviada', userId: userId }) %>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-paper-plane fa-3x"></i>
+                            <p>Você ainda não enviou nenhuma proposta ativa.</p>
+                        </div>
+                    <% } %>
+                </div>
 
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const tabs = document.querySelectorAll('.tab-button');
-                    const contents = document.querySelectorAll('.tab-content');
+                <div id="historico" class="tab-pane proposta-list" style="display: none;">
+                    <% if (historicoTrocas.length > 0) { %>
+                        <% historicoTrocas.forEach(troca => { %>
+                            <%- include('partials/troca_list_card', { item: troca, tipo: 'historico', userId: userId }) %>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-history fa-3x"></i>
+                            <p>Seu histórico de trocas está vazio.</p>
+                        </div>
+                    <% } %>
+                </div>
 
-                    tabs.forEach(tab => {
-                        tab.addEventListener('click', () => {
-                            const targetId = tab.getAttribute('data-tab');
-
-                            // Remove 'active' de todos os botões e esconde todo o conteúdo
-                            tabs.forEach(b => b.classList.remove('active'));
-                            contents.forEach(c => c.style.display = 'none');
-
-                            // Adiciona 'active' ao botão clicado e mostra o conteúdo correspondente
-                            tab.classList.add('active');
-                            document.getElementById(targetId).style.display = 'block';
-                        });
-                    });
-                });
-            </script>
+            </div> 
         </main>
-    </div>
+    </div> 
+    
+    <div id="trocaModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="modalBodyContent">
+                <p>Carregando detalhes da troca...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // --- Referências do DOM ---
+        const tabButtons = document.querySelectorAll('.tabs-navigation .tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const modal = document.getElementById('trocaModal');
+        const modalBody = document.getElementById('modalBodyContent');
+        const closeButton = document.querySelector('#trocaModal .close-button');
+
+
+        // --- Funções de Controle do Modal ---
+        const openModal = () => {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Bloqueia o scroll
+        }
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            modalBody.innerHTML = ''; // Limpa o conteúdo
+        }
+        
+        // --- Lógica de Troca de Abas (Tabs) ---
+        const switchTab = (targetTabId) => {
+             // Remove 'active' de todos os botões e esconde todos os painéis
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.style.display = 'none');
+
+            // Adiciona 'active' ao botão clicado e exibe o painel correspondente
+            const activeButton = document.querySelector(`.tab-button[data-tab="${targetTabId}"]`);
+            const activePane = document.getElementById(targetTabId);
+
+            if (activeButton && activePane) {
+                activeButton.classList.add('active');
+                activePane.style.display = 'flex'; // Usamos 'flex' para listas de cards
+                localStorage.setItem('activeTab', targetTabId);
+            }
+        };
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                switchTab(button.getAttribute('data-tab'));
+            });
+        });
+
+        // Inicialização: Carregar a aba salva ou a primeira
+        const savedTab = localStorage.getItem('activeTab') || 'recebidas';
+        switchTab(savedTab);
+
+
+        // --- Lógica do Modal (Carregar Detalhes via AJAX) ---
+        
+        // Event Listener: Captura o clique em "Ver Detalhes"
+        document.body.addEventListener('click', async (event) => {
+            const btnDetalhes = event.target.closest('.btn-detalhes');
+            
+            if (btnDetalhes) {
+                event.preventDefault(); // IMPEDE o redirecionamento!
+                
+                // CORREÇÃO APLICADA: Obtém o ID diretamente do data-attribute
+                const trocaId = btnDetalhes.getAttribute('data-troca-id'); 
+                
+                if (!trocaId) {
+                    console.error("ID da Troca não encontrado no data-troca-id.");
+                    return;
+                }
+
+                openModal();
+                modalBody.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando detalhes da troca...</p></div>';
+
+                try {
+                    // Chamada para a API
+                    const response = await fetch(`/trocas/detalhes/${trocaId}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Falha ao buscar os detalhes. Status: ${response.status}`);
+                    }
+                    
+                    const htmlContent = await response.text();
+                    modalBody.innerHTML = htmlContent;
+
+                } catch (error) {
+                    console.error("Erro no AJAX do Modal:", error);
+                    modalBody.innerHTML = '<div class="error-message"><p>Erro ao carregar os detalhes. Tente novamente.</p></div>';
+                }
+            }
+        });
+
+        // Fechar o modal
+        closeButton.addEventListener('click', closeModal);
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    });
+    </script>
 </body>
 </html>

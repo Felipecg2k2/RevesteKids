@@ -9,7 +9,6 @@ import Item from '../models/Item.js';
 import Usuario from '../models/Usuario.js';
 // Mantido o import de Sequelize
 import Sequelize from 'sequelize'; 
-import { get } from 'http';
 
 const router = express.Router();
 
@@ -31,59 +30,63 @@ router.use(requireLogin);
 
 // FUNÇÃO: Busca propostas ENVIADAS (Status: Pendente, Aceita, etc.)
 async function buscarPropostasEnviadas(proponenteId) {
-    try {
-        const propostas = await Troca.findAll({
-            where: { 
-                ProponenteId: proponenteId,
-                // Status ATIVOS (que o proponente espera uma resposta/continuação)
-                status: { [Op.in]: ['Pendente', 'Aceita'] } 
-            },
-            include: [
-                { model: Item, as: 'itemOferecido', attributes: ['peca', 'tamanho'] },
-                { 
-                    model: Item, 
-                    as: 'itemDesejado', 
-                    attributes: ['peca', 'tamanho'],
-                    // Inclui o usuário que receberá a proposta para exibição
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
-                }
-            ],
-            order: [['createdAt', 'DESC']]
-        });
-        // NOTA: 'Rejeitada' e 'Cancelada' estarão no Histórico.
-        return propostas;
-    } catch (error) {
-        console.error("ERRO AO BUSCAR PROPOSTAS ENVIADAS:", error.message);
-        return [];
-    }
+    try {
+        const propostas = await Troca.findAll({
+            where: { 
+                ProponenteId: proponenteId,
+                // Status ATIVOS (que o proponente espera uma resposta/continuação)
+                status: { [Op.in]: ['Pendente', 'Aceita'] } 
+            },
+            include: [
+                // Item que você ofereceu
+                { model: Item, as: 'itemOferecido', attributes: ['peca', 'tamanho'] },
+                // Item que você deseja (Pertence ao RECEPTOR)
+                { 
+                    model: Item, 
+                    as: 'itemDesejado', 
+                    attributes: ['peca', 'tamanho'],
+                    // CORREÇÃO COMPLETA: Inclui o usuário DENTRO do Item Desejado (o Receptor)
+                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        // NOTA: 'Rejeitada' e 'Cancelada' estarão no Histórico.
+        return propostas;
+    } catch (error) {
+        console.error("ERRO AO BUSCAR PROPOSTAS ENVIADAS:", error.message);
+        return [];
+    }
 }
 
 // FUNÇÃO: Busca propostas RECEBIDAS (Status: Pendente, Aceita)
 async function buscarPropostasRecebidas(receptorId) {
-    try {
-        const propostas = await Troca.findAll({
-            where: { 
-                ReceptorId: receptorId,
-                // Propostas ATIVAS que precisam de ação do receptor (Aceitar/Rejeitar)
-                status: { [Op.in]: ['Pendente', 'Aceita'] } 
-            },
-            include: [
-                { model: Item, as: 'itemDesejado', attributes: ['peca', 'tamanho'] },
-                { 
-                    model: Item, 
-                    as: 'itemOferecido', 
-                    attributes: ['peca', 'tamanho'],
-                    // Inclui o usuário que enviou a proposta
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
-                }
-            ],
-            order: [['createdAt', 'DESC']]
-        });
-        return propostas;
-    } catch (error) {
-        console.error("ERRO AO BUSCAR PROPOSTAS RECEBIDAS:", error.message);
-        return [];
-    }
+    try {
+        const propostas = await Troca.findAll({
+            where: { 
+                ReceptorId: receptorId,
+                // Propostas ATIVAS que precisam de ação do receptor (Aceitar/Rejeitar/Finalizar)
+                status: { [Op.in]: ['Pendente', 'Aceita'] } 
+            },
+            include: [
+                // Item que você (Receptor) deseja
+                { model: Item, as: 'itemDesejado', attributes: ['peca', 'tamanho'] },
+                // Item que o outro usuário (Proponente) oferece
+                { 
+                    model: Item, 
+                    as: 'itemOferecido', 
+                    attributes: ['peca', 'tamanho'],
+                    // CORREÇÃO COMPLETA: Inclui o usuário DENTRO do Item Oferecido (o Proponente)
+                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        return propostas;
+    } catch (error) {
+        console.error("ERRO AO BUSCAR PROPOSTAS RECEBIDAS:", error.message);
+        return [];
+    }
 }
 
 
@@ -95,9 +98,20 @@ async function buscarHistoricoTrocas(userId) {
                 [Op.or]: [{ ProponenteId: userId }, { ReceptorId: userId }],
                 status: { [Op.in]: ['Finalizada', 'Cancelada', 'Rejeitada', 'Conflito'] }
             },
+            // CORREÇÃO: Incluir Usuário no histórico para o modal de detalhes
             include: [
-                { model: Item, as: 'itemOferecido', attributes: ['peca', 'tamanho'] },
-                { model: Item, as: 'itemDesejado', attributes: ['peca', 'tamanho'] }
+                { 
+                    model: Item, 
+                    as: 'itemOferecido', 
+                    attributes: ['peca', 'tamanho'],
+                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome'] }] // Nome do Proponente/Dono original
+                },
+                { 
+                    model: Item, 
+                    as: 'itemDesejado', 
+                    attributes: ['peca', 'tamanho'],
+                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome'] }] // Nome do Receptor/Dono original
+                }
             ],
             order: [['dataFinalizacao', 'DESC'], ['createdAt', 'DESC']] 
         });
@@ -130,31 +144,31 @@ async function contarTrocasRealizadas(userId) {
 
 // ==========================================================
 // ROTA PRINCIPAL: GERENCIAMENTO DE TROCAS (NOVA ROTA)
-// Corresponde ao /status-trocas do seu menu e ao trocas.ejs
 // ==========================================================
 router.get("/", async (req, res) => {
-    try {
-        const userId = req.session.userId;
+    try {
+        const userId = req.session.userId;
 
-        // Executa as buscas de dados em paralelo para maior eficiência
-        const [propostasRecebidas, propostasEnviadas, historicoTrocas] = await Promise.all([
-            buscarPropostasRecebidas(userId),
-            buscarPropostasEnviadas(userId),
-            buscarHistoricoTrocas(userId)
-        ]);
-        
-        // Renderiza a nova view de gerenciamento (trocas.ejs)
-        res.render('trocas', {
-            title: "Gerenciamento de Trocas",
-            propostasRecebidas: propostasRecebidas,
-            propostasEnviadas: propostasEnviadas,
-            historicoTrocas: historicoTrocas
-        });
+        // Executa as buscas de dados em paralelo para maior eficiência
+        const [propostasRecebidas, propostasEnviadas, historicoTrocas] = await Promise.all([
+            buscarPropostasRecebidas(userId),
+            buscarPropostasEnviadas(userId),
+            buscarHistoricoTrocas(userId)
+        ]);
+        
+        // Renderiza a nova view de gerenciamento (trocas.ejs)
+        res.render('trocas', {
+            title: "Gerenciamento de Trocas",
+            userId: userId, // ESSENCIAL: Passar o userId
+            propostasRecebidas: propostasRecebidas,
+            propostasEnviadas: propostasEnviadas,
+            historicoTrocas: historicoTrocas
+        });
 
-    } catch (error) {
-        console.error("ERRO AO CARREGAR GERENCIAMENTO DE TROCAS:", error);
-        res.status(500).send("<h1>Erro!</h1><p>Não foi possível carregar o gerenciamento de trocas.</p>");
-    }
+    } catch (error) {
+        console.error("ERRO AO CARREGAR GERENCIAMENTO DE TROCAS:", error);
+        res.status(500).send("<h1>Erro!</h1><p>Não foi possível carregar o gerenciamento de trocas.</p>");
+    }
 });
 
 
@@ -256,7 +270,8 @@ router.post("/propor", async (req, res) => {
             ItemOferecidoId: itemOferecido,
             ItemDesejadoId: itemIdDesejado,
             status: 'Pendente' 
-
+            // Os novos campos (proponenteConfirmouFinalizacao e receptorConfirmouFinalizacao)
+            // são definidos como FALSE por padrão no modelo, o que é o correto.
         }, { transaction: t });
 
         // ATUALIZA O STATUS DOS ITENS PARA 'EmTroca'
@@ -279,8 +294,7 @@ router.post("/propor", async (req, res) => {
     } catch (error) {
         await t.rollback(); 
         console.error("ERRO CRÍTICO AO ENVIAR PROPOSTA E ATUALIZAR STATUS:", error);
-        // Tenta manter a navegação, mas o usuário deve saber que houve falha
-
+        
         res.redirect('/trocas'); // Redireciona para o novo painel de gerenciamento
     }
 });
@@ -290,8 +304,8 @@ router.post("/propor", async (req, res) => {
 // AGORA É UM REDIRECT PARA A ROTA PRINCIPAL
 // ==========================================================
 router.get("/enviadas", (req, res) => {
-    // Apenas redireciona para a rota principal, que cuida de carregar todos os dados
-    res.redirect('/trocas'); 
+    // Apenas redireciona para a rota principal, que cuida de carregar todos os dados
+    res.redirect('/trocas'); 
 });
 
 // ==========================================================
@@ -299,8 +313,8 @@ router.get("/enviadas", (req, res) => {
 // AGORA É UM REDIRECT PARA A ROTA PRINCIPAL
 // ==========================================================
 router.get("/recebidas", (req, res) => {
-    // Apenas redireciona para a rota principal, que cuida de carregar todos os dados
-    res.redirect('/trocas'); 
+    // Apenas redireciona para a rota principal, que cuida de carregar todos os dados
+    res.redirect('/trocas'); 
 });
 
 // ==========================================================
@@ -428,12 +442,12 @@ router.post("/cancelar/:trocaId", async (req, res) => {
 
 
 // ==========================================================
-// ROTA 9: FINALIZAR TROCA - LÓGICA DE POSSE E STATUS FINALIZADA
-// Status dos Itens: De 'EmTroca' para 'Historico' (com inversão de posse)
+// ROTA 9: FINALIZAR TROCA - LÓGICA DE CONFIRMAÇÃO DUPLA E STATUS FINALIZADA
 // ==========================================================
 router.post("/finalizar/:trocaId", async (req, res) => {
     const { trocaId } = req.params;
     const userId = req.session.userId;
+    const userIdNumber = parseInt(userId, 10);
 
     // 1. Inicia a transação
     const t = await connection.transaction();
@@ -442,58 +456,85 @@ router.post("/finalizar/:trocaId", async (req, res) => {
         // Busca a troca (com a transação)
         const troca = await Troca.findByPk(trocaId, { transaction: t });
 
-        // Converte o userId da sessão (geralmente string) para number (int) 
-        const userIdNumber = parseInt(userId, 10);
-
-        // 2. Validação Crítica: Apenas o Receptor pode finalizar uma troca 'Aceita'
-        if (!troca || troca.status !== 'Aceita' || troca.ReceptorId !== userIdNumber) {
+        // 2. Validação: A troca deve estar 'Aceita'
+        if (!troca || troca.status !== 'Aceita') {
             await t.rollback(); 
-            console.warn(`Tentativa de finalizar troca inválida. ID: ${trocaId}, Status: ${troca ? troca.status : 'N/A'}. Usuário logado: ${userId}.`);
-            return res.redirect('/trocas'); // Redireciona para o painel principal
+            return res.redirect('/trocas');
+        }
+        
+        // 3. Verifica se o usuário logado é Proponente ou Receptor
+        const isProponente = troca.ProponenteId === userIdNumber;
+        const isReceptor = troca.ReceptorId === userIdNumber;
+
+        if (!isProponente && !isReceptor) {
+            await t.rollback(); 
+            return res.redirect('/trocas'); // Usuário não faz parte da troca
         }
 
-        const { ProponenteId, ReceptorId, ItemOferecidoId, ItemDesejadoId } = troca;
-
-        // --- ATUALIZAÇÃO DO ITEM 1 (Item Oferecido pelo Proponente) ---
-        // Este item vai para o Receptor
-        await Item.update({
-            UsuarioId: ReceptorId, 
-            statusPosse: 'Historico' 
-        }, { 
-            where: { id: ItemOferecidoId },
-            transaction: t 
-        });
+        // 4. Marca o flag de confirmação do usuário logado
+        if (isProponente) {
+            // Se o proponente já confirmou, ignora. Se não, marca como true.
+            if (!troca.proponenteConfirmouFinalizacao) {
+                troca.proponenteConfirmouFinalizacao = true;
+                req.flash('success', 'Você confirmou o recebimento! Aguardando confirmação do outro usuário.');
+            }
+        } else if (isReceptor) {
+            // Se o receptor já confirmou, ignora. Se não, marca como true.
+            if (!troca.receptorConfirmouFinalizacao) {
+                troca.receptorConfirmouFinalizacao = true;
+                req.flash('success', 'Você confirmou o recebimento! Aguardando confirmação do outro usuário.');
+            }
+        }
         
+        // 5. Verifica se AMBOS confirmaram
+        if (troca.proponenteConfirmouFinalizacao && troca.receptorConfirmouFinalizacao) {
+            // Se ambos confirmaram, a troca é FINALIZADA
+            troca.status = 'Finalizada';
+            troca.dataFinalizacao = Sequelize.literal('NOW()');
 
-        // --- ATUALIZAÇÃO DO ITEM 2 (Item Desejado pelo Proponente) ---
-        // Este item vai para o Proponente
-        await Item.update({
-            UsuarioId: ProponenteId, 
-            statusPosse: 'Historico' 
-        }, { 
-            where: { id: ItemDesejadoId },
-            transaction: t 
-        });
+            // --- INVERSÃO DE POSSE E ATUALIZAÇÃO DO STATUS DO ITEM ---
+            const { ProponenteId, ReceptorId, ItemOferecidoId, ItemDesejadoId } = troca;
 
-        // 5. Atualiza o status da troca para Finalizada e registra a data
-        await troca.update({
-            status: 'Finalizada',
-            dataFinalizacao: Sequelize.literal('NOW()') 
-        }, { transaction: t });
+            // Item Oferecido (vai para o Receptor)
+            await Item.update({
+                UsuarioId: ReceptorId, 
+                statusPosse: 'Historico' // Item sai do catálogo ativo
+            }, { 
+                where: { id: ItemOferecidoId },
+                transaction: t 
+            });
+            
+            // Item Desejado (vai para o Proponente)
+            await Item.update({
+                UsuarioId: ProponenteId, 
+                statusPosse: 'Historico' // Item sai do catálogo ativo
+            }, { 
+                where: { id: ItemDesejadoId },
+                transaction: t 
+            });
+
+            console.log(`Troca ID ${trocaId} FINALIZADA com sucesso por ambos!`);
+            req.flash('success', 'Troca finalizada com sucesso! Itens registrados em seu Histórico.');
+        }
         
-        // 6. Confirma todas as alterações no banco de dados
+        // 6. Salva as alterações (o status ou apenas o flag de confirmação)
+        await troca.save({ transaction: t });
+        
+        // 7. Confirma a transação
         await t.commit(); 
-        console.log(`Troca ID ${trocaId} finalizada com sucesso!`);
-
-        res.redirect('/trocas'); // Redireciona para o painel principal
+        
+        // Redireciona
+        res.redirect('/trocas');
 
     } catch (error) {
-        // 7. Desfaz tudo em caso de erro
+        // 8. Desfaz tudo em caso de erro
         await t.rollback(); 
-        console.error("ERRO CRÍTICO AO FINALIZAR TROCA (Catch Block):", error);
-        res.redirect('/trocas'); // Redireciona para o painel principal
+        console.error("ERRO CRÍTICO AO FINALIZAR/CONFIRMAR TROCA:", error);
+        req.flash('error', 'Ocorreu um erro ao tentar finalizar a troca.');
+        res.redirect('/trocas'); 
     }
 });
+
 
 // ==========================================================
 // ROTA 10: HISTÓRICO DE TROCAS (Redirecionamento)
@@ -501,6 +542,51 @@ router.post("/finalizar/:trocaId", async (req, res) => {
 router.get("/historico", async (req, res) => {
     // Redireciona para a rota principal de gerenciamento, que tem a aba de Histórico.
     return res.redirect('/trocas');
+});
+
+// ==========================================================
+/// ROTA 11 (NOVA): API para Conteúdo do Modal de Detalhes
+// Garante que os novos campos de confirmação sejam carregados.
+// ==========================================================
+router.get("/detalhes/:trocaId", async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { trocaId } = req.params;
+
+        const troca = await Troca.findByPk(trocaId, {
+            // Incluir todos os dados ricos necessários para a tela de detalhes
+            include: [
+                { 
+                    model: Item, 
+                    as: 'itemOferecido', 
+                    attributes: ['id', 'peca', 'tamanho', 'descricao', 'fotoUrl', 'UsuarioId'],
+                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                },
+                { 
+                    model: Item, 
+                    as: 'itemDesejado', 
+                    attributes: ['id', 'peca', 'tamanho', 'descricao', 'fotoUrl', 'UsuarioId'],
+                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                }
+            ]
+        });
+
+        if (!troca || (troca.ProponenteId !== parseInt(userId, 10) && troca.ReceptorId !== parseInt(userId, 10))) {
+             // Garante que apenas usuários envolvidos possam ver os detalhes (segurança)
+            return res.status(404).send("<p>Troca não encontrada ou você não tem acesso.</p>");
+        }
+
+        // Renderiza o partial que contém a estrutura do modal
+        res.render('partials/troca_modal_content', {
+            troca: troca,
+            userId: parseInt(userId, 10),
+            layout: false // Essencial: não usar o layout principal
+        });
+
+    } catch (error) {
+        console.error("ERRO AO CARREGAR DETALHES DO MODAL:", error);
+        res.status(500).send("Erro ao carregar os detalhes.");
+    }
 });
 
 

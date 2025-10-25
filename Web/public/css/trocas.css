@@ -1,23 +1,32 @@
 /* ==========================================================
-   Estilos Globais e Layout (CORRIGIDO)
-   ========================================================== */
-/* MUDANÇA: Substituído #main-content pela classe .content-area */
+    ESTILOS GERAIS DA TELA DE TROCAS
+    ========================================================== */
 .content-area {
-    /* REMOVIDO: margin-left, pois a classe .app-layout (display: flex) 
-       já garante o posicionamento ao lado da sidebar. */
     padding: 30px;
     background-color: #f7f7f7; /* Cor de fundo da área principal */
     min-height: 100vh;
-    flex-grow: 1; /* Garante que ocupe todo o espaço restante */
+    flex-grow: 1; 
 }
 
+body {
+    background-color: #e6f7ff; /* Tom pastel azulado */
+}
+
+.page-title {
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+
 /* ==========================================================
-   Navegação por Abas (Tabs)
-   ========================================================== */
+    Navegação por Abas (Tabs)
+    ========================================================== */
 
 .tabs-navigation {
     display: flex;
-    border-bottom: 2px solid #ddd; /* Linha que separa as abas do conteúdo */
+    gap: 10px; /* Adicionado gap para espaçamento consistente */
+    border-bottom: 2px solid #ddd;
     margin-bottom: 20px;
 }
 
@@ -25,22 +34,23 @@
     background-color: transparent;
     border: none;
     border-bottom: 3px solid transparent;
-    padding: 10px 20px;
-    margin-right: 5px;
+    padding: 10px 15px; /* Ajustado padding */
     font-size: 16px;
     font-weight: 500;
     color: #888;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+    /* Para alinhar o badge */
+    display: flex;
+    align-items: center;
 }
 
 .tab-button:hover {
     color: #555;
 }
 
-/* Estilo para a aba ativa */
 .tab-button.active {
-    color: #64C5B3; /* Cor primária do seu sistema (Verde/Ciano) */
+    color: #64C5B3; /* Cor primária */
     border-bottom-color: #64C5B3;
     font-weight: 600;
 }
@@ -54,49 +64,71 @@
     margin-left: 5px;
 }
 
+/* Área de conteúdo */
+.tab-content-area {
+    padding-top: 20px;
+}
+.tab-pane {
+    /* Garante que o conteúdo de listagem seja flex para os cards */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+
 /* ==========================================================
-   Lista de Cards (Proposta/Troca)
-   ========================================================== */
+    Lista de Cards (troca_list_card.ejs)
+    ========================================================== */
 
 .proposta-list {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Espaço entre os cards */
+    gap: 15px; 
 }
 
 .troca-list-card {
     display: flex;
-    justify-content: space-between; /* Alinha info à esquerda e ações à direita */
+    justify-content: space-between;
     align-items: center;
     background-color: white;
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sutil sombra para destacar */
-    border-left: 5px solid #ddd; /* Borda lateral padrão */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #ddd; 
+    min-height: 80px; 
+    transition: all 0.2s;
+}
+.troca-list-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Destaque para cards de histórico finalizado */
-.troca-list-card.finalizada {
-    border-left-color: #64C5B3; /* Borda lateral verde/ciano */
-}
+/* Cores da borda lateral conforme o status */
+.troca-list-card.status-pendente { border-left-color: #ffc107; } 
+.troca-list-card.status-aceita { border-left-color: #007bff; } 
+.troca-list-card.status-finalizada { border-left-color: #64C5B3; }
+.troca-list-card.status-cancelada, 
+.troca-list-card.status-rejeitada { border-left-color: #dc3545; }
 
 
-/* ==========================================================
-   Conteúdo do Card (Imagem, Título, Descrição)
-   ========================================================== */
-
+/* Conteúdo do Card */
 .card-info {
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-grow: 1; /* Permite que ocupe o espaço */
 }
 
 .item-thumb-placeholder {
-    width: 60px;
-    height: 60px;
-    background-color: #eee; /* Fundo cinza para simular a imagem */
+    width: 50px; /* Reduzido levemente para melhor visualização */
+    height: 50px;
+    background-color: #eee;
     border-radius: 4px;
     flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    color: #999;
 }
 
 .text-content {
@@ -122,41 +154,85 @@
     color: #999;
 }
 
-/* ==========================================================
-   Ações e Status do Card
-   ========================================================== */
-
+/* Ações e Status do Card */
 .card-actions {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end; /* Alinha ações à direita */
-    gap: 8px;
-}
-
-.finalizada-status {
-    font-weight: 600;
-    color: #64C5B3;
-    font-size: 14px;
-}
-
-.finalizada-status i {
-    margin-right: 5px;
+    flex-direction: row; 
+    align-items: center;
+    gap: 15px; 
+    flex-shrink: 0;
 }
 
 .action-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px; /* Ajustado para melhor espaçamento dos botões */
+    align-items: center;
 }
+
+/* Estilo da label de status atual no card (tipo 'pill') */
+.current-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 15px; 
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+/* ================================================= */
+/* ATUALIZAÇÃO: CORES DOS STATUS PARA CONFIRMAÇÃO DUPLA */
+/* ================================================= */
+
+/* PENDENTE: Aguardando Aceite/Rejeite - Aviso/Atenção */
+.status-label-pendente { 
+    background-color: #fff3cd; 
+    color: #856404; 
+}
+/* ACEITA (ANTIGA): Azul neutro */
+/* .status-label-aceita { background-color: #d1ecf1; color: #0c5460; } */
+
+/* ACEITA (NOVA LÓGICA - ACEITA/AGUARDANDO AÇÃO): Amarelo/Laranja para indicar que a ação é necessária */
+/* Esta classe será usada no trocas_list_card quando o status for "AÇÃO PENDENTE" */
+.status-label-acao-pendente { 
+    background-color: #ffc107; 
+    color: #343a40; 
+}
+/* Esta classe será usada no trocas_list_card quando o status for "AGUARDANDO O OUTRO" */
+.status-label-aguardando-outro {
+    background-color: #d1ecf1; 
+    color: #0c5460; 
+}
+
+/* FINALIZADA: Sucesso */
+.status-label-finalizada { 
+    background-color: #d4edda; 
+    color: #155724; 
+}
+/* CANCELADA/REJEITADA: Perigo/Ruim */
+.status-label-cancelada, 
+.status-label-rejeitada { 
+    background-color: #f8d7da; 
+    color: #721c24; 
+}
+
+/* ================================================= */
+/* FIM DA ATUALIZAÇÃO */
+/* ================================================= */
+
 
 /* Estilo básico de botões/links de ação */
 .btn-detalhes,
-.btn-delete {
-    padding: 8px 12px;
+.btn-delete,
+.action-buttons .btn-action {
+    padding: 6px 10px; /* Levemente aumentado */
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 12px; /* Aumentado um pouco para legibilidade */
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.2s;
+    font-weight: 600; /* Mais peso */
+    text-transform: uppercase;
+    display: inline-block;
 }
 
 .btn-detalhes {
@@ -164,26 +240,34 @@
     color: #333;
     border: 1px solid #ccc;
 }
-
-.btn-detalhes:hover {
-    background-color: #d0d0d0;
-}
+.btn-detalhes:hover { background-color: #d0d0d0; }
 
 .btn-delete {
-    background-color: #f8d7da; /* Cor de alerta suave */
+    background-color: #f8d7da; 
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+.btn-delete:hover { background-color: #f5b7bd; }
 
-.btn-delete:hover {
-    background-color: #f5b7bd;
+/* Estilos para botões de ação rápida (Aceitar, Rejeitar, Cancelar) */
+.btn-success { background-color: #64C5B3; color: white; border: 1px solid #50b0a0; }
+.btn-danger { background-color: #dc3545; color: white; border: 1px solid #c82333; }
+.btn-warning { background-color: #ffc107; color: #333; border: 1px solid #e0a800; }
+.btn-primary { background-color: #007bff; color: white; border: 1px solid #0069d9; }
+
+/* Mensagem de espera na lista de cards */
+.waiting-message {
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #6c757d;
+    display: inline-block;
 }
 
 
-/* ==========================================================
-   Estado Vazio (Empty State)
-   ========================================================== */
-
+/* Estado Vazio */
 .empty-state {
     padding: 40px;
     text-align: center;
@@ -193,8 +277,255 @@
     border: 1px dashed #ccc;
     color: #777;
 }
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #b0b0b0;
+}
 
-/* Opcional: Adicionar um toque de cor de fundo na tela geral */
-body {
-    background-color: #e6f7ff; /* Tom pastel azulado, como no protótipo */
+
+/* ==========================================================
+    ESTILOS DO MODAL (trocaModal)
+    ========================================================== */
+
+.modal-overlay {
+    /* display: flex; será definido via JS */
+    position: fixed; 
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); 
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%; 
+    max-width: 900px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close-button {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    line-height: 1;
+}
+.close-button:hover,
+.close-button:focus {
+    color: #333;
+}
+
+
+/* ==========================================================
+    ESTILOS DO CONTEÚDO DO MODAL (troca_modal_content.ejs)
+    ========================================================== */
+
+.modal-title {
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    color: #64C5B3; /* Cor primária */
+}
+
+.troca-header {
+    margin-bottom: 20px;
+}
+
+.troca-header .troca-status {
+    display: inline-block;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.troca-header .troca-data {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.items-comparison {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.item-card {
+    flex: 1;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    border: 1px solid #eee;
+}
+
+.item-card.item-oferecido {
+    border-left: 5px solid #ffc107; /* Amarelo: Proposta */
+}
+
+.item-card.item-desejado {
+    border-left: 5px solid #007bff; /* Azul: Item Principal */
+}
+
+.card-subtitle {
+    font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.card-owner {
+    display: block;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.troca-icon {
+    align-self: center;
+    font-size: 30px;
+    color: #64C5B3;
+    padding-top: 50px; 
+    transform: rotate(90deg); /* Faz parecer uma seta horizontal */
+}
+
+/* Detalhes do Item (Inline, após remover o partial) */
+.item-details p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+}
+.item-details .item-peca {
+    font-weight: 600;
+    color: #333;
+}
+.item-details .item-descricao {
+    margin-top: 10px;
+    font-style: italic;
+    color: #666;
+}
+
+.item-details .item-photo-full {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-top: 15px;
+    border: 1px solid #eee;
+}
+
+.item-details .item-photo-placeholder-full {
+    width: 100%;
+    height: 180px;
+    background-color: #f0f0f0;
+    color: #999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-size: 1rem;
+}
+
+/* Ações do Modal */
+.modal-actions-summary {
+    border-top: 1px dashed #ccc;
+    padding-top: 20px;
+    text-align: center;
+}
+
+.modal-actions-summary h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.modal-actions-summary p {
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.modal-actions-summary .btn-action {
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* ==========================================================
+    NOVOS ESTILOS PARA CONFIRMAÇÃO DUPLA NO MODAL
+    ========================================================== */
+
+.finalization-status-box {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    text-align: left; /* Alinha o texto interno para a esquerda */
+}
+
+.finalization-status-box h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #343a40;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* Classes utilitárias de cor para o modal (usadas dentro do .finalization-status-box) */
+.text-success {
+    color: #28a745;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.text-warning {
+    color: #ffc107;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+/* Garante que o ícone de sucesso/alerta apareça alinhado */
+.finalization-status-box .fas {
+    margin-right: 8px;
+}
+
+/* Responsividade Básica */
+@media (max-width: 768px) {
+    .items-comparison {
+        flex-direction: column;
+    }
+    .troca-icon {
+        padding: 10px 0;
+        transform: rotate(0deg); /* Gira para a posição vertical */
+    }
+    .troca-list-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .card-actions {
+        width: 100%;
+        margin-top: 10px;
+        justify-content: space-between;
+    }
+    .action-buttons {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
 }

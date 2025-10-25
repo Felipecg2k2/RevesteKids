@@ -1,47 +1,126 @@
 <%
-    // Helper para determinar se a troca está finalizada (como na imagem)
-    const isFinalizada = item.status === 'finalizada'; 
-    
-    // Simulação dos dados que virão do banco
-    const itemTitle = item.item_principal ? item.item_principal.nome : 'Item Não Encontrado';
-    const otherUserName = item.outro_usuario ? item.outro_usuario.nome : 'Usuário Desconhecido';
-    const timeAgo = item.data_criacao || 'Agora mesmo'; 
-    const itemId = item._id; // O ID do documento para links de detalhes
-    
-    // Texto de descrição
-    let descriptionText = '';
-    if (tipo === 'recebida') {
-        descriptionText = `Proposta de ${otherUserName}`;
-    } else if (tipo === 'enviada') {
-        descriptionText = `Proposta para ${otherUserName}`;
-    } else if (tipo === 'historico') {
-        descriptionText = `Com ${otherUserName}`;
-    }
+    // userId é passado pelo views/trocas.ejs. É crucial parsear como int se não tiver certeza do tipo.
+    const currentUserId = parseInt(userId, 10);
+    
+    // Usa 'troca' em vez de 'item' para clareza (assumindo que o loop forEach usa 'troca')
+    const troca = item; 
+    
+    const isPendente = troca.status === 'Pendente'; 
+    const isAceita = troca.status === 'Aceita';
+    const isProponente = troca.ProponenteId === currentUserId;
+    const isReceptor = troca.ReceptorId === currentUserId;
+    const trocaId = troca.id;
+    
+    // =========================================================
+    // 1. DEFINIÇÃO DO ITEM CENTRAL (O item do PARCEIRO que é o foco)
+    // =========================================================
+    
+    // O foco do card é sempre a peça que PERTENCE AO OUTRO USUÁRIO,
+    // pois é a peça que você irá (receber/desejar) ou que eles (ofereceram/querem).
+    const itemDeFoco = (isReceptor) 
+        ? troca.itemOferecido // Você recebeu: o foco é o item que o proponente oferece
+        : troca.itemDesejado;  // Você propôs: o foco é o item que você deseja (que pertence ao receptor)
+        
+    // O usuário parceiro está aninhado dentro do itemDeFoco (se a lógica de inclusão da rota estiver correta)
+    const otherUser = itemDeFoco && itemDeFoco.usuario ? itemDeFoco.usuario : null;
+    
+    const itemTitle = itemDeFoco && itemDeFoco.peca ? itemDeFoco.peca : 'Item Não Carregado';
+    const otherUserName = otherUser ? otherUser.nome : 'Usuário Desconhecido';
+
+    
+    // =========================================================
+    // 2. DEFINIÇÃO DA DESCRIÇÃO E STATUS TEXTUAL
+    // =========================================================
+    
+    let descriptionText = '';
+    let statusLabelText = troca.status;
+    
+    if (isPendente) {
+        if (isReceptor) {
+            // Proposta Recebida
+            descriptionText = `Oferta de: ${otherUserName}`;
+            statusLabelText = 'Aguardando Ação';
+        } else if (isProponente) {
+            // Proposta Enviada
+            descriptionText = `Para: ${otherUserName}`;
+            statusLabelText = 'Aguardando Resposta';
+        }
+    } 
+    
+    // =========================================================
+    // 3. LÓGICA DE CONFIRMAÇÃO DUPLA (STATUS ACEITA)
+    // =========================================================
+    
+    let isAcaoPendente = false; 
+    
+    if (isAceita) {
+        const minhaConfirmacao = isProponente ? troca.proponenteConfirmouFinalizacao : troca.receptorConfirmouFinalizacao;
+        const outraConfirmacao = isProponente ? troca.receptorConfirmouFinalizacao : troca.proponenteConfirmouFinalizacao;
+
+        if (!minhaConfirmacao) {
+            isAcaoPendente = true;
+            statusLabelText = 'AÇÃO PENDENTE (FINALIZAR)';
+            descriptionText = `Clique em detalhes para confirmar o recebimento do item de ${otherUserName}.`;
+        } else if (minhaConfirmacao && !outraConfirmacao) {
+            statusLabelText = 'AGUARDANDO O OUTRO';
+            descriptionText = `Você confirmou. Aguardando ${otherUserName} confirmar.`;
+        } else if (minhaConfirmacao && outraConfirmacao) {
+            // Este caso não deve aparecer, pois a rota deve ter mudado o status para 'Finalizada'
+            // Mas é bom ter um fallback.
+            statusLabelText = 'PENDENTE DE ATUALIZAÇÃO'; 
+            descriptionText = 'Ambos confirmaram. Recarregue a página.';
+        }
+    }
+
 %>
 
-<div class="troca-list-card <%= isFinalizada ? 'finalizada' : '' %>">
-    
-    <div class="card-info">
-        <div class="text-content">
-            <h4 class="item-title"><%= itemTitle %></h4>
-            <p class="item-description"><%= descriptionText %></p>
-            <span class="time-ago"><%= timeAgo %></span>
-        </div>
-    </div>
+<div class="troca-list-card status-<%= troca.status.toLowerCase() %>">
+    
+    <div class="card-info">
+                <div class="item-thumb-placeholder"><i class="fas fa-tshirt"></i></div> 
+        
+        <div class="text-content">
+            <h4 class="item-title"><%= itemTitle %> (<%= itemDeFoco && itemDeFoco.tamanho ? itemDeFoco.tamanho : 'Tam. N/A' %>)</h4>
+            <p class="item-description"><%= descriptionText %></p>
+            <span class="time-ago">Criado em: <%= troca.createdAt.toLocaleDateString('pt-BR') %></span>
+        </div>
+    </div>
 
-    <div class="card-actions">
-        
-        <% if (isFinalizada) { %>
-            <span class="finalizada-status"><i class="fas fa-check"></i> Finalizada</span>
-        <% } %>
-        
-        <div class="action-buttons">
-            <a href="/troca/<%= itemId %>" class="btn-detalhes">Ver Detalhes</a>
-            
-            <% if (tipo !== 'historico') { %>
-                <button class="btn-delete"><i class="fas fa-trash-alt"></i> Deletar</button>
-            <% } %>
+    <div class="card-actions">
+        
+        <span class="current-status status-label-<%= troca.status.toLowerCase() %>">
+            <i class="fas fa-info-circle"></i> <%= statusLabelText %>
+        </span>
+        
+        <div class="action-buttons">
+            
+                        <% if (isReceptor && isPendente) { %>
+                <form method="POST" action="/trocas/aceitar/<%= trocaId %>" style="display:inline;">
+                    <button type="submit" class="btn-action btn-success">Aceitar</button>
+                </form>
+                <form method="POST" action="/trocas/rejeitar/<%= trocaId %>" style="display:inline;">
+                    <button type="submit" class="btn-action btn-danger">Rejeitar</button>
+                </form>
+            
+                        <% } else if (isProponente && isPendente) { %>
+                <form method="POST" action="/trocas/cancelar/<%= trocaId %>" style="display:inline;">
+                    <button type="submit" class="btn-action btn-warning">Cancelar</button>
+                </form>
+            
+                        <% } else if (isAceita && isAcaoPendente) { %>
+                                <form method="POST" action="/trocas/finalizar/<%= trocaId %>" style="display:inline;">
+                    <button type="submit" class="btn-action btn-success">Confirmar Recebimento</button>
+                </form>
+            
+                        <% } else if (isAceita && !isAcaoPendente) { %>
+                <span class="waiting-message">Aguardando Confirmação Final...</span>
+            <% } %>
 
-        </div>
-    </div>
+                        <a href="#" class="btn-detalhes" data-troca-id="<%= trocaId %>">Ver Detalhes</a>
+            
+                        <% if (troca.status === 'Finalizada' || troca.status === 'Cancelada' || troca.status === 'Rejeitada') { %>
+                <a href="/trocas/deletar/<%= trocaId %>" class="btn-delete">Deletar</a>
+            <% } %>
+        </div>
+    </div>
 </div>

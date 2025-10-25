@@ -6,31 +6,42 @@ import Usuario from './Usuario.js';
 import Item from './Item.js';
 
 const Troca = connection.define('Troca', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    status: {
-        // CORREÇÃO CRÍTICA: Adicionado 'Conflito' para suportar a lógica da ROTA 9 (Finalizar Troca)
-        type: DataTypes.ENUM('Pendente', 'Aceita', 'Rejeitada', 'Finalizada', 'Cancelada', 'Conflito'), 
-        allowNull: false,
-        defaultValue: 'Pendente' 
-    },
-    dataAceite: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
-    // Correção já existente e correta
-    dataFinalizacao: { 
-        type: DataTypes.DATE,
-        allowNull: true // Será preenchido na ROTA 9 (Finalizar Troca)
-    }
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    status: {
+        // MANTIDO: 'Conflito'
+        type: DataTypes.ENUM('Pendente', 'Aceita', 'Rejeitada', 'Finalizada', 'Cancelada', 'Conflito'), 
+        allowNull: false,
+        defaultValue: 'Pendente' 
+    },
+    dataAceite: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    // CAMPO PARA RASTREAR A CONFIRMAÇÃO DO PROPONENTE (Usuário que iniciou)
+    proponenteConfirmouFinalizacao: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    // CAMPO PARA RASTREAR A CONFIRMAÇÃO DO RECEPTOR (Dono do item desejado)
+    receptorConfirmouFinalizacao: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    dataFinalizacao: { 
+        type: DataTypes.DATE,
+        allowNull: true // Será preenchido quando AMBOS confirmarem
+    }
 }, {
-    // === Ajustes para Consistência do Sequelize ===
-    tableName: 'Trocas', 
-    freezeTableName: true, 
-    timestamps: true 
+    // === Ajustes para Consistência do Sequelize ===
+    tableName: 'Trocas', 
+    freezeTableName: true, 
+    timestamps: true 
 });
 
 // ==========================================================
@@ -39,39 +50,40 @@ const Troca = connection.define('Troca', {
 
 // 1. Quem Propôs a Troca?
 Troca.belongsTo(Usuario, {
-    as: 'proponente', 
-    foreignKey: 'ProponenteId', 
-    onDelete: 'SET NULL', 
-    onUpdate: 'CASCADE'
+    as: 'proponente', 
+    foreignKey: 'ProponenteId', 
+    onDelete: 'SET NULL', 
+    onUpdate: 'CASCADE'
 });
 
 // 2. De Quem é a Troca? (O Dono do Item Desejado)
 Troca.belongsTo(Usuario, {
-    as: 'receptor', 
-    foreignKey: 'ReceptorId', 
-    onDelete: 'SET NULL', 
-    onUpdate: 'CASCADE'
+    as: 'receptor', 
+    foreignKey: 'ReceptorId', 
+    onDelete: 'SET NULL', 
+    onUpdate: 'CASCADE'
 });
 
 // 3. Qual Item o Proponente ESTÁ OFERECENDO?
 Troca.belongsTo(Item, {
-    as: 'itemOferecido',
-    foreignKey: 'ItemOferecidoId',
-    onDelete: 'SET NULL', 
-    onUpdate: 'CASCADE'
+    as: 'itemOferecido',
+    foreignKey: 'ItemOferecidoId',
+    onDelete: 'SET NULL', 
+    onUpdate: 'CASCADE'
 });
 
 // 4. Qual Item o Proponente DESEJA RECEBER?
 Troca.belongsTo(Item, {
-    as: 'itemDesejado',
-    foreignKey: 'ItemDesejadoId',
-    onDelete: 'SET NULL', 
-    onUpdate: 'CASCADE'
+    as: 'itemDesejado',
+    foreignKey: 'ItemDesejadoId',
+    onDelete: 'SET NULL', 
+    onUpdate: 'CASCADE'
 });
 
 export default Troca;
 
 // NOTA IMPORTANTE:
-// Se você já tem este modelo sincronizado com o banco de dados (ex: com Troca.sync()), 
-// precisará realizar uma migração manual ou usar o comando Sequelize `alter: true`
-// para adicionar 'Conflito' ao ENUM do campo `status` no seu banco de dados.
+// Você DEVE rodar uma migração no seu banco de dados para adicionar os campos:
+// - proponenteConfirmouFinalizacao (BOOLEAN, default: false)
+// - receptorConfirmouFinalizacao (BOOLEAN, default: false)
+// Caso contrário, o Controller dará erro ao tentar acessá-los.
