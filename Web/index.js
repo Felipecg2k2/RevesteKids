@@ -13,7 +13,7 @@ import { dirname } from 'path'; // <--- NOVO: Importe utilitários para ES Modul
 // FIX CRUCIAL: DEFINIÇÃO DO DIRETÓRIO RAIZ DA APLICAÇÃO (Web/)
 // =========================================================================
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename); // __dirname agora é o caminho absoluto para 'Web/'
+const __dirname = path.dirname(__filename); // __dirname agora é o caminho absoluto para 'Web/'
 global.APP_ROOT = __dirname; // Define o caminho absoluto para a pasta 'Web' globalmente
 
 // =========================================================================

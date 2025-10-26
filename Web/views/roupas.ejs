@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="/css/roupas.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script> 
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 
 <body>
@@ -146,6 +146,25 @@
                                                         Finalizada em: <%= formatarData(troca.dataFinalizacao) %>
                                                     </p>
                                                 <% } %>
+
+                                                <!-- BOTÃO VER DETALHES - ADICIONADO -->
+                                                <button class="btn-ver-detalhes" 
+                                                        data-troca-id="<%= troca.id %>"
+                                                        style="
+                                                            background-color: #6a1b9a; 
+                                                            color: white; 
+                                                            padding: 8px 16px; 
+                                                            border: none; 
+                                                            border-radius: 4px; 
+                                                            cursor: pointer;
+                                                            font-weight: bold;
+                                                            margin-top: 10px;
+                                                            transition: background-color 0.2s;
+                                                        "
+                                                        onmouseover="this.style.backgroundColor='#4a148c'"
+                                                        onmouseout="this.style.backgroundColor='#6a1b9a'">
+                                                    <i class="fas fa-eye"></i> Ver Detalhes
+                                                </button>
                                         </div>
                                     <% }); %>
 
@@ -229,6 +248,7 @@
                                                     Ver <%= listaImagensObj.length %> Fotos
                                                 </button>
                                                 <% } %>
+                                                
                                                 <% if (item.statusPosse === 'Ativo') { %>
                                                     <a href="#" class="btn-editar" data-item-id="<%= item.id %>"
                                                         data-item='<%= JSON.stringify(item) %>' 
@@ -243,10 +263,28 @@
                                                         style="color: red; text-decoration: none; font-size: 1.1em; white-space: nowrap;">
                                                         <i class="fas fa-trash-alt"></i> Excluir
                                                     </a>
+                                                <% } else if (item.statusPosse === 'EmTroca') { %>
+                                                    <a href="/trocas" class="btn-ver-troca" 
+                                                       style="
+                                                           background-color: #ff9800; 
+                                                           color: white; 
+                                                           padding: 8px 12px; 
+                                                           border: none; 
+                                                           border-radius: 4px; 
+                                                           cursor: pointer;
+                                                           text-decoration: none;
+                                                           font-weight: bold;
+                                                           display: inline-block;
+                                                           white-space: nowrap;
+                                                           transition: background-color 0.2s;
+                                                       " 
+                                                       onmouseover="this.style.backgroundColor='#f57c00'"
+                                                       onmouseout="this.style.backgroundColor='#ff9800'">
+                                                        <i class="fas fa-exchange-alt"></i> Ver Troca
+                                                    </a>
                                                 <% } else { %>
-                                                    <span style="color: #666; font-size: 0.9em;">Ações Bloqueadas (Em Troca)</span>
+                                                    <span style="color: #666; font-size: 0.9em;">Ações Bloqueadas</span>
                                                 <% } %>
-
                                             </div>
                                         </div>
                                     <% }); %>
@@ -319,7 +357,7 @@
                         </p>
                     </label>
                     <input type="file" id="imagens_upload" name="imagens_upload" accept="image/*" multiple 
-                           style="display: none;" required>
+                           style="display: none;">
                 </div>
 
                 <!-- CAMPOS DO FORMULÁRIO -->
@@ -444,11 +482,96 @@
         </div>
     </div>
 
+    <!-- MODAL PARA DETALHES DA TROCA -->
+    <div id="modal-detalhes-troca" style="
+        display: none; 
+        position: fixed; 
+        z-index: 2000; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.7); 
+    ">
+        <div class="modal-content" style="
+            margin: 5% auto;
+            padding: 25px;
+            width: 80%;
+            max-width: 600px;
+            background-color: #fefefe;
+            border-radius: 8px;
+            position: relative;
+        ">
+            <span id="btn-fechar-detalhes" class="close" style="
+                position: absolute;
+                top: 15px;
+                right: 25px;
+                color: #333;
+                cursor: pointer;
+                font-size: 30px;
+                font-weight: bold;
+            ">&times;</span>
+            
+            <h2>Detalhes da Troca</h2>
+            <div id="conteudo-detalhes-troca">
+                <!-- Conteúdo será carregado via AJAX -->
+            </div>
+        </div>
+    </div>
+
     <div id="item-data-container" style="display: none;" 
          data-filtro-status="<%= typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo' %>">
     </div>
 
     <script src="/js/roupas.js"></script>
-</body>
 
+    <script>
+    // JavaScript para o modal de detalhes (APENAS para histórico)
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalDetalhes = document.getElementById('modal-detalhes-troca');
+        const btnFecharDetalhes = document.getElementById('btn-fechar-detalhes');
+        const conteudoDetalhes = document.getElementById('conteudo-detalhes-troca');
+        
+        // Botões "Ver Detalhes" no histórico
+        document.querySelectorAll('.btn-ver-detalhes').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const trocaId = this.getAttribute('data-troca-id');
+                abrirDetalhesTroca(trocaId);
+            });
+        });
+        
+        // Fechar modal
+        if (btnFecharDetalhes) {
+            btnFecharDetalhes.addEventListener('click', function() {
+                modalDetalhes.style.display = 'none';
+            });
+        }
+        
+        // Fechar ao clicar fora
+        if (modalDetalhes) {
+            modalDetalhes.addEventListener('click', function(e) {
+                if (e.target === modalDetalhes) {
+                    modalDetalhes.style.display = 'none';
+                }
+            });
+        }
+        
+        function abrirDetalhesTroca(trocaId) {
+            // Carrega os detalhes via AJAX
+            fetch(`/trocas/detalhes/${trocaId}`)
+                .then(response => response.text())
+                .then(html => {
+                    conteudoDetalhes.innerHTML = html;
+                    modalDetalhes.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar detalhes:', error);
+                    conteudoDetalhes.innerHTML = '<p>Erro ao carregar detalhes da troca.</p>';
+                    modalDetalhes.style.display = 'block';
+                });
+        }
+    });
+    </script>
+</body>
 </html>
