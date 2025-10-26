@@ -38,13 +38,18 @@ O propósito é **incentivar a sustentabilidade e o reaproveitamento de roupas**
    ```bash
    npm install
    ```
+   
+3. **Inicie o servidor MySQL no XAMPP e crie o banco de dados revestekids no Workbanch**
+   ```bash
+   create database revestekids;
+   ```
 
-3. **Execute o projeto**
+4. **Execute o projeto**
    ```bash
    npm start
    ```
 
-4. **Acesse no navegador**
+5. **Acesse no navegador**
    ```
    http://localhost:8080
    ```
