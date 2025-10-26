@@ -7,21 +7,25 @@
 
     <link rel="stylesheet" href="/css/sidebar.css">
     <link rel="stylesheet" href="/css/roupas.css">
-    </head>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+</head>
 
 <body>
 
     <div class="app-layout">
 
-        <%- include('partials/_sidebar', { path: typeof path !== 'undefined' ? path : '' }) %>
+        <%- include('partials/_sidebar', { path: typeof path !=='undefined' ? path : '' }) %>
 
-        <div class="content-area">
-            <div class="content-area-pad">
+            <div class="content-area">
+                <div class="content-area-pad">
 
-                <div class="header-actions">
-                    <h1>Gerenciamento de Peças</h1>
-                    <% if (!mostrarHistorico) { %>
-                    <button id="btn-abrir-modal" class="btn-primary" style="
+                    <div class="header-actions">
+                        <h1>Gerenciamento de Peças</h1>
+                        <% if (!mostrarHistorico) { %>
+                            <button id="btn-abrir-modal" class="btn-primary" style="
                                 background-color: #9370DB; 
                                 color: white; 
                                 padding: 10px 20px; 
@@ -33,212 +37,330 @@
                                 white-space: nowrap; 
                                 transition: background-color 0.2s;
                             " onmouseover="this.style.backgroundColor='#7B68EE'"
-                        onmouseout="this.style.backgroundColor='#9370DB'">
-                        Adicionar Roupa
-                    </button>
-                    <% } %>
-                </div>
-                
-                <% 
+                                onmouseout="this.style.backgroundColor='#9370DB'">
+                                Adicionar Roupa
+                            </button>
+                        <% } %>
+                    </div>
+
+                    <% 
                     const statusAtual = typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo';
-                    const isHistorico = mostrarHistorico;
-                %>
-                
-                <div class="filtros-status">
-                    <a href="/roupas?status=Ativo" class="filtro-item-link">
-                        <div class="filtro-item <%= (statusAtual === 'Ativo' && !isHistorico) ? 'ativo' : '' %>" 
-                             style="background-color: #e0f7fa;" id="filtro-ativas" data-filtro="Ativo">
-                            <strong>
-                                <%= typeof totalAtivas !== 'undefined' ? totalAtivas : 0 %>
-                            </strong>
-                            <p>Roupas Disponíveis</p>
+                    const isHistorico = mostrarHistorico; 
+                    %>
+
+                        <div class="filtros-status">
+                            <a href="/roupas?status=Ativo" class="filtro-item-link">
+                                <div class="filtro-item <%= (statusAtual === 'Ativo' && !isHistorico) ? 'ativo' : '' %>"
+                                    style="background-color: #e0f7fa;" id="filtro-ativas" data-filtro="Ativo">
+                                    <strong>
+                                        <%= typeof totalAtivas !== 'undefined' ? totalAtivas : 0 %>
+                                    </strong>
+                                    <p>Roupas Disponíveis</p>
+                                </div>
+                            </a>
+
+                            <a href="/roupas?status=EmTroca" class="filtro-item-link">
+                                <div class="filtro-item <%= (statusAtual === 'EmTroca' && !isHistorico) ? 'ativo' : '' %>"
+                                    style="background-color: #fffde7;" id="filtro-emtroca" data-filtro="EmTroca">
+                                    <strong>
+                                        <%= typeof emTroca !== 'undefined' ? emTroca : 0 %>
+                                    </strong>
+                                    <p>Roupas em Negociação</p>
+                                </div>
+                            </a>
+
+                            <a href="/roupas?status=Historico" class="filtro-item-link">
+                                <div class="filtro-item <%= isHistorico ? 'ativo' : '' %>"
+                                    style="background-color: #e8f5e9;" id="filtro-historico-link"
+                                    data-filtro="Historico">
+                                    <strong>
+                                        <%= typeof trocasRealizadas !== 'undefined' ? trocasRealizadas : 0 %>
+                                    </strong>
+                                    <p>Trocas Finalizadas</p>
+                                </div>
+                            </a>
                         </div>
-                    </a>
 
-                    <a href="/roupas?status=EmTroca" class="filtro-item-link">
-                        <div class="filtro-item <%= (statusAtual === 'EmTroca' && !isHistorico) ? 'ativo' : '' %>" 
-                             style="background-color: #fffde7;" id="filtro-emtroca" data-filtro="EmTroca">
-                            <strong>
-                                <%= typeof emTroca !== 'undefined' ? emTroca : 0 %>
-                            </strong>
-                            <p>Roupas em Negociação</p>
-                        </div>
-                    </a>
+                        <% if (isHistorico) { %>
+                            <h2>Histórico de Trocas Concluídas</h2>
 
-                    <a href="/roupas?status=Historico" class="filtro-item-link">
-                        <div class="filtro-item <%= isHistorico ? 'ativo' : '' %>" 
-                             style="background-color: #e8f5e9;" id="filtro-historico-link" data-filtro="Historico">
-                            <strong>
-                                <%= typeof trocasRealizadas !== 'undefined' ? trocasRealizadas : 0 %>
-                            </strong>
-                            <p>Trocas Finalizadas</p>
-                        </div>
-                    </a>
-                </div>
+                            <div class="historico-grid">
 
-                <% if (isHistorico) { %>
-                    <h2>Histórico de Trocas Concluídas</h2>
-
-                    <div class="historico-grid">
-
-                        <% 
-                            // Função auxiliar para formatar data (Mantida no EJS por ser puramente de view)
-                            const formatarData = (dataStr) => {
-                                if (!dataStr) return 'N/A';
-                                try {
-                                    return new Date(dataStr).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                                } catch (e) {
-                                    return 'Data Inválida';
-                                }
-                            };
-                        %>
-
-                        <% if (historicoTrocas && historicoTrocas.length > 0) { %>
-
-                        <% historicoTrocas.forEach(function(troca) { %>
-                            <div class="troca-card">
-                                
                                 <% 
-                                    const idUsuarioLogado = typeof userId !== 'undefined' ? userId : null; 
-                                    const isProponente = troca.ProponenteId === idUsuarioLogado;
-                                    
-                                    const pecaRecebida = isProponente ? troca.itemDesejado : troca.itemOferecido;
-                                    const pecaEnviada = isProponente ? troca.itemOferecido : troca.itemDesejado;
-                                    
-                                    const nomeParceiro = pecaRecebida.usuario ? pecaRecebida.usuario.nome : 'Usuário Desconhecido';
+                                // Função auxiliar para formatar data
+                                const formatarData = (dataStr) => {
+                                    if (!dataStr) return 'N/A';
+                                    try {
+                                        return new Date(dataStr).toLocaleDateString('pt-BR', { 
+                                            day: '2-digit', 
+                                            month: '2-digit', 
+                                            year: 'numeric' 
+                                        });
+                                    } catch (e) {
+                                        return 'Data Inválida';
+                                    }
+                                };
                                 %>
 
-                                <h3>Troca #<%= troca.id %> - <%= troca.status %></h3>
-                                
-                                <div class="item-troca-container">
-                                    
-                                    <div class="item-troca-info enviada">
-                                        <small>Você enviou:</small>
-                                        <p><%= pecaEnviada.peca %> (<%= pecaEnviada.tamanho %>)</p>
-                                    </div>
-                                    
-                                    <span class="simbolo-troca">↔️</span>
-                                    
-                                    <div class="item-troca-info recebida">
-                                        <small>Você recebeu:</small>
-                                        <p><%= pecaRecebida.peca %> (<%= pecaRecebida.tamanho %>)</p>
-                                    </div>
-                                </div>
-                                
-                                <p style="font-size: 0.9em; margin-top: 10px;">
-                                    <strong>Trocada com:</strong> <%= nomeParceiro %>
-                                </p>
-                                
-                                <% if (troca.dataFinalizacao) { %>
-                                <p style="font-size: 0.85em; color: #555;">
-                                    Finalizada em: <%= formatarData(troca.dataFinalizacao) %>
-                                </p>
-                                <% } %>
-                            </div>
-                        <% }); %>
+                                <% if (historicoTrocas && historicoTrocas.length > 0) { %>
 
-                        <% } else { %>
-                        <div class="empty-message">
-                            <h2>Histórico Vazio</h2>
-                            <p>Você ainda não possui trocas concluídas em seu histórico.</p>
-                            <p>Que tal começar uma nova troca no <a href="/feed">feed</a>?</p>
-                        </div>
-                        <% } %>
-                    </div>
+                                    <% historicoTrocas.forEach(function(troca) { %>
+                                        <div class="troca-card">
 
-                <% } else { %>
-                    <h2>Peças em Status: <%= statusAtual === 'Ativo' ? 'Disponível' : 'Em Negociação' %></h2>
+                                            <% 
+                                            const idUsuarioLogado = typeof userId !== 'undefined' ? userId : null;
+                                            const isProponente = troca.ProponenteId === idUsuarioLogado;
+                                            const pecaRecebida = isProponente ? troca.itemDesejado : troca.itemOferecido;
+                                            const pecaEnviada = isProponente ? troca.itemOferecido : troca.itemDesejado;
+                                            const nomeParceiro = pecaRecebida.usuario ? pecaRecebida.usuario.nome : 'Usuário Desconhecido';
+                                            %>
 
-                    <div class="itens-grid">
+                                                <h3>Troca #<%= troca.id %> - <%= troca.status %></h3>
 
-                        <% if (itens && itens.length > 0) { %>
-                        <% itens.forEach(function(item) { %>
+                                                <div class="item-troca-container">
 
-                        <div class="item-card">
-                            <div class="image-placeholder">
-                                [Imagem da Peça - ID: <%= item.id %>]
-                            </div>
+                                                    <div class="item-troca-info enviada">
+                                                        <small>Você enviou:</small>
+                                                        <p>
+                                                            <%= pecaEnviada.peca %> (<%= pecaEnviada.tamanho %>)
+                                                        </p>
+                                                    </div>
 
-                            <h3>
-                                <%= item.peca %>
-                            </h3>
-                            <p>Tamanho: <%= item.tamanho %>
-                            </p>
-                            <p style="font-size: 0.9em; color: #666; margin-top: -10px;">
-                                <%= item.categoriaPeca %>
-                            </p>
-                            <p
-                                class="status <%= item.statusPosse === 'Ativo' ? 'status-ativo' : 'status-troca' %>">
-                                <%= item.statusPosse === 'Ativo' ? 'Disponível' : 'Em Processo de Troca' %>
-                            </p>
+                                                    <span class="simbolo-troca">↔️</span>
 
-                            <div
-                                style="display: flex; justify-content: center; gap: 20px; margin-top: 15px; flex-wrap: wrap;">
+                                                    <div class="item-troca-info recebida">
+                                                        <small>Você recebeu:</small>
+                                                        <p>
+                                                            <%= pecaRecebida.peca %> (<%= pecaRecebida.tamanho %>)
+                                                        </p>
+                                                    </div>
+                                                </div>
 
-                                <% if (item.statusPosse === 'Ativo') { %>
-                                <a href="#" class="btn-editar" data-item-id="<%= item.id %>"
-                                    data-item='<%= JSON.stringify(item) %>' title="Editar"
-                                    style="text-decoration: none; font-size: 1.1em; white-space: nowrap;">✏️
-                                    Editar</a>
-                                <a href="/roupas/excluir/<%= item.id %>"
-                                    onclick="return confirm('Tem certeza que deseja excluir <%= item.peca %>?');"
-                                    title="Excluir"
-                                    style="color: red; text-decoration: none; font-size: 1.1em; white-space: nowrap;">🗑️
-                                    Excluir</a>
+                                                <p style="font-size: 0.9em; margin-top: 10px;">
+                                                    <strong>Trocada com:</strong>
+                                                    <%= nomeParceiro %>
+                                                </p>
+
+                                                <% if (troca.dataFinalizacao) { %>
+                                                    <p style="font-size: 0.85em; color: #555;">
+                                                        Finalizada em: <%= formatarData(troca.dataFinalizacao) %>
+                                                    </p>
+                                                <% } %>
+
+                                                <!-- BOTÃO VER DETALHES - ADICIONADO -->
+                                                <button class="btn-ver-detalhes" 
+                                                        data-troca-id="<%= troca.id %>"
+                                                        style="
+                                                            background-color: #6a1b9a; 
+                                                            color: white; 
+                                                            padding: 8px 16px; 
+                                                            border: none; 
+                                                            border-radius: 4px; 
+                                                            cursor: pointer;
+                                                            font-weight: bold;
+                                                            margin-top: 10px;
+                                                            transition: background-color 0.2s;
+                                                        "
+                                                        onmouseover="this.style.backgroundColor='#4a148c'"
+                                                        onmouseout="this.style.backgroundColor='#6a1b9a'">
+                                                    <i class="fas fa-eye"></i> Ver Detalhes
+                                                </button>
+                                        </div>
+                                    <% }); %>
+
                                 <% } else { %>
-                                <span style="color: #666; font-size: 0.9em;">Ações
-                                    Bloqueadas (Em Troca)</span>
+                                    <div class="empty-message">
+                                        <h2>Histórico Vazio</h2>
+                                        <p>Você ainda não possui trocas concluídas em seu histórico.</p>
+                                        <p>Que tal começar uma nova troca no <a href="/feed">feed</a>?</p>
+                                    </div>
                                 <% } %>
-
                             </div>
-                        </div>
-                        <% }); %>
 
                         <% } else { %>
-                        <% if (statusAtual === 'EmTroca') { %>
-                        <div class="empty-message">
-                            <h2>Nenhuma Peça em Negociação 🙁</h2>
-                            <p>Você não possui nenhuma peça atualmente em processo de
-                                troca.</p>
-                            <p>Clique <a href="/roupas?status=Ativo">aqui</a> para ver suas peças
-                                disponíveis.</p>
-                        </div>
-                        <% } else { %>
-                        <div class="empty-message">
-                            <h2>Nenhuma Peça Disponível para Troca</h2>
+                            <h2>Peças em Status: <%= statusAtual === 'Ativo' ? 'Disponível' : 'Em Negociação' %></h2>
 
-                            <% if (emTroca > 0) { %>
-                            <p>Você possui <%= emTroca %> peça(s) em <a
-                                    href="/roupas?status=EmTroca">negociação</a>.</p>
-                            <% } else { %>
-                            <p>Você ainda não cadastrou nenhuma peça
-                                disponível para troca.</p>
-                            <% } %>
+                            <div class="itens-grid">
 
-                            <p>Clique no botão Adicionar Roupa para
-                                começar a trocar!</p>
-                        </div>
+                                <% if (itens && itens.length > 0) { %>
+                                    <% itens.forEach(function(item) { %>
+
+                                        <div class="item-card">
+                                            <div class="image-placeholder">
+                                                <% 
+                                                let caminhoDaImagem = '/images/placeholder.png';
+                                                
+                                                // 1. Geramos a lista completa de objetos de imagem
+                                                const listaImagensObj = (item.imagens || []).map(img => {
+                                                    const nomeDoArquivo = img.caminho_arquivo;
+                                                    const caminhoCompleto = nomeDoArquivo.startsWith('/') || nomeDoArquivo.startsWith('http')
+                                                        ? nomeDoArquivo 
+                                                        : '/uploads/' + nomeDoArquivo;
+                                                    
+                                                    return {
+                                                        id: img.id, 
+                                                        caminho_arquivo: nomeDoArquivo,
+                                                        caminho_url: caminhoCompleto,
+                                                        is_principal: img.is_principal
+                                                    };
+                                                });
+                                                
+                                                // 2. A imagem principal para a capa do card
+                                                const imagemPrincipal = listaImagensObj.length > 0 ? listaImagensObj[0].caminho_url : caminhoDaImagem;
+                                                %>
+                                                
+                                                <img src="<%= imagemPrincipal %>" alt="<%= item.peca %>"
+                                                    style="width: 100%; height: auto; object-fit: cover;">
+                                            </div>
+
+                                            <h3>
+                                                <%= item.peca %>
+                                            </h3>
+                                            <p>Tamanho: <%= item.tamanho %></p>
+                                            <p style="font-size: 0.9em; color: #666; margin-top: -10px;">
+                                                <%= item.categoriaPeca %>
+                                            </p>
+                                            <p
+                                                class="status <%= item.statusPosse === 'Ativo' ? 'status-ativo' : 'status-troca' %>">
+                                                <%= item.statusPosse === 'Ativo' ? 'Disponível' : 'Em Processo de Troca' %>
+                                            </p>
+
+                                            <div
+                                                style="display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                                                
+                                                <% if (listaImagensObj.length > 1) { %>
+                                                <button class="btn-ver-fotos" 
+                                                    data-peca-nome="<%= item.peca %>"
+                                                    data-imagens='<%= JSON.stringify(listaImagensObj.map(img => img.caminho_url)) %>'
+                                                    style="
+                                                        background-color: #5bc0de; 
+                                                        color: white; 
+                                                        padding: 8px 12px; 
+                                                        border: none; 
+                                                        border-radius: 4px; 
+                                                        cursor: pointer;
+                                                        font-weight: bold;
+                                                        transition: background-color 0.2s;
+                                                        white-space: nowrap;
+                                                    " 
+                                                    onmouseover="this.style.backgroundColor='#31b0d5'"
+                                                    onmouseout="this.style.backgroundColor='#5bc0de'">
+                                                    Ver <%= listaImagensObj.length %> Fotos
+                                                </button>
+                                                <% } %>
+                                                
+                                                <% if (item.statusPosse === 'Ativo') { %>
+                                                    <a href="#" class="btn-editar" data-item-id="<%= item.id %>"
+                                                        data-item='<%= JSON.stringify(item) %>' 
+                                                        data-imagens-json='<%= JSON.stringify(listaImagensObj) %>'
+                                                        title="Editar"
+                                                        style="text-decoration: none; font-size: 1.1em; white-space: nowrap;">
+                                                        <i class="fas fa-edit"></i> Editar
+                                                    </a>
+                                                    <a href="/roupas/excluir/<%= item.id %>"
+                                                        onclick="return confirm('Tem certeza que deseja excluir <%= item.peca %>?');"
+                                                        title="Excluir"
+                                                        style="color: red; text-decoration: none; font-size: 1.1em; white-space: nowrap;">
+                                                        <i class="fas fa-trash-alt"></i> Excluir
+                                                    </a>
+                                                <% } else if (item.statusPosse === 'EmTroca') { %>
+                                                    <a href="/trocas" class="btn-ver-troca" 
+                                                       style="
+                                                           background-color: #ff9800; 
+                                                           color: white; 
+                                                           padding: 8px 12px; 
+                                                           border: none; 
+                                                           border-radius: 4px; 
+                                                           cursor: pointer;
+                                                           text-decoration: none;
+                                                           font-weight: bold;
+                                                           display: inline-block;
+                                                           white-space: nowrap;
+                                                           transition: background-color 0.2s;
+                                                       " 
+                                                       onmouseover="this.style.backgroundColor='#f57c00'"
+                                                       onmouseout="this.style.backgroundColor='#ff9800'">
+                                                        <i class="fas fa-exchange-alt"></i> Ver Troca
+                                                    </a>
+                                                <% } else { %>
+                                                    <span style="color: #666; font-size: 0.9em;">Ações Bloqueadas</span>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+
+                                <% } else { %>
+                                    <% if (statusAtual === 'EmTroca') { %>
+                                        <div class="empty-message"
+                                            style="text-align: center; grid-column: 1 / -1;">
+                                            <h2>Nenhuma Peça em Negociação 🙁</h2>
+                                            <p>Você não possui nenhuma peça atualmente em processo de troca.</p>
+                                            <p>Clique <a href="/roupas?status=Ativo">aqui</a> para ver suas peças disponíveis.</p>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="empty-message"
+                                            style="text-align: center; grid-column: 1 / -1;">
+                                            <h2>Nenhuma Peça Disponível para Troca</h2>
+
+                                            <% if (emTroca > 0) { %>
+                                                <p>Você possui <%= emTroca %> peça(s) em <a
+                                                        href="/roupas?status=EmTroca">negociação</a>.</p>
+                                            <% } else { %>
+                                                <p>Você ainda não cadastrou nenhuma peça disponível para troca.</p>
+                                            <% } %>
+
+                                            <p>Clique no botão Adicionar Roupa para começar a trocar!</p>
+                                        </div>
+                                    <% } %>
+                                <% } %>
+                            </div>
+
                         <% } %>
-                        <% } %>
-                    </div>
 
-                <% } %>
+                        <p style="clear: both; margin-top: 30px;"><a href="/feed">Voltar para o feed</a></p>
 
-                <p style="clear: both; margin-top: 30px;"><a href="/feed">Voltar para o feed</a></p>
-
+                </div>
             </div>
-        </div>
     </div>
 
+    <!-- MODAL DE CADASTRO/EDIÇÃO -->
     <div id="modal-cadastro">
         <div class="modal-content">
             <span id="btn-fechar-modal" class="close">&times;</span>
             <h1 id="modal-titulo">Cadastrar Nova Peça para Troca</h1>
 
-            <form id="form-roupa" method="POST" action="/roupas/salvar">
+            <form id="form-roupa" method="POST" action="/roupas/salvar" enctype="multipart/form-data">
 
                 <input type="hidden" id="item-id" name="id" value="">
+                
+                <!-- SEÇÃO DE GERENCIAMENTO DE FOTOS EXISTENTES -->
+                <div id="fotos-existentes-container" style="display: none; margin-bottom: 20px;">
+                    <p style="font-size: 0.9em; font-weight: bold; margin-bottom: 10px; color: #555;">
+                        📸 Gerenciar Fotos (Arraste para reordenar - a primeira será a capa)
+                    </p>
+                    
+                    <div id="galeria-edicao" class="galeria-ordenavel">
+                        <!-- As imagens serão inseridas aqui via JavaScript -->
+                    </div>
 
+                    <input type="hidden" id="fotos-reordenadas-json" name="fotos_reordenadas_json" value="[]">
+                    <input type="hidden" id="fotos-removidas-json" name="fotos_removidas_json" value="[]">
+                </div>
+                
+                <!-- SEÇÃO DE UPLOAD DE NOVAS FOTOS -->
+                <div class="upload-area" id="upload-area">
+                    <label for="imagens_upload" style="cursor: pointer; display: block;">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2em; color: #9370DB; margin-bottom: 10px;"></i>
+                        <p style="margin: 10px 0; font-weight: bold;">Adicionar Novas Fotos</p>
+                        <p style="font-size: 0.85em; color: #777; margin: 5px 0;">
+                            Clique aqui ou arraste imagens (Máx. 5 no total)
+                        </p>
+                    </label>
+                    <input type="file" id="imagens_upload" name="imagens_upload" accept="image/*" multiple 
+                           style="display: none;">
+                </div>
+
+                <!-- CAMPOS DO FORMULÁRIO -->
                 <label for="peca">Nome da Peça (Ex: Vestido Floral, Calça Jeans):</label>
                 <input type="text" id="peca" name="peca" required>
 
@@ -325,12 +447,131 @@
             </form>
         </div>
     </div>
+    
+    <!-- MODAL DE GALERIA DE FOTOS -->
+    <div id="modal-galeria-fotos" style="
+        display: none; 
+        position: fixed; 
+        z-index: 2000; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.9); 
+    ">
+        <div class="modal-galeria-content" style="
+            margin: 5% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 900px;
+            background-color: #fefefe;
+            border-radius: 8px;
+            position: relative;
+        ">
+            <span id="btn-fechar-galeria" class="close" style="top: 10px; right: 20px; position: absolute; color: #333; cursor: pointer; font-size: 30px;">&times;</span>
+            <h2 id="galeria-titulo" style="margin-top: 5px;">Fotos da Peça</h2>
+            
+            <div id="galeria-container" style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                padding-top: 10px;
+            ">
+            </div>
+        </div>
+    </div>
 
-    <div id="item-data-container" style="display: none;"
-        data-filtro-status='<%= typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo' %>'
-    ></div>
+    <!-- MODAL PARA DETALHES DA TROCA -->
+    <div id="modal-detalhes-troca" style="
+        display: none; 
+        position: fixed; 
+        z-index: 2000; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.7); 
+    ">
+        <div class="modal-content" style="
+            margin: 5% auto;
+            padding: 25px;
+            width: 80%;
+            max-width: 600px;
+            background-color: #fefefe;
+            border-radius: 8px;
+            position: relative;
+        ">
+            <span id="btn-fechar-detalhes" class="close" style="
+                position: absolute;
+                top: 15px;
+                right: 25px;
+                color: #333;
+                cursor: pointer;
+                font-size: 30px;
+                font-weight: bold;
+            ">&times;</span>
+            
+            <h2>Detalhes da Troca</h2>
+            <div id="conteudo-detalhes-troca">
+                <!-- Conteúdo será carregado via AJAX -->
+            </div>
+        </div>
+    </div>
+
+    <div id="item-data-container" style="display: none;" 
+         data-filtro-status="<%= typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo' %>">
+    </div>
 
     <script src="/js/roupas.js"></script>
-</body>
 
+    <script>
+    // JavaScript para o modal de detalhes (APENAS para histórico)
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalDetalhes = document.getElementById('modal-detalhes-troca');
+        const btnFecharDetalhes = document.getElementById('btn-fechar-detalhes');
+        const conteudoDetalhes = document.getElementById('conteudo-detalhes-troca');
+        
+        // Botões "Ver Detalhes" no histórico
+        document.querySelectorAll('.btn-ver-detalhes').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const trocaId = this.getAttribute('data-troca-id');
+                abrirDetalhesTroca(trocaId);
+            });
+        });
+        
+        // Fechar modal
+        if (btnFecharDetalhes) {
+            btnFecharDetalhes.addEventListener('click', function() {
+                modalDetalhes.style.display = 'none';
+            });
+        }
+        
+        // Fechar ao clicar fora
+        if (modalDetalhes) {
+            modalDetalhes.addEventListener('click', function(e) {
+                if (e.target === modalDetalhes) {
+                    modalDetalhes.style.display = 'none';
+                }
+            });
+        }
+        
+        function abrirDetalhesTroca(trocaId) {
+            // Carrega os detalhes via AJAX
+            fetch(`/trocas/detalhes/${trocaId}`)
+                .then(response => response.text())
+                .then(html => {
+                    conteudoDetalhes.innerHTML = html;
+                    modalDetalhes.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar detalhes:', error);
+                    conteudoDetalhes.innerHTML = '<p>Erro ao carregar detalhes da troca.</p>';
+                    modalDetalhes.style.display = 'block';
+                });
+        }
+    });
+    </script>
+</body>
 </html>

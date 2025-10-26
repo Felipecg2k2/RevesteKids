@@ -1,102 +1,108 @@
 /* ==========================================================
-    ESTILOS ESPECÍFICOS DA TELA DE PERFIL (perfil.css)
-    Layout Final: Sidebar Funcional + Cartão Centralizado
-    ----------------------------------------------------------
-    Este arquivo contém os estilos para a visualização e a edição 
-    do perfil, além da correção de layout da sidebar.
-    ========================================================== */
+  ESTILOS ESPECÍFICOS DA TELA DE PERFIL (perfil.css)
+  Layout Final: Sidebar Funcional + Cartão Centralizado
+  ----------------------------------------------------------
+  Este arquivo contém os estilos para a visualização e a edição 
+  do perfil, além da correção de layout da sidebar.
+  ========================================================== */
 
 :root {
-    --color-primary: #9370DB; /* Roxo principal */
-    --color-secondary: #7B68EE; /* Roxo secundário */
+    --color-primary: #9370DB;
+    /* Roxo principal */
+    --color-secondary: #7B68EE;
+    /* Roxo secundário */
     --color-background-soft: #f7f7f7;
-    --color-perfil-bg: #D2FBF4; /* Cor de fundo suave para a página */
-    --sidebar-width: 250px; 
+    --color-perfil-bg: #D2FBF4;
+    /* Cor de fundo suave para a página */
+    --sidebar-width: 250px;
 }
 
 /* ------------------------------------------------------------
-   CORREÇÃO DE LAYOUT (Fixação + Margem para 100% de compatibilidade)
-   ------------------------------------------------------------ */
+  CORREÇÃO DE LAYOUT (Fixação + Margem para 100% de compatibilidade)
+ ------------------------------------------------------------ */
 
 /* Configurações de fundo e margem do Body */
 body {
     font-family: Arial, sans-serif;
-    background-color: var(--color-perfil-bg) !important; 
+    background-color: var(--color-perfil-bg) !important;
     margin: 0 !important;
     padding: 0 !important;
-    overflow-x: hidden !important; 
+    overflow-x: hidden !important;
 }
 
 /* Sidebar Fixa (Corrige a sobreposição) */
 .sidebar-menu {
-    position: fixed !important; 
+    position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     height: 100vh !important;
     width: var(--sidebar-width) !important;
-    z-index: 2000 !important; 
-    overflow-y: auto !important; 
-    flex-shrink: 0 !important; 
+    z-index: 2000 !important;
+    overflow-y: auto !important;
+    flex-shrink: 0 !important;
 }
 
 /* Content-Area com Margem e Largura de Compensação (Corrige a largura) */
 .content-area {
     /* Força o conteúdo a começar 250px à direita (depois da sidebar fixa) */
-    margin-left: var(--sidebar-width) !important; 
-    
+    margin-left: var(--sidebar-width) !important;
+
     /* FORÇA A LARGURA: 100% da tela - largura da sidebar */
     width: calc(100% - var(--sidebar-width)) !important;
-    
+
     /* Anula conflitos */
-    position: relative !important; 
+    position: relative !important;
     float: none !important;
     flex-grow: 0 !important;
     min-height: 100vh !important;
-    
+
     /* Estilos Visuais */
-    padding: 30px; /* Padding interno do content-area */
-    background-color: var(--color-perfil-bg) !important; 
+    padding: 30px;
+    /* Padding interno do content-area */
+    background-color: var(--color-perfil-bg) !important;
 }
 
 /* Container principal (app-layout) deve ser bloco para não interferir no fixed/margin-left */
 .app-layout {
-    display: block !important; 
+    display: block !important;
     min-height: 100vh !important;
     width: 100% !important;
     position: relative !important;
 }
 
 /* Centraliza o Cartão de Perfil */
-.content-area-pad { 
-    padding: 0; 
-    max-width: none; 
+.content-area-pad {
+    padding: 0;
+    max-width: none;
     margin: 0;
-    
+
     /* Centraliza o cartão horizontalmente */
     display: flex;
-    justify-content: center; /* Centraliza horizontalmente */
-    align-items: flex-start; /* Alinha o conteúdo ao topo */
+    justify-content: center;
+    /* Centraliza horizontalmente */
+    align-items: flex-start;
+    /* Alinha o conteúdo ao topo */
     width: 100%;
 }
 
 
 /* ------------------------------------------------------------
-   ESTILOS GERAIS DO PERFIL (Leitura e Edição)
-   ------------------------------------------------------------ */
+  ESTILOS GERAIS DO PERFIL (Leitura e Edição)
+ ------------------------------------------------------------ */
 
 /* Container principal do perfil (O Cartão Centralizado) */
 .perfil-container {
     width: 100%;
-    max-width: 600px; 
+    max-width: 600px;
     background-color: #ffffff;
     padding: 30px;
-    border-radius: 12px; 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
     /* Margem para afastamento superior e inferior */
-    margin: 30px 0; 
-    
-    text-align: left; 
+    margin: 30px 0;
+
+    text-align: left;
 }
 
 /* Título Principal */
@@ -106,7 +112,7 @@ h1 {
     border-bottom: 2px solid #ccc;
     padding-bottom: 10px;
     margin-bottom: 20px;
-    margin-top: 0; 
+    margin-top: 0;
     text-align: center;
 }
 
@@ -114,7 +120,7 @@ h1 {
 h2 {
     font-size: 1.3em;
     color: #555;
-    margin-top: 15px; 
+    margin-top: 15px;
     margin-bottom: 8px;
     text-align: left;
     font-weight: 700;
@@ -122,32 +128,32 @@ h2 {
 
 
 /* ------------------------------------------------------------
-   ESTILOS ESPECÍFICOS DA VIEW DE LEITURA
-   ------------------------------------------------------------ */
+  ESTILOS ESPECÍFICOS DA VIEW DE LEITURA
+ ------------------------------------------------------------ */
 
 .secao {
     padding: 10px 0;
-    border-bottom: 1px solid #eee; 
+    border-bottom: 1px solid #eee;
     margin-bottom: 10px;
     text-align: left;
 }
 
 .secao:last-of-type {
-    border-bottom: none; 
+    border-bottom: none;
     padding-top: 15px;
     margin-bottom: 0;
 }
 
 .secao p {
-    margin: 6px 0; 
-    line-height: 1.4; 
+    margin: 6px 0;
+    line-height: 1.4;
     color: #444;
 }
 
 /* Efeito de alinhamento em duas colunas para as informações */
 .secao p strong {
     font-weight: bold;
-    min-width: 150px; 
+    min-width: 150px;
     display: inline-block;
     color: #333;
 }
@@ -156,7 +162,7 @@ h2 {
 .botao {
     display: inline-block;
     padding: 10px 20px;
-    background-color: var(--color-primary); 
+    background-color: var(--color-primary);
     color: white;
     text-decoration: none;
     border: none;
@@ -165,7 +171,7 @@ h2 {
     font-size: 1em;
     font-weight: 600;
     transition: background-color 0.3s;
-    margin-right: 10px; 
+    margin-right: 10px;
 }
 
 .botao:hover {
@@ -179,17 +185,17 @@ h2 {
     text-decoration: none;
     font-size: 1em;
     display: inline-block;
-    padding: 10px 20px; 
-    border: none; 
+    padding: 10px 20px;
+    border: none;
     border-radius: 5px;
     font-weight: 600;
-    margin-top: 15px; 
+    margin-top: 15px;
     transition: background-color 0.3s;
 }
 
 .link-apagar:hover {
-    background-color: #c82333; 
-    text-decoration: none; 
+    background-color: #c82333;
+    text-decoration: none;
     color: white;
 }
 
@@ -200,25 +206,67 @@ h2 {
 }
 
 /* ------------------------------------------------------------
-   ESTILOS ESPECÍFICOS DO FORMULÁRIO DE EDIÇÃO
-   ------------------------------------------------------------ */
+  ESTILOS ESPECÍFICOS DO FORMULÁRIO DE EDIÇÃO
+ ------------------------------------------------------------ */
 
 /* Ajusta o container para formulários */
 .perfil-container.form-container {
-    padding: 30px 40px; /* Mais padding nas laterais */
+    padding: 30px 40px;
+    /* Mais padding nas laterais */
 }
 
 .edit-form {
     margin-top: 20px;
 }
 
+/* *** CORREÇÃO: Faz a seção ser um container flexível para que os campos se alinhem horizontalmente *** */
 .form-section {
+    display: flex;
+    /* ATIVA O ALINHAMENTO LADO A LADO */
+    flex-wrap: wrap;
+    /* PERMITE QUEBRA */
+    align-items: flex-start;
+    gap: 15px;
+    /* Espaço entre os grupos de formulário */
+
     padding: 15px 0;
-    border-bottom: 1px solid #eee; /* Borda padrão para todas as seções */
+    border-bottom: 1px solid #eee;
     margin-bottom: 20px;
 }
 
-/* Remove a borda inferior da última seção para que o form-actions comece logo após */
+/* Corrige a primeira seção (Foto) para voltar a ser bloco e centralizar corretamente */
+.edit-form .form-section:first-child {
+    display: block;
+    text-align: center;
+}
+
+.edit-form .form-section:first-child h2 {
+    text-align: left;
+}
+
+
+/* Faz com que o form-group (Nome, Sobrenome, Email, etc.) ocupe 50% */
+/* Isso força a organização em duas colunas, a menos que seja full-width */
+.form-group:not(.full-width) {
+    /* Define o item para crescer, mas ter uma base de 50% menos o gap para caber */
+    flex: 1 1 calc(50% - 7.5px);
+    max-width: calc(50% - 7.5px);
+    margin-bottom: 15px;
+    display: block;
+    /* Garante que os filhos (label, input) sejam dispostos como bloco */
+}
+
+/* Garante que o campo de largura total ocupe 100% */
+.form-group.full-width {
+    flex: 0 0 100%;
+    /* Fixa em 100% de largura e não permite crescimento/encolhimento */
+    max-width: 100%;
+    margin-bottom: 15px;
+    display: block;
+}
+
+
+/* Remove a borda inferior da última seção */
 .edit-form .form-section:last-of-type {
     border-bottom: none;
     margin-bottom: 0;
@@ -232,21 +280,25 @@ h2 {
     color: var(--color-primary);
 }
 
-.form-group {
-    display: flex;
-    flex-wrap: wrap; /* Permite quebrar campos em telas pequenas */
-    gap: 15px; 
-    margin-bottom: 15px;
+/* Este bloco era o que gerava a dupla coluna, mas foi movido para o .form-group acima */
+.form-group>div {
+    flex: 1;
+    /* Permite que os campos duo-field (CEP/Número) dividam o espaço */
+    min-width: 45%;
 }
 
-.form-group > div {
-    flex: 1; /* Permite que os campos duo-field dividam o espaço */
-    min-width: 45%; 
-}
+/* No EJS, use UM form-group para os campos lado a lado:
+    <div class="form-group duo-field">
+        <div> CEP </div>
+        <div> Número </div>
+    </div>
+*/
 
-.form-group.full-width {
-    display: block;
-}
+/* Remove esta definição, pois .form-group.full-width já a faz ser block */
+/* .form-group.full-width {
+  display: block;
+} */
+
 
 /* Campos de entrada e labels */
 label {
@@ -264,7 +316,8 @@ input[type="password"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    box-sizing: border-box; /* Inclui padding e borda na largura total */
+    box-sizing: border-box;
+    /* Inclui padding e borda na largura total */
     font-size: 1em;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
@@ -278,18 +331,19 @@ input:focus {
 /* Botões de Ação do Formulário: Centraliza horizontalmente e remove borda superior desnecessária */
 .form-actions {
     display: flex;
-    justify-content: center; /* <<< CORREÇÃO: CENTRALIZA OS BOTÕES AQUI >>> */
-    align-items: center; 
+    justify-content: center;
+    align-items: center;
     gap: 15px;
     margin-top: 30px;
-    padding-top: 0; /* Remove padding-top */
-    border-top: none; /* Remove border-top */
+    padding-top: 0;
+    border-top: none;
     margin-bottom: 20px;
 }
 
 .btn-submit {
     padding: 12px 25px;
-    background-color: #28a745; /* Verde para Salvar/Atualizar */
+    background-color: #28a745;
+    /* Verde para Salvar/Atualizar */
     color: white;
     border: none;
     border-radius: 6px;
@@ -310,7 +364,7 @@ input:focus {
 
 .btn-cancelar {
     padding: 12px 25px;
-    background-color: #f0f0f0; 
+    background-color: #f0f0f0;
     color: #333;
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -328,19 +382,22 @@ input:focus {
 /* Estilo para a opção de apagar conta: Garante a separação do bloco de botões acima */
 /* .separator não é mais usado; confiamos na borda do .acoes */
 .separator {
-    display: none; /* Garante que a classe antiga não apareça */
+    display: none;
+    /* Garante que a classe antiga não apareça */
 }
 
 .acoes {
-    padding-top: 20px; /* Mais espaço para cima */
+    padding-top: 20px;
+    /* Mais espaço para cima */
     text-align: left;
     /* Borda superior para separar Opções da Conta dos botões (form-actions) */
-    border-top: 1px solid #ddd; 
-    margin-top: 15px; 
+    border-top: 1px solid #ddd;
+    margin-top: 15px;
 }
 
 .acoes h2 {
-    color: #dc3545; /* Vermelho para destaque */
+    color: #dc3545;
+    /* Vermelho para destaque */
     border-bottom: 2px solid #dc3545;
     margin-top: 0;
     padding-bottom: 5px;
@@ -352,9 +409,12 @@ input:focus {
     color: #dc3545;
     font-weight: 600;
     text-decoration: none;
-    display: inline-flex; /* Para alinhar texto e ícone */
-    align-items: center; /* Centraliza verticalmente */
-    gap: 8px; /* Espaço entre o ícone e o texto */
+    display: inline-flex;
+    /* Para alinhar texto e ícone */
+    align-items: center;
+    /* Centraliza verticalmente */
+    gap: 8px;
+    /* Espaço entre o ícone e o texto */
     padding: 5px 0;
     transition: color 0.3s;
 }
@@ -370,20 +430,20 @@ input:focus {
 
 
 /* ----------------------------------------------------------
-    Responsividade (Geral e Formulário)
-    ---------------------------------------------------------- */
+  Responsividade (Geral e Formulário)
+  ---------------------------------------------------------- */
 
 @media (max-width: 768px) {
-    
+
     /* Layout Geral */
     .content-area {
-        margin-left: 0 !important; 
+        margin-left: 0 !important;
         width: 100% !important;
         padding: 15px 10px;
     }
-    
+
     .sidebar-menu {
-        position: relative !important; 
+        position: relative !important;
         top: auto !important;
         left: auto !important;
         width: 100% !important;
@@ -392,9 +452,9 @@ input:focus {
     }
 
     .app-layout {
-        display: block !important; 
+        display: block !important;
     }
-    
+
     .content-area-pad {
         padding: 0 10px;
         justify-content: flex-start;
@@ -404,33 +464,52 @@ input:focus {
         padding: 20px;
         margin: 20px auto;
     }
-    
+
     /* Responsividade do Formulário */
     .perfil-container.form-container {
         padding: 20px;
     }
-    
-    .form-group {
+
+    /* Faz com que a seção do formulário empilhe todos os campos */
+    .form-section {
         flex-direction: column;
         gap: 0;
     }
-    
-    .form-group > div {
-        min-width: 100%;
+
+    /* Faz com que todos os grupos de formulário ocupem 100% no mobile */
+    .form-group:not(.full-width),
+    .form-group.full-width {
+        flex: 0 0 100%;
+        max-width: 100%;
         margin-bottom: 15px;
+        /* Adiciona margem entre os grupos */
     }
-    
+
+    /* Se houver wrappers de campos dentro de um form-group (e.g., duo-field), eles também devem empilhar */
     .form-group.duo-field {
         flex-direction: column;
     }
-    
+
+    .form-group>div {
+        min-width: 100%;
+        margin-bottom: 15px;
+    }
+
+    /* Remove a definição que força a coluna dupla em mobile */
+    /* .form-group.duo-field {
+    flex-direction: column;
+  } */
+
     .form-actions {
-        flex-direction: column-reverse; /* Coloca o Salvar em cima */
-        justify-content: center; /* Mantém a centralização dos botões empilhados */
+        flex-direction: column-reverse;
+        /* Coloca o Salvar em cima */
+        justify-content: center;
+        /* Mantém a centralização dos botões empilhados */
         gap: 10px;
     }
-    
-    .btn-submit, .btn-cancelar {
+
+    .btn-submit,
+    .btn-cancelar {
         width: 100%;
         text-align: center;
     }
@@ -439,10 +518,19 @@ input:focus {
     .secao p strong {
         min-width: 120px;
     }
-    
+
     .secao.acoes a {
         display: block;
         width: 100%;
         margin: 5px 0;
     }
+}
+
+.foto-perfil-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--color-primary);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
 }

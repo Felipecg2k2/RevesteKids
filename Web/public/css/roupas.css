@@ -14,6 +14,12 @@ body {
     max-width: 1400px;
     margin: 0 auto;
 }
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
 /* 2. ESTILOS DO MODAL (ADICIONAR/EDITAR) */
 #modal-cadastro { 
@@ -57,17 +63,25 @@ body {
     display: block;
     margin-top: 10px;
     font-weight: bold;
+    margin-bottom: 5px; /* Adicionado um pequeno espaço abaixo da label */
 }
 #form-roupa input[type="text"], 
 #form-roupa select, 
-#form-roupa textarea {
+#form-roupa textarea,
+#form-roupa input[type="file"] { /* Aplicado a input[type="file"] também */
     width: 100%;
     padding: 8px;
     margin-top: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    margin-bottom: 5px; /* Adicionado espaço após o input, especialmente para o file */
 }
+/* Estilo de input file mais específico para desvincular do margin-top */
+#form-roupa input[type="file"] {
+    margin-top: 0; /* Remove a margem superior duplicada */
+}
+
 #form-roupa textarea {
     resize: vertical;
     min-height: 100px;
@@ -88,6 +102,8 @@ body {
 }
 
 /* 4. ESTILOS DE CONTEÚDO (Filtros, Grid, Cards, etc.) */
+
+/* Filtros de Status */
 .filtros-status {
     display: flex;
     flex-wrap: wrap; 
@@ -111,13 +127,11 @@ body {
     height: 100%; 
     box-sizing: border-box;
 }
-/* Estilo para destacar o filtro ativo */
-/* ATUALIZAÇÃO: Usando a classe 'ativo' conforme o EJS atualizado */
 .filtro-item.ativo {
-    border: 2px solid #9370DB; /* Cor principal do seu tema */
+    border: 2px solid #9370DB; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     background-color: #fff !important; 
-    transform: scale(1.03); /* Adiciona leve efeito visual de destaque */
+    transform: scale(1.03); 
 }
 .filtro-item strong {
     display: block;
@@ -153,9 +167,32 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* -------------------------------------- */
-/* ESTILOS PARA O MODO HISTÓRICO (Trocas Finalizadas) - ATUALIZADO */
-/* -------------------------------------- */
+/* 🚨 CORREÇÃO DA IMAGEM: Garante que a imagem preencha o placeholder sem distorção */
+.image-placeholder {
+    /* Altura fixa para todos os placeholders (Defina o tamanho que você quer) */
+    height: 200px; /* Aumentado para 200px para um visual melhor */
+    width: 100%;
+    margin-bottom: 10px; 
+    overflow: hidden; /* Corta o excesso da imagem */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border-radius: 4px;
+    background-color: #f0f0f0; /* Fundo para quando não há imagem */
+}
+
+.image-placeholder img {
+    width: 100%;
+    height: 100%;
+    /* O SEGREDO: Garante que a imagem cubra a área, cortando o excesso se necessário */
+    object-fit: cover; 
+    display: block;
+    border-radius: 4px; /* Opcional: para que a imagem respeite o arredondamento do placeholder */
+}
+/* -------------------------------------------------------------------------- */
+
+
+/* 5. ESTILOS PARA O MODO HISTÓRICO (Trocas Finalizadas) */
 
 /* Card individual da Transação */
 .troca-card {
@@ -193,10 +230,10 @@ body {
 
 /* Cores específicas para as peças */
 .item-troca-info.enviada {
-     color: #F44336; /* Cor de "entrega" */
+      color: #F44336; /* Cor de "entrega" */
 }
 .item-troca-info.recebida {
-     color: #4CAF50; /* Cor de "recebimento" */
+      color: #4CAF50; /* Cor de "recebimento" */
 }
 
 /* Estilo do símbolo de troca */
@@ -206,8 +243,10 @@ body {
     color: #9370DB;
     flex-shrink: 0;
 }
-/* -------------------------------------- */
+/* Fim - Estilos de Histórico */
 
+
+/* 6. ESTILOS DIVERSOS */
 .empty-message {
     grid-column: 1 / -1; 
     text-align: center;
@@ -216,33 +255,16 @@ body {
     border-radius: 8px;
     margin-top: 20px;
 }
-.header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
 
-/* Estilos de Status */
+/* Estilos de Status nos cards */
 .status-ativo { color: #007bff; font-weight: bold; }
 .status-troca { color: #ffa500; font-weight: bold; }
+
 .troca-card p { margin-bottom: 5px; }
 .troca-card h3 { margin-top: 0; }
 
-/* Estilo da Imagem Placeholder */
-.image-placeholder {
-    height: 150px; 
-    background-color: #f0f0f0; 
-    margin-bottom: 10px; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    border-radius: 4px;
-    font-size: 0.9em;
-    color: #888;
-}
 
-/* Media Query para responsividade em telas menores */
+/* 7. Media Query para responsividade em telas menores */
 @media (max-width: 768px) {
     .content-area-pad {
         padding: 15px 20px;
@@ -274,4 +296,274 @@ body {
     .item-troca-info {
         padding: 5px 0;
     }
+}
+/* ========================================= */
+/* 1. ESTILOS GERAIS PARA MODAIS (SE NECESSÁRIO) */
+/* ========================================= */
+
+/* Garante que o conteúdo do modal de cadastro tenha rolagem interna se for alto */
+#modal-cadastro .modal-content {
+    max-height: 90vh; /* Limita a altura do modal */
+    overflow-y: auto; /* Permite rolagem dentro do modal */
+}
+
+/* ========================================= */
+/* 2. GALERIA DE EDIÇÃO DE FOTOS (DENTRO DO MODAL-CADASTRO) */
+/* ========================================= */
+
+/* Container da Galeria de Edição */
+#galeria-edicao {
+    display: flex;
+    flex-wrap: wrap; /* Permite que as miniaturas quebrem a linha */
+    gap: 15px; /* Espaçamento entre as miniaturas */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-height: 100px; /* Garante que seja visível mesmo vazio */
+    background-color: #f9f9f9;
+}
+
+/* Item Individual da Foto para Edição (O elemento arrastável) */
+.foto-edicao-item {
+    width: 100px; /* Largura fixa da miniatura */
+    height: 120px; /* Altura fixa da miniatura */
+    position: relative;
+    cursor: grab; /* Indica que é arrastável */
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* Estilo ao segurar/arrastar o item */
+.foto-edicao-item:active {
+    cursor: grabbing;
+}
+
+/* Botão de Remover Foto */
+.remover-foto-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c; /* Vermelho */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    line-height: 1;
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10; /* Garante que fique acima da imagem */
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    padding: 0;
+}
+
+/* Estilo do Sortable.js: Elemento Fantasma (o que fica no lugar) */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #f1f1f1;
+    border: 2px dashed #9370DB !important; /* Borda tracejada para indicar onde irá cair */
+}
+
+/* Estilo do Sortable.js: Elemento sendo arrastado */
+.sortable-chosen {
+    opacity: 1;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    transform: scale(1.05);
+}
+
+/* ========================================= */
+/* 3. MODAL DE VISUALIZAÇÃO DE FOTOS (#modal-galeria-fotos) */
+/* ========================================= */
+
+/* Container da Galeria de Fotos */
+#galeria-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Colunas responsivas */
+    gap: 15px;
+    padding: 10px;
+    max-height: 70vh; /* Limita a altura para permitir rolagem se houver muitas fotos */
+    overflow-y: auto;
+}
+
+
+/* Estilo dos botões na lista de roupas */
+.btn-ver-fotos {
+    background-color: #3498db; /* Azul */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s;
+}
+
+.btn-ver-fotos:hover {
+    background-color: #2980b9;
+}
+
+/* ========================================= */
+/* 4. AJUSTES NO FORMULÁRIO (Opicional: Espaçamento) */
+/* ========================================= */
+.form-group.imagem-upload {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* ========================================= */
+/* ESTILOS PARA ORDENAÇÃO DE IMAGENS - DRAG & DROP */
+/* ========================================= */
+
+/* Container da galeria de edição */
+#galeria-edicao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 15px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    min-height: 150px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s;
+}
+
+#galeria-edicao:hover {
+    border-color: #9370DB;
+}
+
+/* Item individual da foto */
+.foto-edicao-item {
+    width: 120px;
+    height: 140px;
+    position: relative;
+    cursor: grab;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.foto-edicao-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.foto-edicao-item:active {
+    cursor: grabbing;
+}
+
+/* Imagem dentro do item */
+.foto-edicao-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Label/badge de status */
+.foto-edicao-item span {
+    display: block;
+    font-size: 0.75em;
+    font-weight: bold;
+    padding: 4px 2px;
+    text-align: center;
+    background-color: #f0f0f0;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+/* Estilo para imagem principal */
+.foto-edicao-item[data-imagem-id] span {
+    background-color: #9370DB;
+    color: white;
+}
+
+/* Badge de ordem/número */
+.ordem-badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    font-weight: bold;
+    z-index: 5;
+}
+
+/* Botão de remover */
+.remover-foto-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.remover-foto-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+/* Estados do Sortable.js */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #f1f1f1;
+    border: 2px dashed #9370DB !important;
+}
+
+.sortable-chosen {
+    opacity: 1;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    transform: scale(1.05);
+}
+
+.sortable-drag {
+    opacity: 0.8;
+}
+
+/* Container de upload */
+.upload-area {
+    border: 2px dashed #9370DB;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f6ff;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    background-color: #f0ebff;
+}
+
+.upload-area.drag-over {
+    background-color: #e8e2ff;
+    border-color: #7B68EE;
 }

@@ -4,10 +4,13 @@ import Troca from '../models/Troca.js';
 import Item from '../models/Item.js'; 
 import Usuario from '../models/Usuario.js';
 import Sequelize from 'sequelize'; 
+import Imagem from '../models/Imagem.js'; 
 import { validationResult } from 'express-validator'; 
+
 // ==========================================================
 // FUNÇÕES AUXILIARES DE BUSCA (Lógica de Negócio)
 // ==========================================================
+
 // FUNÇÃO: Busca propostas ENVIADAS (Status: Pendente, Aceita, etc.)
 export async function buscarPropostasEnviadas(proponenteId) {
     try {
@@ -21,13 +24,19 @@ export async function buscarPropostasEnviadas(proponenteId) {
                     model: Item, 
                     as: 'itemOferecido', 
                     attributes: ['peca', 'tamanho'], 
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 },
                 { 
                     model: Item, 
                     as: 'itemDesejado', 
                     attributes: ['peca', 'tamanho'], 
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 }
             ],
             order: [['createdAt', 'DESC']]
@@ -38,6 +47,7 @@ export async function buscarPropostasEnviadas(proponenteId) {
         return [];
     }
 }
+
 // FUNÇÃO: Busca propostas RECEBIDAS (Status: Pendente, Aceita)
 export async function buscarPropostasRecebidas(receptorId) {
     try {
@@ -51,13 +61,19 @@ export async function buscarPropostasRecebidas(receptorId) {
                     model: Item, 
                     as: 'itemDesejado', 
                     attributes: ['peca', 'tamanho'], 
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 },
                 { 
                     model: Item, 
                     as: 'itemOferecido', 
                     attributes: ['peca', 'tamanho'], 
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 }
             ],
             order: [['createdAt', 'DESC']]
@@ -68,6 +84,7 @@ export async function buscarPropostasRecebidas(receptorId) {
         return [];
     }
 }
+
 // FUNÇÃO: Busca histórico (Finalizada, Cancelada, Rejeitada, Conflito)
 export async function buscarHistoricoTrocas(userId) {
     try {
@@ -81,13 +98,19 @@ export async function buscarHistoricoTrocas(userId) {
                     model: Item, 
                     as: 'itemOferecido', 
                     attributes: ['peca', 'tamanho'], 
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome'] }] 
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 },
                 { 
                     model: Item, 
                     as: 'itemDesejado', 
                     attributes: ['peca', 'tamanho'], 
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome'] }] 
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 }
             ],
             order: [['dataFinalizacao', 'DESC'], ['createdAt', 'DESC']] 
@@ -98,6 +121,7 @@ export async function buscarHistoricoTrocas(userId) {
         return []; 
     }
 }
+
 // FUNÇÃO: Conta trocas finalizadas (mantida para uso externo)
 export async function contarTrocasRealizadas(userId) {
     try {
@@ -116,20 +140,24 @@ export async function contarTrocasRealizadas(userId) {
         return 0; 
     }
 }
+
 // ==========================================================
 // FUNÇÕES DO CONTROLLER (Mapeamento das Rotas)
 // ==========================================================
+
 // GET /trocas - ROTA PRINCIPAL: GERENCIAMENTO DE TROCAS
 export const gerenciarTrocas = async (req, res) => {
     try {
         const userId = req.session.userId;
         const messages = req.flash ? req.flash() : {}; 
+        
         // Executa as buscas de dados em paralelo para maior eficiência
         const [propostasRecebidas, propostasEnviadas, historicoTrocas] = await Promise.all([
             buscarPropostasRecebidas(userId),
             buscarPropostasEnviadas(userId),
             buscarHistoricoTrocas(userId)
         ]);
+        
         res.render('trocas', {
             title: "Gerenciamento de Trocas",
             userId: parseInt(userId, 10), 
@@ -150,20 +178,23 @@ export const gerenciarTrocas = async (req, res) => {
         });
     }
 };
+
 // GET /trocas/catalogo - CATÁLOGO DE ITENS (FEED)
 export const exibirFeed = async (req, res) => {
     try {
         const userId = req.session.userId; 
         const itensCatalogo = await Item.findAll({
             where: { 
-                // 1. Não mostra o item do próprio usuário
                 UsuarioId: { [Op.ne]: userId }, 
-                // 2. Só mostra itens que estão livres para troca.
                 statusPosse: 'Ativo' 
             },
-            include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] }],
+            include: [
+                { model: Usuario, as: 'usuario', attributes: ['nome', 'cidade', 'estado'] },
+                { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+            ],
             order: [['createdAt', 'DESC']]
         });
+        
         const messages = req.flash ? req.flash() : {}; 
         res.render('feed', { 
             title: "Catálogo de Peças",
@@ -175,37 +206,86 @@ export const exibirFeed = async (req, res) => {
         res.render('feed', { title: "Catálogo de Peças", itens: [], messages: { error: ['Erro ao carregar o feed.'] } });
     }
 };
+
 // GET /trocas/propor/:itemIdDesejado - FORMULÁRIO DE PROPOSTA (CREATE VIEW)
 export const exibirFormularioProposta = async (req, res) => {
     try {
         const userId = req.session.userId;
         const itemIdDesejado = req.params.itemIdDesejado;
+        
+        // Buscar item desejado COM imagens
         const itemDesejado = await Item.findByPk(itemIdDesejado, {
-            include: [{ model: Usuario, as: 'usuario', attributes: ['nome'] }] 
+            include: [
+                { 
+                    model: Usuario, 
+                    as: 'usuario', 
+                    attributes: ['nome'] 
+                },
+                {
+                    model: Imagem,
+                    as: 'imagens',
+                    attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'],
+                    required: false
+                }
+            ]
         });
+        
+        // Buscar meus itens COM imagens
         const meusItens = await Item.findAll({
             where: { 
                 UsuarioId: userId,
                 statusPosse: 'Ativo' 
-            } 
+            },
+            include: [
+                {
+                    model: Imagem,
+                    as: 'imagens',
+                    attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'],
+                    required: false
+                }
+            ]
         });
+
         if (!itemDesejado || itemDesejado.UsuarioId == userId) {
             if (req.flash) req.flash('error', 'Item inválido, não disponível ou é seu.');
             return res.redirect('/trocas/catalogo'); 
         }
+
+        // Processar imagens do item desejado
+        let itemDesejadoProcessado = itemDesejado.get({ plain: true });
+        if (itemDesejadoProcessado.imagens && itemDesejadoProcessado.imagens.length > 0) {
+            itemDesejadoProcessado.imagens.sort((a, b) => a.ordem - b.ordem);
+            itemDesejadoProcessado.imagemPrincipal = itemDesejadoProcessado.imagens.find(img => img.is_principal) 
+                || itemDesejadoProcessado.imagens[0];
+        }
+
+        // Processar imagens dos meus itens
+        const meusItensProcessados = meusItens.map(item => {
+            const itemPlain = item.get({ plain: true });
+            if (itemPlain.imagens && itemPlain.imagens.length > 0) {
+                itemPlain.imagens.sort((a, b) => a.ordem - b.ordem);
+                itemPlain.imagemPrincipal = itemPlain.imagens.find(img => img.is_principal) 
+                    || itemPlain.imagens[0];
+            }
+            return itemPlain;
+        });
+
         const messages = req.flash ? req.flash() : {}; 
+        
         res.render('proporTroca', {
             title: "Propor Troca",
-            itemDesejado: itemDesejado.get({ plain: true }), 
-            meusItens: meusItens,
+            itemDesejado: itemDesejadoProcessado, 
+            meusItens: meusItensProcessados,
             messages: messages
         });
+        
     } catch (error) {
-        console.error("ERRO AO CARREGAR FORMULÁRIO DE PROPOSTA:", error);
+        console.error("❌ ERRO AO CARREGAR FORMULÁRIO DE PROPOSTA:", error);
         if (req.flash) req.flash('error', 'Não foi possível carregar o formulário de proposta.');
         res.redirect('/trocas/catalogo'); 
     }
 };
+
 // POST /trocas/propor - ENVIAR PROPOSTA (CREATE ACTION)
 export const enviarProposta = async (req, res) => {
     const proponenteId = req.session.userId;
@@ -267,6 +347,7 @@ export const enviarProposta = async (req, res) => {
         res.redirect('/trocas'); 
     }
 };
+
 // POST /trocas/aceitar/:trocaId - ACEITAR PROPOSTA
 export const aceitarProposta = async (req, res) => {
     try {
@@ -291,6 +372,7 @@ export const aceitarProposta = async (req, res) => {
         res.redirect("/trocas");
     }
 };
+
 // POST /trocas/rejeitar/:trocaId - REJEITAR PROPOSTA
 export const rejeitarProposta = async (req, res) => {
     const t = await connection.transaction(); 
@@ -330,6 +412,7 @@ export const rejeitarProposta = async (req, res) => {
         res.redirect("/trocas");
     }
 };
+
 // POST /trocas/cancelar/:trocaId - CANCELAR PROPOSTA
 export const cancelarProposta = async (req, res) => {
     const t = await connection.transaction(); 
@@ -366,6 +449,7 @@ export const cancelarProposta = async (req, res) => {
         res.redirect("/trocas");
     }
 };
+
 // POST /trocas/finalizar/:trocaId - FINALIZAR TROCA
 export const finalizarTroca = async (req, res) => {
     const { trocaId } = req.params;
@@ -433,6 +517,7 @@ export const finalizarTroca = async (req, res) => {
         res.redirect('/trocas'); 
     }
 };
+
 // GET /trocas/detalhes/:trocaId - API para Conteúdo do Modal de Detalhes
 export const detalhesTroca = async (req, res) => {
     try {
@@ -445,13 +530,19 @@ export const detalhesTroca = async (req, res) => {
                     model: Item, 
                     as: 'itemOferecido', 
                     attributes: ['id', 'peca', 'tamanho', 'descricao', 'UsuarioId'],
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 },
                 { 
                     model: Item, 
                     as: 'itemDesejado', 
                     attributes: ['id', 'peca', 'tamanho', 'descricao', 'UsuarioId'],
-                    include: [{ model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] }] 
+                    include: [
+                        { model: Usuario, as: 'usuario', attributes: ['nome', 'cidade'] },
+                        { model: Imagem, as: 'imagens', attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'] }
+                    ]
                 }
             ]
         });
