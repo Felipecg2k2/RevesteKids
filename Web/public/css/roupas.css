@@ -1,0 +1,277 @@
+/* ======================================================= */
+/* ESTILOS DA VIEW: /roupas (Gerenciamento de Peças) */
+/* ======================================================= */
+
+/* 1. RESET BÁSICO / LAYOUT PRINCIPAL */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0; 
+    background-color: #f8f8f8;
+}
+.content-area-pad {
+    padding: 20px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* 2. ESTILOS DO MODAL (ADICIONAR/EDITAR) */
+#modal-cadastro { 
+    display: none; /* ESSENCIAL: Esconde por padrão */
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    padding-top: 5vh; 
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close:hover, .close:focus {
+    color: black;
+    text-decoration: none;
+}
+
+/* 3. ESTILOS DE FORMULÁRIO DENTRO DO MODAL */
+#form-roupa label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+#form-roupa input[type="text"], 
+#form-roupa select, 
+#form-roupa textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+#form-roupa textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+#btn-submit {
+    background-color: #9370DB;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+#btn-submit:hover {
+    background-color: #7B68EE;
+}
+
+/* 4. ESTILOS DE CONTEÚDO (Filtros, Grid, Cards, etc.) */
+.filtros-status {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.filtro-item-link {
+    text-decoration: none;
+    color: inherit;
+    flex: 1; 
+    min-width: 150px; 
+}
+.filtro-item {
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 100%; 
+    box-sizing: border-box;
+}
+/* Estilo para destacar o filtro ativo */
+/* ATUALIZAÇÃO: Usando a classe 'ativo' conforme o EJS atualizado */
+.filtro-item.ativo {
+    border: 2px solid #9370DB; /* Cor principal do seu tema */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background-color: #fff !important; 
+    transform: scale(1.03); /* Adiciona leve efeito visual de destaque */
+}
+.filtro-item strong {
+    display: block;
+    font-size: 2.0em;
+    margin-bottom: 5px;
+}
+.filtro-item p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Grid de Itens e Histórico */
+.itens-grid, .historico-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* Estilos para o Card de Peça Individual (Ativo/EmTroca) */
+.item-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    background-color: white;
+    transition: transform 0.2s;
+}
+.item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* -------------------------------------- */
+/* ESTILOS PARA O MODO HISTÓRICO (Trocas Finalizadas) - ATUALIZADO */
+/* -------------------------------------- */
+
+/* Card individual da Transação */
+.troca-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    transition: transform 0.2s;
+}
+.troca-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Container que divide a peça enviada da peça recebida */
+.item-troca-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+
+/* Informações da Peça na Transação */
+.item-troca-info {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+/* Cores específicas para as peças */
+.item-troca-info.enviada {
+     color: #F44336; /* Cor de "entrega" */
+}
+.item-troca-info.recebida {
+     color: #4CAF50; /* Cor de "recebimento" */
+}
+
+/* Estilo do símbolo de troca */
+.simbolo-troca {
+    font-size: 1.5em;
+    margin: 0 10px;
+    color: #9370DB;
+    flex-shrink: 0;
+}
+/* -------------------------------------- */
+
+.empty-message {
+    grid-column: 1 / -1; 
+    text-align: center;
+    padding: 40px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Estilos de Status */
+.status-ativo { color: #007bff; font-weight: bold; }
+.status-troca { color: #ffa500; font-weight: bold; }
+.troca-card p { margin-bottom: 5px; }
+.troca-card h3 { margin-top: 0; }
+
+/* Estilo da Imagem Placeholder */
+.image-placeholder {
+    height: 150px; 
+    background-color: #f0f0f0; 
+    margin-bottom: 10px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #888;
+}
+
+/* Media Query para responsividade em telas menores */
+@media (max-width: 768px) {
+    .content-area-pad {
+        padding: 15px 20px;
+    }
+    .filtros-status {
+        gap: 10px;
+    }
+    .filtro-item-link {
+        min-width: 100px;
+    }
+    .filtro-item {
+        padding: 10px 15px;
+    }
+    .filtro-item strong {
+        font-size: 1.5em;
+    }
+    .itens-grid, .historico-grid {
+        grid-template-columns: 1fr; /* Coluna única em telas pequenas */
+        gap: 20px;
+    }
+    .item-troca-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .simbolo-troca {
+        margin: 5px 0;
+        transform: rotate(90deg); /* Gira o símbolo na vertical */
+    }
+    .item-troca-info {
+        padding: 5px 0;
+    }
+}

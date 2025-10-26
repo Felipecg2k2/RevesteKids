@@ -1,6 +1,9 @@
 import Sequelize from "sequelize";
 import connection from "../config/sequelize-config.js";
 const Usuario = connection.define('usuarios', {
+    // ==========================================================
+    // 1. IDENTIFICAÇÃO BÁSICA
+    // ==========================================================
     nome: {
         type: Sequelize.STRING,
         allowNull: false
@@ -9,6 +12,9 @@ const Usuario = connection.define('usuarios', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    // ==========================================================
+    // 2. CREDENCIAIS / CONTATO
+    // ==========================================================
     email: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -18,15 +24,19 @@ const Usuario = connection.define('usuarios', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    // ==========================================================
+    // 3. ENDEREÇO / LOCALIZAÇÃO
+    // Coloque campos que dependem de CEP próximos (CEP -> Logradouro -> etc.)
+    // ==========================================================
     cep: {
         type: Sequelize.STRING,
         allowNull: false
     },
-    numero: {
+    logradouro: { // Colocado antes do 'numero' para seguir a ordem de preenchimento
         type: Sequelize.STRING,
         allowNull: false
     },
-    logradouro: {
+    numero: {
         type: Sequelize.STRING,
         allowNull: false
     },
@@ -42,6 +52,9 @@ const Usuario = connection.define('usuarios', {
         type: Sequelize.STRING,
         allowNull: false
     }
+
+    // ==========================================================
+    // 4. METADATA (Sequelize adiciona createdAt, updatedAt por padrão)
+    // ==========================================================
 });
-// Usuario.sync({ force: false });
 export default Usuario;

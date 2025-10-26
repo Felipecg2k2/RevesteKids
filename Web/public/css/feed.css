@@ -1,37 +1,27 @@
-/* feed.css */
-
-/* ESSENCIAL: Garante que HTML e BODY ocupem 100% da altura da viewport para a sidebar funcionar */
 html, body {
     height: 100%;
 }
 
-/* CORREÇÃO ESSENCIAL: Zera margem e padding do body, define a fonte e a cor de fundo solicitada */
 body {
-    font-family: 'Inter', Arial, sans-serif; /* Usando Inter para um visual mais moderno e limpo */
+    font-family: 'Inter', Arial, sans-serif;
     margin: 0;
     padding: 0; 
-    /* Cor de fundo solicitada no body */
     background-color: #D2FBF4; 
     height: 100vh;
 }
 
-/* CORREÇÃO APLICADA AQUI: Garante que a área de conteúdo também tenha a cor de fundo. */
 .content-area {
-    /* Aplica a mesma cor de fundo para cobrir qualquer fundo branco padrão */
     background-color: #D2FBF4;
-    padding: 20px; /* Adiciona padding na área de conteúdo */
-    /* O app-layout e o content-area vêm do sidebar.css. */
-    /* O content-area é a coluna da direita e será flexível. */
+    padding: 20px;
 }
 
 /* NOVO CONTAINER: Organiza filtros e swipe cards lado a lado */
 .feed-content-and-filters {
     display: flex;
     gap: 40px; 
-    max-width: 1200px; /* Limita a largura do conteúdo principal */
+    max-width: 1200px;
     margin: 0 auto;
     width: 100%;
-    /* Garante que o conteúdo não se quebre no topo */
     padding-top: 20px;
 }
 
@@ -40,7 +30,6 @@ body {
     width: 250px; 
     flex-shrink: 0;
     padding: 20px;
-    /* Este container interno CONTINUA BRANCO (como um card) */
     background-color: #fff; 
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -53,26 +42,22 @@ body {
     margin-bottom: 15px;
 }
 
-/* Estilo para agrupar filtros e dar um espaçamento entre grupos */
 .filter-group {
     margin-bottom: 20px; 
 }
 
-/* Estilo para o parágrafo (título do grupo) no filtro */
 .filter-group p {
     font-weight: bold;
     margin-bottom: 10px;
     color: #333; 
 }
 
-/* Estilo para o container dos botões (para criar a grade de 3 colunas) */
 .button-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
     gap: 10px; 
 }
 
-/* Estilo para os botões de filtro (Tamanho e Tipo de Peça) */
 .filter-button {
     background-color: #F8F4FF; 
     color: black; 
@@ -89,7 +74,6 @@ body {
     text-overflow: ellipsis;
 }
 
-/* Estilo para o botão de filtro quando selecionado (ativo) */
 .filter-button.active {
     background-color: #6A1B9A; 
     color: white; 
@@ -97,11 +81,9 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilo para hover (opcional, mas recomendado para usabilidade) */
 .filter-button:hover:not(.active) {
     background-color: #E0BFFF; 
 }
-
 
 #swipe-container {
     flex-grow: 1;
@@ -110,10 +92,9 @@ body {
     flex-direction: column; 
     justify-content: flex-start; 
     align-items: center; 
-    /* Reduzindo para alinhar melhor o card e os botões */
     min-height: 60vh; 
     padding-top: 0; 
-    gap: 30px; /* Garante espaço entre o card e os botões */
+    gap: 30px;
 }
 .card-item {
     position: relative; 
@@ -134,10 +115,6 @@ body {
     margin-top: 0;
 }
 
-
-/* >>> INÍCIO DOS NOVOS ESTILOS REFINADOS PARA OS BOTÕES DE AÇÃO <<< */
-
-/* Estilos de base mais limpos para os botões de ação circulares */
 .action-button {
     width: 60px; 
     height: 60px;
@@ -154,119 +131,94 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
 }
 
-/* Container de botões global */
 .global-card-actions {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px; /* Aumentei um pouco o gap */
+    gap: 20px;
     margin-top: 5px; 
 }
 
-/* Tamanho do ícone base */
 .action-button .icon {
-    font-size: 30px; /* Aumentado para melhor visualização */
+    font-size: 30px;
     line-height: 1;
-    font-weight: 300; /* Tentativa de deixar o 'x' mais fino */
+    font-weight: 300;
 }
 
-
-/* 1. Botão IGNORAR (X Vermelho) - REFINADO: MINIMALISTA */
+/* 1. Botão IGNORAR (X Vermelho) */
 .btn-ignorar {
     background-color: rgb(248, 207, 207); 
-    /* Borda mais suave e clara, como no protótipo */
     border: 2px solid #ffaaaa; 
-    box-shadow: none; /* Removendo a sombra para visual plano */
+    box-shadow: none;
 }
 .btn-ignorar .icon {
-    /* Cor vermelha do ícone */
     color: #ff3838; 
-    /* Definido no .action-button .icon */
     font-weight: 300; 
 }
 
-/* NOVO ESTILO: Estado Hover para o botão Ignorar (AQUI ESTÁ A MUDANÇA) */
 .btn-ignorar:hover:not(.inactive) {
-    background-color: #ff3838; /* Fundo Vermelho Sólido (mais forte) */
-    border-color: #ff3838;     /* Borda da mesma cor */
-    /* Transform e box-shadow são gerenciados pela classe .action-button:hover */
+    background-color: #ff3838;
+    border-color: #ff3838;
 }
 
-/* NOVO ESTILO: Ícone no estado Hover (filho da classe .btn-ignorar) */
 .btn-ignorar:hover:not(.inactive) .icon {
-    color: white; /* Cor do ícone fica Branca */
+    color: white;
 }
 
-
-/* ---------------------------------------------------------------------- */
-/* 2. Botão VOLTAR (Seta de Retorno Azul/Inativo) - CORRIGIDO PARA SVG */
-/* ---------------------------------------------------------------------- */
+/* 2. Botão VOLTAR (Seta de Retorno) */
 .btn-voltar {
-    /* Fundo e borda claros (Estado Inicial/Padrão) */
-    background-color: #E6F7FF; /* Azul muito claro (Base do protótipo) */
-    border: 2px solid #B3E0FF; /* Borda suave */
+    background-color: #E6F7FF;
+    border: 2px solid #B3E0FF;
     box-shadow: none; 
-    color: transparent; /* A cor é definida pelo stroke do SVG */
+    color: transparent;
 }
 
-/* Estilo para o ícone SVG dentro do botão voltar */
 .btn-voltar .icon svg {
-    /* Dimensões do SVG: ajusta ao tamanho do botão */
     width: 28px; 
     height: 28px;
-    /* Define a cor do traço do ícone (Azul Principal) */
-    stroke: #007bff; /* COR DA LINHA INICIAL */
+    stroke: #007bff;
     stroke-width: 2;
     transition: stroke 0.2s ease-in-out; 
 }
 
-/* ESTILO: Estado Hover */
 .btn-voltar:hover:not(.inactive) {
-    background-color: #007bff; /* Fundo Azul Sólido */
-    border-color: #007bff;     /* Borda da mesma cor */
+    background-color: #007bff;
+    border-color: #007bff;
 }
 
-/* ESTILO: Ícone no estado Hover */
 .btn-voltar:hover:not(.inactive) .icon svg {
-    stroke: white; /* Cor do ícone fica Branca */
+    stroke: white;
 }
 
-/* ---------------------------------------------------------------------- */
 /* ESTILO PARA O BOTÃO VOLTAR "EM OFF" (INACTIVE) */
-/* ---------------------------------------------------------------------- */
 .btn-voltar.inactive {
-    background-color: #f0f0f0; /* Cinza claro */
-    border-color: #ccc; /* Borda Cinza */
+    background-color: #f0f0f0;
+    border-color: #ccc;
     cursor: default; 
     pointer-events: none; 
     box-shadow: none; 
 }
-/* Ícone inativo */
 .btn-voltar.inactive .icon svg {
-    stroke: #aaa; /* Cor do ícone cinza quando inativo */
+    stroke: #aaa;
 }
 
 /* 3. Botão TROCAR (Ícone Câmera/Expandir) */
 .btn-trocar {
     background-color: #7b1fa2; 
     border: none;
-    color: white; /* Cor do stroke do SVG herdada daqui */
+    color: white;
     width: 70px; 
     height: 70px;
     font-size: 30px;
     box-shadow: 0 4px 10px rgba(123, 31, 162, 0.4); 
 }
 
-/* NOVO AJUSTE: O SVG não precisa de 'fill' (é um ícone de linha) */
 .btn-trocar .icon svg {
-    /* REMOVEMOS: fill: white; */
-    width: 35px; /* Deixamos um pouco maior para preencher melhor o botão */
+    width: 35px;
     height: 35px;
-    /* Adicionando um pequeno hover para acompanhar os outros botões */
     transition: transform 0.2s ease;
 }
 
-/* Opcional: Adicionar um efeito de hover específico para o ícone de troca */
 .btn-trocar:hover .icon svg {
     transform: scale(1.05);
 }

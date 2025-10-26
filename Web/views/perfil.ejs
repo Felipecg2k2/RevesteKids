@@ -2,44 +2,59 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Perfil - Reveste Kids</title>
+    
+    <link rel="stylesheet" href="/css/main.css"> 
     <link rel="stylesheet" href="/css/perfil.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     
-    <div class="perfil-container"> 
-        <h1>Meu Perfil</h1>
+    <div class="app-layout">
+        <%- include('partials/_sidebar') %>
 
-        <div class="secao">
-            <h2>Informações Pessoais</h2>
+        <main class="content-area">
             
-            <p><strong>Nome Completo:</strong> <%= usuario.nome %> <%= usuario.sobrenome %></p>
-            <p><strong>E-mail:</strong> <%= usuario.email %></p>
-        </div>
+            <div class="content-area-pad"> 
+                
+                <div class="perfil-container"> 
+                    <h1>Meu Perfil</h1>
 
-        <div class="secao">
-            <h2>Endereço de Entrega</h2>
-            
-            <p><strong>CEP:</strong> <%= usuario.cep %></p>
-            <p><strong>Rua/Avenida:</strong> <%= usuario.logradouro %>, <%= usuario.numero %></p>
-            <p><strong>Bairro:</strong> <%= usuario.bairro %></p>
-            <p><strong>Cidade/Estado:</strong> <%= usuario.cidade %> / <%= usuario.estado %></p>
-        </div>
+                    <div class="secao">
+                        <h2>Informações Pessoais</h2>
+                        
+                        <p><strong>Nome Completo:</strong> <%= usuario.nome %> <%= usuario.sobrenome %></p>
+                        <p><strong>E-mail:</strong> <%= usuario.email %></p>
+                    </div>
 
-        <div class="secao acoes">
-            <h2>Ações</h2>
-            
-            <a href="/perfil/editar" class="botao">
-                Editar Meu Perfil
-            </a>
-            
-            <a href="/perfil/apagar" class="link-apagar"
-                onclick="return confirm('Tem certeza que deseja apagar permanentemente o seu perfil? Esta ação é irreversível.');">
-                Apagar minha conta
-            </a>
-        </div>
-    
-    </div> <a href="/feed" class="link-feed">Voltar para o feed</a>
+                    <div class="secao">
+                        <h2>Endereço de Entrega</h2>
+                        
+                        <p><strong>CEP:</strong> <%= usuario.cep %></p>
+                        <p><strong>Rua/Avenida:</strong> <%= usuario.logradouro %>, <%= usuario.numero %></p>
+                        <p><strong>Bairro:</strong> <%= usuario.bairro %></p>
+                        <p><strong>Cidade/Estado:</strong> <%= usuario.cidade %> / <%= usuario.estado %></p>
+                    </div>
+
+                    <div class="secao acoes">
+                        <h2>Ações</h2>
+                        
+                        <a href="/perfil/editar" class="botao">
+                            Editar Meu Perfil
+                        </a>
+                        
+                        <a href="/perfil/apagar" class="link-apagar"
+                            onclick="return confirm('Tem certeza que deseja apagar permanentemente o seu perfil? Esta ação é irreversível.');">
+                            Apagar minha conta
+                        </a>
+                    </div>
+                
+                </div> 
+                
+            </div>
+        </main>
+    </div>
     
 </body>
 </html>

@@ -1,10 +1,7 @@
-// models/Troca.js - ATUALIZADO
-
 import { DataTypes } from 'sequelize';
 import connection from '../config/sequelize-config.js';
 import Usuario from './Usuario.js';
 import Item from './Item.js';
-
 const Troca = connection.define('Troca', {
     id: {
         type: DataTypes.INTEGER,
@@ -12,7 +9,6 @@ const Troca = connection.define('Troca', {
         autoIncrement: true
     },
     status: {
-        // MANTIDO: 'Conflito'
         type: DataTypes.ENUM('Pendente', 'Aceita', 'Rejeitada', 'Finalizada', 'Cancelada', 'Conflito'), 
         allowNull: false,
         defaultValue: 'Pendente' 
@@ -43,11 +39,9 @@ const Troca = connection.define('Troca', {
     freezeTableName: true, 
     timestamps: true 
 });
-
 // ==========================================================
 // RELACIONAMENTOS (FOREIGN KEYS) - COM ON DELETE
 // ==========================================================
-
 // 1. Quem Propôs a Troca?
 Troca.belongsTo(Usuario, {
     as: 'proponente', 
@@ -55,7 +49,6 @@ Troca.belongsTo(Usuario, {
     onDelete: 'SET NULL', 
     onUpdate: 'CASCADE'
 });
-
 // 2. De Quem é a Troca? (O Dono do Item Desejado)
 Troca.belongsTo(Usuario, {
     as: 'receptor', 
@@ -63,7 +56,6 @@ Troca.belongsTo(Usuario, {
     onDelete: 'SET NULL', 
     onUpdate: 'CASCADE'
 });
-
 // 3. Qual Item o Proponente ESTÁ OFERECENDO?
 Troca.belongsTo(Item, {
     as: 'itemOferecido',
@@ -71,7 +63,6 @@ Troca.belongsTo(Item, {
     onDelete: 'SET NULL', 
     onUpdate: 'CASCADE'
 });
-
 // 4. Qual Item o Proponente DESEJA RECEBER?
 Troca.belongsTo(Item, {
     as: 'itemDesejado',
@@ -79,11 +70,4 @@ Troca.belongsTo(Item, {
     onDelete: 'SET NULL', 
     onUpdate: 'CASCADE'
 });
-
 export default Troca;
-
-// NOTA IMPORTANTE:
-// Você DEVE rodar uma migração no seu banco de dados para adicionar os campos:
-// - proponenteConfirmouFinalizacao (BOOLEAN, default: false)
-// - receptorConfirmouFinalizacao (BOOLEAN, default: false)
-// Caso contrário, o Controller dará erro ao tentar acessá-los.

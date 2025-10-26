@@ -11,6 +11,20 @@
     <div class="app-layout">
         <%- include('partials/_sidebar') %>
         <div class="content-area">
+            <% if (messages && Object.keys(messages).length > 0) { %>
+                <div class="message-container">
+                    <% if (messages.error) { %>
+                        <% messages.error.forEach(function(msg) { %>
+                            <div class="alert alert-danger"><%= msg %></div>
+                        <% }); %>
+                    <% } %>
+                    <% if (messages.success) { %>
+                        <% messages.success.forEach(function(msg) { %>
+                            <div class="alert alert-success"><%= msg %></div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            <% } %>
             <div class="feed-content-and-filters">
                 <div class="filters-column">
                     <h2>Filtros</h2>
@@ -58,6 +72,7 @@
                             <div style="height: 250px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; border-radius: 8px;">
                                 [IMAGEM AQUI - <%= item.peca %>]
                             </div>
+                            <p><strong>Dono:</strong> <%= item.usuario.nome %></p>
                             <p><strong>Gênero:</strong> <%= item.tipo %></p>
                             <p><strong>Tamanho:</strong> <%= item.tamanho %></p>
                             <p><strong>Condição:</strong> <%= item.condicao %></p>
@@ -70,7 +85,6 @@
                                     Ver Mais Detalhes
                                 </button>
                             </div>
-
                         </div>
                         <% }); %>
                     <% } %>
@@ -102,47 +116,34 @@
             const cardContainer = document.getElementById('swipe-container');
             const cards = document.querySelectorAll('.card-item');
             let currentIndex = 0;
-            // Referências aos botões globais
             const globalBtnIgnorar = document.getElementById('global-btn-ignorar');
             const globalBtnVoltar = document.getElementById('global-btn-voltar');
             const globalBtnTrocar = document.getElementById('global-btn-trocar');
             
-            // Adiciona a função para garantir que os botões globais sejam visíveis ou ocultos no carregamento
             function updateGlobalActionsDisplay(hasCards) {
                 const globalActions = document.querySelector('.global-card-actions');
                 if (globalActions) {
                     globalActions.style.display = hasCards ? 'flex' : 'none';
                 }
             }
-
-            // Função para mostrar apenas a carta atual e ajustar o botão 'Voltar'
             function updateCardDisplay() {
                 cards.forEach((card, index) => {
-                    card.style.display = 'none';
-                    if (index === currentIndex) {
-                        card.style.display = 'block';
-                    }
+                    card.style.display = index === currentIndex ? 'block' : 'none';
                 });
                 if (globalBtnVoltar) {
-                    // Garante que o botão 'Voltar' está sempre visível
                     globalBtnVoltar.style.display = 'inline-flex';
                     if (currentIndex === 0) {
-                        // Desativa (coloca em 'off') na primeira peça
                         globalBtnVoltar.classList.add('inactive');
                     } else {
-                        // Ativa (remove o 'off') a partir da segunda peça
                         globalBtnVoltar.classList.remove('inactive');
                     }
                 }
                 
                 if (currentIndex >= cards.length) {
                     cardContainer.innerHTML = '<p style="width: 100%; text-align: center; padding: 50px;">Você viu todas as peças do catálogo! Volte mais tarde.</p>';
-                    // Esconde os botões de ação quando não há mais cards
                     updateGlobalActionsDisplay(false); 
                 } else {
-                     // Garante que os botões de ação estejam visíveis quando há cards
                     updateGlobalActionsDisplay(true); 
-                    // Atualiza o link do botão Trocar com o ID da peça atual
                     if (globalBtnTrocar && cards[currentIndex]) {
                         const currentItemId = cards[currentIndex].dataset.id;
                         globalBtnTrocar.href = `/trocas/propor/${currentItemId}`;
@@ -150,69 +151,55 @@
                 }
             }
             
-            // 1. Lógica para Avançar: Ignorar ou Trocar (avança o índice)
             function setupActionButtons() {
-                // Remove listeners antigos para evitar duplicação (boa prática)
                 if (globalBtnIgnorar) globalBtnIgnorar.removeEventListener('click', handleNextCard);
                 if (globalBtnVoltar) globalBtnVoltar.removeEventListener('click', handlePrevCard);
-                if (globalBtnTrocar) globalBtnTrocar.removeEventListener('click', handleNextCard); // Trocar também avança
-                // Adiciona listeners aos botões globais
+                if (globalBtnTrocar) globalBtnTrocar.removeEventListener('click', handleNextCard);
+                
                 if (globalBtnIgnorar) globalBtnIgnorar.addEventListener('click', handleNextCard);
                 if (globalBtnVoltar) globalBtnVoltar.addEventListener('click', handlePrevCard);
-                if (globalBtnTrocar) globalBtnTrocar.addEventListener('click', handleNextCard); // Trocar também avança
-                // Seleciona todos os botões de filtro
+                if (globalBtnTrocar) globalBtnTrocar.addEventListener('click', handleNextCard);
+                
                 document.querySelectorAll('.filter-button').forEach(button => {
                     button.addEventListener('click', toggleFilter);
                 });
             }
-            // Handler para Avançar
+            
             function handleNextCard(event) {
-                // Impedir a navegação padrão do link 'Propor Troca' para que o JS gerencie
                 if (event.currentTarget.id === 'global-btn-trocar') {
                     event.preventDefault();
                     const currentItemId = cards[currentIndex].dataset.id;
-                    // Avança o índice ANTES de redirecionar para que o botão 'Voltar' funcione corretamente
                     currentIndex++; 
-                    updateCardDisplay(); // Atualiza display antes de sair
+                    updateCardDisplay();
                     window.location.href = `/trocas/propor/${currentItemId}`; 
-                    return; // Sai da função
-                }
-                
-                // Lógica para Ignorar (apenas avança o índice)
-                if (event.currentTarget.id === 'global-btn-ignorar') {
-                    // Não é necessário fazer nada aqui além de avançar o índice
+                    return;
                 }
                 
                 currentIndex++;
                 updateCardDisplay();
             }
-            // Handler para Voltar
+            
             function handlePrevCard(event) {
                 if (currentIndex > 0) {
                     currentIndex--;
                     updateCardDisplay();
                 }
             }
-            //Lógica de clique para os botões de filtro (simples toggle visual)
+            
             function toggleFilter(event) {
                 const button = event.currentTarget;
-                // Alterna a classe 'active' para indicar se o filtro está selecionado
                 button.classList.toggle('active');
             }
             
-            // Inicializa a exibição e os listeners
             if (cards.length > 0) {
                 updateCardDisplay();
                 setupActionButtons();
             } else {
-                 // Se não houver cards, esconde os botões de ação desde o início
                 updateGlobalActionsDisplay(false); 
             }
             
-            // Adiciona listener para checkboxes de Gênero, apenas para fins de estado/feedback visual
             document.querySelectorAll('input[name="genero"]').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                });
+                checkbox.addEventListener('change', () => {});
             });
         });
     </script>

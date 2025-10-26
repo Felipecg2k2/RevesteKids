@@ -1,78 +1,92 @@
-// models/Item.js - CÓDIGO CORRIGIDO
-
 import { DataTypes } from "sequelize";
 import connection from "../config/sequelize-config.js";
 import Usuario from "./Usuario.js"; // Importa o modelo Usuario para associação
-
 const Item = connection.define('itens', {
-    // ID é criada automaticamente pelo Sequelize
-    
-    // CAMPOS BASEADOS NA SUA TABELA 'itens'
-    tipo: {
-        type: DataTypes.ENUM('Feminino', 'Masculino', 'Unissex'),
-        allowNull: false
-    },
-    tamanho: {
-        type: DataTypes.STRING(10),
-        allowNull: false
-    },
-    descricao: {
-    type: DataTypes.TEXT, // Usa o tipo TEXT para a descrição
-    allowNull: true       // Permite que a descrição seja opcional
+    // =======================================================
+    // 1. IDENTIFICAÇÃO CHAVE (NOME E CATEGORIA)
+    // =======================================================
+    peca: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        comment: 'Nome curto da peça (ex: Vestido Rodado, Calça Jeans)'
     },
-    peca: {
-        type: DataTypes.STRING(50),
-        allowNull: false
-    },
-    // NOVO CAMPO: Categoria da Peça
-    categoriaPeca: {
-        type: DataTypes.STRING(50),
-        allowNull: false
-    },
-    cor: {
-        type: DataTypes.STRING(50),
-        allowNull: true
-    },
-    tecido: {
-        type: DataTypes.STRING(50),
-        allowNull: true
-    },
-    estacao: {
-        type: DataTypes.STRING(20),
-        allowNull: true
-    },
-    condicao: {
-        type: DataTypes.STRING(50),
-        allowNull: false
-    },
-    // V-V-V- CORREÇÃO CRÍTICA AQUI -V-V-V
-    statusPosse: {
-        type: DataTypes.ENUM('Ativo', 'EmTroca', 'Historico'), // Definindo como ENUM
-        allowNull: false,
-        defaultValue: 'Ativo' 
-    },
-    // ^-^-^ FIM DA CORREÇÃO ^-^-^
-    // Nota: O campo 'UsuarioId' será criado automaticamente na associação
+    categoriaPeca: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        comment: 'Tipo de peça para categorização (ex: Vestuário, Calçado, Acessório)'
+    },
+    // =======================================================
+    // 2. CARACTERÍSTICAS BÁSICAS E OBRIGATÓRIAS
+    // =======================================================
+    tipo: {
+        type: DataTypes.ENUM('Feminino', 'Masculino', 'Unissex'),
+        allowNull: false
+    },
+    tamanho: {
+        type: DataTypes.ENUM(
+            'RN', '0-3M', '3-6M', '6-9M', '9-12M',
+            '1A', '2A', '3A', '4A', '5A', '6A', '7A', '8A',
+            '10A', '12A', '14A', '16A',
+            'P', 'M', 'G', 'GG', 'Único'
+        ),
+        allowNull: false
+    },
+    condicao: {
+        type: DataTypes.ENUM(
+            'Novo com Etiqueta',
+            'Novo sem Etiqueta',
+            'Usado em Perfeitas Condições',
+            'Usado com Pequeno Desgaste',
+            'Requer Reparo Simples'
+        ),
+        allowNull: false
+    },
+    // =======================================================
+    // 3. CARACTERÍSTICAS SECUNDÁRIAS (Opcionais)
+    // =======================================================
+    cor: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+    },
+    tecido: {
+        type: DataTypes.STRING(100),
+        allowNull: false
+    },
+    estacao: {
+        type: DataTypes.STRING(20),
+        allowNull: true
+    },
+    // =======================================================
+    // 4. GESTÃO E DESCRIÇÃO
+    // =======================================================
+    statusPosse: {
+        type: DataTypes.ENUM('Ativo', 'EmTroca', 'Historico'),
+        allowNull: false,
+        defaultValue: 'Ativo',
+        comment: 'Indica se está disponível, em negociação ou trocado'
+    },
+    descricao: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Detalhes e observações sobre a peça'
+    },
+
 }, {
     tableName: 'itens',
-    freezeTableName: true, // Garante que o nome da tabela seja 'itens'
+    freezeTableName: true,
     timestamps: true
 });
-
-
 // =======================================================
-// ASSOCIAÇÃO (CHAVE ESTRANGEIRA)
+// ASSOCIAÇÃO (CHAVE ESTRANGEIRA E CORREÇÃO CRÍTICA)
 // =======================================================
-
 // 1. O Usuário tem muitos Itens (One-to-Many)
 Usuario.hasMany(Item, {
-    foreignKey: 'UsuarioId'
+    foreignKey: 'UsuarioId',
+    onDelete: 'CASCADE'
 });
-
 // 2. O Item pertence a um Usuário
 Item.belongsTo(Usuario, {
-    foreignKey: 'UsuarioId',
-    as: 'usuario'
+    foreignKey: 'UsuarioId',
+    as: 'usuario'
 });
-
 export default Item;

@@ -19,113 +19,110 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputCondicao = document.getElementById('condicao');
     const textareaDescricao = document.getElementById('descricao');
 
-    // 1. LÓGICA DE ABERTURA E FECHAMENTO DO MODAL (Comportamento Básico)
+    // Variáveis de Estado
+    const filtroStatus = itemDataContainer.getAttribute('data-filtro-status');
+    const urlParams = new URLSearchParams(window.location.search);
+
+
+    // =======================================================
+    // 1. LÓGICA DO MODAL (Abertura, Fechamento e Reset)
+    // =======================================================
+
+    function resetarFormularioParaCadastro() {
+        formRoupa.reset(); 
+        inputId.value = ''; 
+        formRoupa.action = '/roupas/salvar'; 
+        modalTitulo.textContent = 'Cadastrar Nova Peça para Troca';
+        btnSubmit.textContent = 'Cadastrar Roupa';
+    }
     
+    // ABRIR MODAL (CADASTRO)
     if (btnAbrirModal) {
         btnAbrirModal.onclick = function() {
-            // Limpa o formulário e define para 'Cadastro' antes de abrir
             resetarFormularioParaCadastro();
             modal.style.display = "block";
         }
     }
 
+    // FECHAR MODAL
     btnFecharModal.onclick = function() {
         modal.style.display = "none";
+        resetarFormularioParaCadastro();
     }
 
+    // FECHAR MODAL CLICANDO FORA
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = "none";
+            resetarFormularioParaCadastro();
         }
     }
 
-    // 2. FUNÇÃO PARA PREPARAR O FORMULÁRIO PARA NOVO CADASTRO
-    function resetarFormularioParaCadastro() {
-        formRoupa.reset(); // Limpa todos os campos
-        inputId.value = ''; // Garante que o ID esteja vazio
-        formRoupa.action = '/roupas/salvar';
-        modalTitulo.textContent = 'Cadastrar Nova Peça para Troca';
-        btnSubmit.textContent = 'Cadastrar Roupa';
-        // Opcional: Redireciona a página para a URL de roupas base ao fechar
-        // Se a página for carregada no modo edição, o usuário deve ser redirecionado
-        // para a lista principal ao fechar o modal.
-        // window.history.pushState({}, document.title, "/roupas"); 
-    }
-    
-    // 3. LÓGICA DE EDIÇÃO: Checa se a página foi carregada com dados de edição
-    
-    const itemDataJSON = itemDataContainer.getAttribute('data-item');
-    const filtroStatus = itemDataContainer.getAttribute('data-filtro-status');
-
-    if (itemDataJSON && itemDataJSON !== 'null') {
-        try {
-            const itemParaEditar = JSON.parse(itemDataJSON);
+    // LÓGICA PARA ABRIR MODAL NA EDIÇÃO (Anexada aos botões .btn-editar)
+    document.querySelectorAll('.btn-editar').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
             
-            if (itemParaEditar && itemParaEditar.id) {
-                
-                // Preencher o formulário com os dados do item
-                inputId.value = itemParaEditar.id;
-                inputPeca.value = itemParaEditar.peca;
-                selectCategoria.value = itemParaEditar.categoriaPeca;
-                selectTipo.value = itemParaEditar.tipo;
-                inputTamanho.value = itemParaEditar.tamanho;
-                inputCor.value = itemParaEditar.cor || '';
-                inputTecido.value = itemParaEditar.tecido || '';
-                inputEstacao.value = itemParaEditar.estacao || '';
-                inputCondicao.value = itemParaEditar.condicao;
-                textareaDescricao.value = itemParaEditar.descricao || '';
-                
-                // Mudar o título e ação do formulário para Edição
-                formRoupa.action = '/roupas/editar/' + itemParaEditar.id; // Altera a rota para a edição
-                modalTitulo.textContent = 'Editar Peça: ' + itemParaEditar.peca;
-                btnSubmit.textContent = 'Salvar Alterações';
-                
-                // Abrir o modal automaticamente
-                modal.style.display = "block";
-
-                // Se o item estiver "Em Troca", bloquear a edição de certos campos
-                if (itemParaEditar.statusPosse === 'EmTroca') {
-                    // Exemplo: Bloquear campos. Isso depende da sua regra de negócio.
-                    // inputPeca.disabled = true;
-                    // ...
-                    // Você pode adicionar um aviso visual aqui também.
-                }
+            const itemDataString = this.getAttribute('data-item');
+            let item;
+            try {
+                item = JSON.parse(itemDataString);
+            } catch (e) {
+                console.error('Erro ao fazer parse do JSON do item:', e);
+                return;
             }
-        } catch (e) {
-            console.error('Erro ao analisar dados do item para edição:', e);
-        }
-    }
-    
-    // 4. LÓGICA DE DESTAQUE DO FILTRO ATIVO
+            
+            if (!item) return;
+
+            // 1. Configurar o formulário para EDIÇÃO
+            modalTitulo.textContent = `Editar Peça: ${item.peca}`;
+            btnSubmit.textContent = 'Salvar Alterações';
+            formRoupa.action = '/roupas/salvar'; // Usa a rota unificada POST (o ID no campo hidden faz o Express entender que é um UPDATE)
+            
+            // 2. Preencher os campos do formulário
+            inputId.value = item.id || '';
+            inputPeca.value = item.peca || '';
+            selectCategoria.value = item.categoriaPeca || '';
+            selectTipo.value = item.tipo || 'Feminino';
+            inputTamanho.value = item.tamanho || '';
+            inputCor.value = item.cor || '';
+            inputTecido.value = item.tecido || '';
+            inputEstacao.value = item.estacao || '';
+            inputCondicao.value = item.condicao || '';
+            textareaDescricao.value = item.descricao || '';
+            
+            // 3. Exibir o modal
+            modal.style.display = "block";
+        });
+    });
+
+
+    // =======================================================
+    // 2. LÓGICA DE DESTAQUE DO FILTRO ATIVO (CORRIGIDA)
+    // =======================================================
     
     const filtros = document.querySelectorAll('.filtro-item');
-    filtros.forEach(filtro => {
-        const filtroValor = filtro.getAttribute('data-filtro');
-        // Se o filtroStatus for 'Ativo' e a URL não tiver status, 
-        // ou se o filtroValor for igual ao filtroStatus (ex: 'EmTroca')
-        if (
-            (filtroStatus === 'Ativo' && filtro.id === 'filtro-cadastradas') ||
-            (filtroStatus === 'EmTroca' && filtro.id === 'filtro-emtroca')
-        ) {
-            filtro.classList.add('active');
-        } 
-        
-        // Lógica para o filtro de Histórico (verifica a URL de forma mais robusta)
-        const currentUrl = window.location.href;
-        if (filtro.id === 'filtro-historico' && currentUrl.includes('historico=true')) {
-             // Remove 'active' dos outros filtros primeiro (opcional, mas limpa)
-            document.getElementById('filtro-cadastradas').classList.remove('active');
-            document.getElementById('filtro-emtroca').classList.remove('active');
-            filtro.classList.add('active');
-        }
-    });
     
-    // 5. GARANTIR QUE O FILTRO 'ATIVO' SEJA SELECIONADO SE NÃO HOUVER FILTRO OU SE for a tela principal
-    if (!filtroStatus || filtroStatus === 'Ativo') {
-        // Se a URL não tem ?status= ou ?historico=, assume Ativo (Roupas Disponíveis)
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.get('status') && !urlParams.get('historico')) {
-             document.getElementById('filtro-cadastradas').classList.add('active');
-        }
+    // Limpar todos os filtros ao iniciar
+    filtros.forEach(filtro => filtro.classList.remove('active'));
+
+    // Lógica para Histórico
+    if (urlParams.get('historico') === 'true') {
+        const filtroHistorico = document.getElementById('filtro-historico-link'); // ID CORRETO
+        if (filtroHistorico) filtroHistorico.classList.add('active');
+        return; 
+    }
+    
+    // Lógica para Filtros de Status (Ativo/EmTroca)
+    
+    // Se a URL tem ?status=EmTroca OU o controller definiu filtroStatus como EmTroca
+    if (urlParams.get('status') === 'EmTroca' || filtroStatus === 'EmTroca') {
+        const filtroEmTroca = document.getElementById('filtro-emtroca');
+        if (filtroEmTroca) filtroEmTroca.classList.add('active');
+    } 
+    // Caso contrário, assume Ativo (URL /roupas ou ?status=Ativo)
+    else {
+        const filtroAtivo = document.getElementById('filtro-ativas'); // ID CORRETO
+        if (filtroAtivo) filtroAtivo.classList.add('active');
     }
 });

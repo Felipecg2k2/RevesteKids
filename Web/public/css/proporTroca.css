@@ -1,0 +1,224 @@
+/* =========================================== */
+/* 0. RESET BÁSICO E TIPOGRAFIA GLOBAL         */
+/* =========================================== */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; 
+    min-height: 100vh;
+    box-sizing: border-box;
+    /* Define uma fonte limpa e padrão para evitar problemas de compatibilidade */
+    font-family: Arial, sans-serif;
+}
+
+.app-layout {
+    /* Garante que o container principal Flex/Grid ocupe a altura total */
+    min-height: 100vh;
+}
+
+/* ------------------------------------------- */
+/* VARIÁVEIS DE COR E LAYOUT (Melhora a padronização) */
+/* ------------------------------------------- */
+:root {
+    --color-primary: #8347AA; /* Roxo principal */
+    --color-secondary: #35eecf; /* Menta/Ciano */
+    --color-light-bg: #f8f9fa; /* Fundo leve para cards */
+    --color-border: #ddd;
+    --color-success: #28a745; /* Verde para seleção/sucesso */
+}
+
+/* ------------------------------------------- */
+/* ESTILOS PADRÃO DE ALERTA (req.flash) */
+/* ------------------------------------------- */
+.message-container { margin-bottom: 20px; }
+.alert {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    text-align: left;
+    border: 1px solid transparent;
+}
+.alert-danger {
+    color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
+}
+.alert-success {
+    color: #155724; background-color: #d4edda; border-color: #c3e6cb;
+}
+.alert-warning {
+    color: #856404; background-color: #fff3cd; border-color: #ffeeba;
+}
+
+/* ------------------------------------------- */
+/* 1. ESTILOS GERAIS DA PROPOSTA */
+/* ------------------------------------------- */
+
+.content-area {
+    padding: 20px; 
+}
+
+h1 { margin-top: 0; }
+
+.proposta-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap; 
+}
+
+.item-desejado-card, .item-oferecido-form {
+    flex: 1 1 45%; 
+    min-width: 300px;
+}
+.item-desejado-card {
+    border: 1px solid var(--color-primary);
+    padding: 20px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+.item-oferecido-form {
+    background-color: var(--color-light-bg);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+}
+.item-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.item-info li {
+    margin: 10px 0;
+    font-size: 0.95em;
+}
+.item-info hr { 
+    border: none;
+    border-top: 1px solid #eee; 
+    margin: 5px 0; 
+}
+.item-desejado-card img {
+    max-width: 100%; 
+    height: auto; 
+    max-height: 200px; 
+    display: block; 
+    margin: 0 auto;
+}
+
+/* ------------------------------------------- */
+/* 2. ESTILOS DO SELETOR DE CARDS (OFERTA) */
+/* ------------------------------------------- */
+.lista-de-pecas-oferecer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.item-card-oferta {
+    display: block; 
+    cursor: pointer;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    transition: all 0.2s;
+    text-align: center;
+    background-color: white;
+    position: relative;
+    overflow: hidden; 
+}
+
+.item-card-oferta:hover {
+    border-color: var(--color-primary); 
+    box-shadow: 0 0 5px rgba(131, 71, 170, 0.5);
+}
+
+.card-conteudo {
+    padding: 10px;
+}
+
+.card-imagem {
+    height: 100px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    color: #555;
+    border-top-left-radius: 6px; 
+    border-top-right-radius: 6px;
+}
+
+.card-conteudo p {
+    margin: 3px 0;
+    font-size: 0.9em;
+}
+.card-conteudo .condicao {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* ESTILO CRÍTICO: Mude o estilo do card quando SELECIONADO */
+input[type="radio"]:checked + .card-conteudo {
+    border: 2px solid var(--color-success); 
+    background-color: #e6ffed; 
+    border-radius: 6px;
+    /* CORREÇÃO: Removemos o posicionamento absoluto que estava fazendo o card sumir do fluxo */
+    /* top: -2px; left: -2px; right: -2px; bottom: -2px; */
+    /* position: absolute; */
+    /* z-index: 10; */
+}
+
+input[type="radio"]:checked + .card-conteudo .card-imagem {
+    border-bottom: 1px solid var(--color-success);
+}
+
+/* Esconde o radio button nativo */
+input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Botão de Envio */
+.btn-enviar-proposta {
+    padding: 12px 20px; 
+    background-color: var(--color-primary); 
+    color: white; 
+    border: none; 
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.btn-enviar-proposta:hover {
+    background-color: #6f388b;
+}
+
+.link-cadastro-peca {
+    display: inline-block; 
+    padding: 10px; 
+    background-color: #ffc107; 
+    color: #333; 
+    text-decoration: none; 
+    border-radius: 4px;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+/* Media Query para Responsividade */
+@media (max-width: 768px) {
+    .proposta-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+    .item-desejado-card, .item-oferecido-form {
+        min-width: 100%;
+    }
+    .lista-de-pecas-oferecer {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}

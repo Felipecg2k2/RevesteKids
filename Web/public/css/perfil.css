@@ -1,25 +1,101 @@
-/* Estilos Globais e Reset Simples */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #D2FBF4; /* Cor de fundo suave para a página */
-    margin: 0;
-    padding: 20px;
-    /* CORREÇÃO: Remove display: flex para que o link-feed possa ir para a esquerda */
+/* ==========================================================
+    ESTILOS ESPECÍFICOS DA TELA DE PERFIL (perfil.css)
+    Layout Final: Sidebar Funcional + Cartão Centralizado
+    ----------------------------------------------------------
+    Este arquivo contém os estilos para a visualização e a edição 
+    do perfil, além da correção de layout da sidebar.
+    ========================================================== */
+
+:root {
+    --color-primary: #9370DB; /* Roxo principal */
+    --color-secondary: #7B68EE; /* Roxo secundário */
+    --color-background-soft: #f7f7f7;
+    --color-perfil-bg: #D2FBF4; /* Cor de fundo suave para a página */
+    --sidebar-width: 250px; 
 }
 
-/* Container principal do perfil */
+/* ------------------------------------------------------------
+   CORREÇÃO DE LAYOUT (Fixação + Margem para 100% de compatibilidade)
+   ------------------------------------------------------------ */
+
+/* Configurações de fundo e margem do Body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--color-perfil-bg) !important; 
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important; 
+}
+
+/* Sidebar Fixa (Corrige a sobreposição) */
+.sidebar-menu {
+    position: fixed !important; 
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    width: var(--sidebar-width) !important;
+    z-index: 2000 !important; 
+    overflow-y: auto !important; 
+    flex-shrink: 0 !important; 
+}
+
+/* Content-Area com Margem e Largura de Compensação (Corrige a largura) */
+.content-area {
+    /* Força o conteúdo a começar 250px à direita (depois da sidebar fixa) */
+    margin-left: var(--sidebar-width) !important; 
+    
+    /* FORÇA A LARGURA: 100% da tela - largura da sidebar */
+    width: calc(100% - var(--sidebar-width)) !important;
+    
+    /* Anula conflitos */
+    position: relative !important; 
+    float: none !important;
+    flex-grow: 0 !important;
+    min-height: 100vh !important;
+    
+    /* Estilos Visuais */
+    padding: 30px; /* Padding interno do content-area */
+    background-color: var(--color-perfil-bg) !important; 
+}
+
+/* Container principal (app-layout) deve ser bloco para não interferir no fixed/margin-left */
+.app-layout {
+    display: block !important; 
+    min-height: 100vh !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+/* Centraliza o Cartão de Perfil */
+.content-area-pad { 
+    padding: 0; 
+    max-width: none; 
+    margin: 0;
+    
+    /* Centraliza o cartão horizontalmente */
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: flex-start; /* Alinha o conteúdo ao topo */
+    width: 100%;
+}
+
+
+/* ------------------------------------------------------------
+   ESTILOS GERAIS DO PERFIL (Leitura e Edição)
+   ------------------------------------------------------------ */
+
+/* Container principal do perfil (O Cartão Centralizado) */
 .perfil-container {
     width: 100%;
-    max-width: 600px; /* Reduzindo max-width para um cartão mais estreito e elegante */
+    max-width: 600px; 
     background-color: #ffffff;
     padding: 30px;
-    border-radius: 12px; /* Aumentando o arredondamento das bordas */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra mais suave e proeminente */
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
 
-    /* CORREÇÃO: Centraliza o container principal na página */
-    margin: 0 auto; 
+    /* Margem para afastamento superior e inferior */
+    margin: 30px 0; 
     
-    /* NOVO: Alinhamento de texto principal é para a esquerda agora */
     text-align: left; 
 }
 
@@ -31,26 +107,29 @@ h1 {
     padding-bottom: 10px;
     margin-bottom: 20px;
     margin-top: 0; 
-    text-align: center; /* Mantém o título principal centralizado */
+    text-align: center;
 }
 
-/* Subtítulos (Informações Pessoais, Endereço de Entrega, Ações) */
+/* Subtítulos */
 h2 {
-    font-size: 1.3em; /* Levemente menor */
+    font-size: 1.3em;
     color: #555;
-    /* Reduzindo margens para aproximar das linhas */
-    margin-top: 15px;    
+    margin-top: 15px; 
     margin-bottom: 8px;
-    text-align: left; /* Garante que os títulos de seção fiquem à esquerda */
-    font-weight: 700; /* Deixa o título mais forte */
+    text-align: left;
+    font-weight: 700;
 }
 
-/* Estilo para as seções de conteúdo (Informações Pessoais, Endereço, Ações) */
+
+/* ------------------------------------------------------------
+   ESTILOS ESPECÍFICOS DA VIEW DE LEITURA
+   ------------------------------------------------------------ */
+
 .secao {
     padding: 10px 0;
     border-bottom: 1px solid #eee; 
-    margin-bottom: 10px; /* Mais espaço para respirar */
-    text-align: left; /* Conteúdo da seção alinhado à esquerda */
+    margin-bottom: 10px;
+    text-align: left;
 }
 
 .secao:last-of-type {
@@ -59,26 +138,25 @@ h2 {
     margin-bottom: 0;
 }
 
-/* Estilo para os parágrafos de informação */
 .secao p {
-    margin: 6px 0; /* Mais espaço entre as linhas */
+    margin: 6px 0; 
     line-height: 1.4; 
     color: #444;
 }
 
+/* Efeito de alinhamento em duas colunas para as informações */
 .secao p strong {
     font-weight: bold;
-    /* Usando largura fixa para criar um alinhamento visual em duas colunas */
     min-width: 150px; 
     display: inline-block;
-    color: #333; /* Cor mais escura para os rótulos */
+    color: #333;
 }
 
 /* Estilo do Botão Principal (Editar Meu Perfil) */
 .botao {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: var(--color-primary); 
     color: white;
     text-decoration: none;
     border: none;
@@ -87,13 +165,11 @@ h2 {
     font-size: 1em;
     font-weight: 600;
     transition: background-color 0.3s;
-    
-    margin-bottom: 0; 
     margin-right: 10px; 
 }
 
 .botao:hover {
-    background-color: #0056b3;
+    background-color: var(--color-secondary);
 }
 
 /* Estilo do Link de Apagar Conta - BOTÃO SÓLIDO */
@@ -102,65 +178,271 @@ h2 {
     color: white;
     text-decoration: none;
     font-size: 1em;
-    
     display: inline-block;
     padding: 10px 20px; 
     border: none; 
     border-radius: 5px;
     font-weight: 600;
-    
     margin-top: 15px; 
     transition: background-color 0.3s;
-    
-    margin-right: 10px; 
 }
 
-/* Efeito Hover (passar o mouse) */
 .link-apagar:hover {
     background-color: #c82333; 
     text-decoration: none; 
     color: white;
 }
 
-/* NOVO: Centraliza os botões na seção Ações */
+/* Centraliza os botões na seção Ações */
 .secao.acoes {
     text-align: center;
     padding-top: 15px;
 }
 
-/* Estilo do Link Voltar para o feed - AJUSTE DE POSIÇÃO MAIS À ESQUERDA */
-.link-feed {
-    /* Estilo de Botão Roxo */
-    background-color: #8446AB; 
-    color: white; 
-    text-decoration: none;
-    font-weight: 600; 
+/* ------------------------------------------------------------
+   ESTILOS ESPECÍFICOS DO FORMULÁRIO DE EDIÇÃO
+   ------------------------------------------------------------ */
+
+/* Ajusta o container para formulários */
+.perfil-container.form-container {
+    padding: 30px 40px; /* Mais padding nas laterais */
+}
+
+.edit-form {
+    margin-top: 20px;
+}
+
+.form-section {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee; /* Borda padrão para todas as seções */
+    margin-bottom: 20px;
+}
+
+/* Remove a borda inferior da última seção para que o form-actions comece logo após */
+.edit-form .form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+
+.form-section h2 {
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 5px;
+    color: var(--color-primary);
+}
+
+.form-group {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar campos em telas pequenas */
+    gap: 15px; 
+    margin-bottom: 15px;
+}
+
+.form-group > div {
+    flex: 1; /* Permite que os campos duo-field dividam o espaço */
+    min-width: 45%; 
+}
+
+.form-group.full-width {
+    display: block;
+}
+
+/* Campos de entrada e labels */
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box; /* Inclui padding e borda na largura total */
     font-size: 1em;
-    
-    /* Estilos de Botão */
-    padding: 10px 20px; 
-    border-radius: 5px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 5px rgba(147, 112, 219, 0.4);
+    outline: none;
+}
+
+/* Botões de Ação do Formulário: Centraliza horizontalmente e remove borda superior desnecessária */
+.form-actions {
+    display: flex;
+    justify-content: center; /* <<< CORREÇÃO: CENTRALIZA OS BOTÕES AQUI >>> */
+    align-items: center; 
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 0; /* Remove padding-top */
+    border-top: none; /* Remove border-top */
+    margin-bottom: 20px;
+}
+
+.btn-submit {
+    padding: 12px 25px;
+    background-color: #28a745; /* Verde para Salvar/Atualizar */
+    color: white;
     border: none;
-    
-    /* POSICIONAMENTO */
-    display: block; 
-    width: fit-content; 
-    
-    /* Centraliza o bloco do link */
-    margin-top: 30px; 
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-transform: uppercase;
+}
 
-    /* CORREÇÃO FINAL: Força o alinhamento da margem esquerda mais para a esquerda */
-    /* NOVO AJUSTE: Aumentando o valor para puxar mais para a esquerda (50% - 320px) */
-    margin-left: calc(50% - 320px); 
-    margin-right: auto;
-    
-    text-align: center; 
+.btn-submit i {
+    margin-right: 5px;
+}
 
+.btn-submit:hover {
+    background-color: #218838;
+}
+
+.btn-cancelar {
+    padding: 12px 25px;
+    background-color: #f0f0f0; 
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    text-decoration: none;
+    align-self: center;
     transition: background-color 0.3s;
 }
 
-.link-feed:hover {
-    background-color: #6a378b;
-    text-decoration: none;
+.btn-cancelar:hover {
+    background-color: #e0e0e0;
 }
 
+/* Estilo para a opção de apagar conta: Garante a separação do bloco de botões acima */
+/* .separator não é mais usado; confiamos na borda do .acoes */
+.separator {
+    display: none; /* Garante que a classe antiga não apareça */
+}
+
+.acoes {
+    padding-top: 20px; /* Mais espaço para cima */
+    text-align: left;
+    /* Borda superior para separar Opções da Conta dos botões (form-actions) */
+    border-top: 1px solid #ddd; 
+    margin-top: 15px; 
+}
+
+.acoes h2 {
+    color: #dc3545; /* Vermelho para destaque */
+    border-bottom: 2px solid #dc3545;
+    margin-top: 0;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.link-apagar-conta {
+    color: #dc3545;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex; /* Para alinhar texto e ícone */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 8px; /* Espaço entre o ícone e o texto */
+    padding: 5px 0;
+    transition: color 0.3s;
+}
+
+.link-apagar-conta i {
+    font-size: 1.1em;
+}
+
+.link-apagar-conta:hover {
+    text-decoration: none;
+    color: #c82333;
+}
+
+
+/* ----------------------------------------------------------
+    Responsividade (Geral e Formulário)
+    ---------------------------------------------------------- */
+
+@media (max-width: 768px) {
+    
+    /* Layout Geral */
+    .content-area {
+        margin-left: 0 !important; 
+        width: 100% !important;
+        padding: 15px 10px;
+    }
+    
+    .sidebar-menu {
+        position: relative !important; 
+        top: auto !important;
+        left: auto !important;
+        width: 100% !important;
+        height: auto !important;
+        z-index: auto !important;
+    }
+
+    .app-layout {
+        display: block !important; 
+    }
+    
+    .content-area-pad {
+        padding: 0 10px;
+        justify-content: flex-start;
+    }
+
+    .perfil-container {
+        padding: 20px;
+        margin: 20px auto;
+    }
+    
+    /* Responsividade do Formulário */
+    .perfil-container.form-container {
+        padding: 20px;
+    }
+    
+    .form-group {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-group > div {
+        min-width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .form-group.duo-field {
+        flex-direction: column;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse; /* Coloca o Salvar em cima */
+        justify-content: center; /* Mantém a centralização dos botões empilhados */
+        gap: 10px;
+    }
+    
+    .btn-submit, .btn-cancelar {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Outros ajustes de leitura/botões */
+    .secao p strong {
+        min-width: 120px;
+    }
+    
+    .secao.acoes a {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+}
