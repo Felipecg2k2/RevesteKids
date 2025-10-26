@@ -1,128 +1,426 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('modal-cadastro');
-    const btnAbrirModal = document.getElementById('btn-abrir-modal');
-    const btnFecharModal = document.getElementById('btn-fechar-modal');
-    const formRoupa = document.getElementById('form-roupa');
+// /js/roupas.js - VERSÃO CORRIGIDA (VISUAL DA CAPA)
+
+document.addEventListener('DOMContentLoaded', () => {
+    // ==============================================================================
+    // 1. VARIÁVEIS GLOBAIS
+    // ==============================================================================
+    const modalCadastro = document.getElementById('modal-cadastro');
+    const modalGaleria = document.getElementById('modal-galeria-fotos');
     const modalTitulo = document.getElementById('modal-titulo');
+    const formRoupa = document.getElementById('form-roupa');
+    const itemIdInput = document.getElementById('item-id');
     const btnSubmit = document.getElementById('btn-submit');
-    const itemDataContainer = document.getElementById('item-data-container');
-    
-    // Elementos do formulário
-    const inputId = document.getElementById('item-id');
-    const inputPeca = document.getElementById('peca');
-    const selectCategoria = document.getElementById('categoriaPeca');
-    const selectTipo = document.getElementById('tipo');
-    const inputTamanho = document.getElementById('tamanho');
-    const inputCor = document.getElementById('cor');
-    const inputTecido = document.getElementById('tecido');
-    const inputEstacao = document.getElementById('estacao');
-    const inputCondicao = document.getElementById('condicao');
-    const textareaDescricao = document.getElementById('descricao');
+    const btnFecharModalCadastro = document.getElementById('btn-fechar-modal');
+    const btnFecharModalGaleria = document.getElementById('btn-fechar-galeria');
+    const btnAbrirModalCadastro = document.getElementById('btn-abrir-modal');
+    const fotosExistentesContainer = document.getElementById('fotos-existentes-container');
+    const galeriaEdicao = document.getElementById('galeria-edicao');
+    const fotosReordenadasInput = document.getElementById('fotos-reordenadas-json');
+    const fotosRemovidasInput = document.getElementById('fotos-removidas-json');
+    const imagensUploadInput = document.getElementById('imagens_upload');
+    const uploadArea = document.getElementById('upload-area');
+    const galeriaContainer = document.getElementById('galeria-container');
+    const galeriaTitulo = document.getElementById('galeria-titulo');
 
-    // Variáveis de Estado
-    const filtroStatus = itemDataContainer.getAttribute('data-filtro-status');
-    const urlParams = new URLSearchParams(window.location.search);
+    let sortable;
 
+    // ==============================================================================
+    // 2. FUNÇÃO PRINCIPAL - ATUALIZAR ORDEM E CAPA
+    // ==============================================================================
 
-    // =======================================================
-    // 1. LÓGICA DO MODAL (Abertura, Fechamento e Reset)
-    // =======================================================
+    const atualizarOrdemImagens = () => {
+        if (!galeriaEdicao || !fotosReordenadasInput) return;
 
-    function resetarFormularioParaCadastro() {
-        formRoupa.reset(); 
-        inputId.value = ''; 
-        formRoupa.action = '/roupas/salvar'; 
-        modalTitulo.textContent = 'Cadastrar Nova Peça para Troca';
-        btnSubmit.textContent = 'Cadastrar Roupa';
-    }
-    
-    // ABRIR MODAL (CADASTRO)
-    if (btnAbrirModal) {
-        btnAbrirModal.onclick = function() {
-            resetarFormularioParaCadastro();
-            modal.style.display = "block";
-        }
-    }
+        const filhos = Array.from(galeriaEdicao.children);
+        const ordem = [];
 
-    // FECHAR MODAL
-    btnFecharModal.onclick = function() {
-        modal.style.display = "none";
-        resetarFormularioParaCadastro();
-    }
+        filhos.forEach((container, index) => {
+            const imgId = container.getAttribute('data-imagem-id');
+            const caminho = container.getAttribute('data-caminho-arquivo');
 
-    // FECHAR MODAL CLICANDO FORA
-    window.onclick = function(event) {
-        if (event.target === modal) {
-            modal.style.display = "none";
-            resetarFormularioParaCadastro();
-        }
-    }
+            if (imgId) {
+                ordem.push({ id: imgId, caminho_arquivo: caminho });
+            }
 
-    // LÓGICA PARA ABRIR MODAL NA EDIÇÃO (Anexada aos botões .btn-editar)
-    document.querySelectorAll('.btn-editar').forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
+            // 🎯 LÓGICA CORRIGIDA - APLICA ESTILO DE CAPA NA PRIMEIRA IMAGEM
+            const isCapa = index === 0;
             
-            const itemDataString = this.getAttribute('data-item');
-            let item;
-            try {
-                item = JSON.parse(itemDataString);
-            } catch (e) {
-                console.error('Erro ao fazer parse do JSON do item:', e);
+            // Encontra os elementos dentro do container
+            const label = container.querySelector('.foto-label');
+            const removeBtn = container.querySelector('.remover-foto-btn');
+            const ordemBadge = container.querySelector('.ordem-badge');
+
+            // Atualiza badge de ordem
+            if (ordemBadge) {
+                ordemBadge.textContent = index + 1;
+            }
+
+            // 🎯 APLICA ESTILOS VISUAIS DIFERENCIADOS
+            if (isCapa) {
+                // ESTILO PARA CAPA
+                container.style.border = '3px solid #9370DB';
+                container.style.background = 'linear-gradient(135deg, #9370DB, #7B68EE)';
+                container.style.boxShadow = '0 4px 15px rgba(147, 112, 219, 0.4)';
+                container.style.transform = 'scale(1.05)';
+                
+                if (label) {
+                    label.textContent = '🖼️ CAPA';
+                    label.style.background = '#ffffff';
+                    label.style.color = '#9370DB';
+                    label.style.fontWeight = 'bold';
+                    label.style.border = '2px solid #9370DB';
+                }
+
+                if (removeBtn) {
+                    removeBtn.style.display = 'none'; // Oculta botão de remover da capa
+                }
+
+                if (ordemBadge) {
+                    ordemBadge.style.background = '#9370DB';
+                    ordemBadge.style.color = 'white';
+                }
+            } else {
+                // ESTILO PARA IMAGENS NORMAIS
+                container.style.border = '2px solid #e0e0e0';
+                container.style.background = 'white';
+                container.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                container.style.transform = 'scale(1)';
+                
+                if (label) {
+                    label.textContent = `Posição ${index + 1}`;
+                    label.style.background = '#f8f9fa';
+                    label.style.color = '#6c757d';
+                    label.style.fontWeight = 'normal';
+                    label.style.border = '1px solid #dee2e6';
+                }
+
+                if (removeBtn) {
+                    removeBtn.style.display = 'flex'; // Mostra botão de remover
+                }
+
+                if (ordemBadge) {
+                    ordemBadge.style.background = '#6c757d';
+                    ordemBadge.style.color = 'white';
+                }
+            }
+        });
+
+        // Atualiza o campo hidden
+        fotosReordenadasInput.value = JSON.stringify(ordem);
+
+        // Validações
+        const totalImagens = filhos.length;
+        if (imagensUploadInput) {
+            imagensUploadInput.required = totalImagens === 0;
+            imagensUploadInput.disabled = totalImagens >= 5;
+        }
+
+        if (fotosExistentesContainer) {
+            fotosExistentesContainer.style.display = totalImagens > 0 ? 'block' : 'none';
+        }
+
+        console.log(`🔄 Ordem atualizada: ${ordem.length} imagens | Capa: ${ordem[0]?.id || 'Nenhuma'}`);
+    };
+
+    // ==============================================================================
+    // 3. INICIALIZAR DRAG & DROP
+    // ==============================================================================
+
+    const inicializarSortable = () => {
+        if (!galeriaEdicao || typeof Sortable === 'undefined') return;
+
+        try {
+            if (sortable) sortable.destroy();
+
+            sortable = new Sortable(galeriaEdicao, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function() {
+                    console.log('🔄 Imagem reposicionada - atualizando ordem...');
+                    atualizarOrdemImagens(); // 🎯 ATUALIZA IMEDIATAMENTE
+                }
+            });
+            console.log('✅ Sortable.js inicializado');
+        } catch (error) {
+            console.error('❌ Erro no Sortable:', error);
+        }
+    };
+
+    // ==============================================================================
+    // 4. CONFIGURAR UPLOAD DE IMAGENS
+    // ==============================================================================
+
+    const configurarUpload = () => {
+        if (!imagensUploadInput || !galeriaEdicao) return;
+
+        imagensUploadInput.addEventListener('change', function(e) {
+            // Remove apenas miniaturas de novos uploads
+            Array.from(galeriaEdicao.children)
+                .filter(child => !child.getAttribute('data-imagem-id'))
+                .forEach(child => child.remove());
+
+            const files = Array.from(this.files);
+            const totalAtual = galeriaEdicao.children.length;
+            const slotsDisponiveis = 5 - totalAtual;
+
+            if (files.length > slotsDisponiveis) {
+                alert(`⚠️ Limite: ${slotsDisponiveis} foto(s) disponível(eis)`);
                 return;
             }
-            
-            if (!item) return;
 
-            // 1. Configurar o formulário para EDIÇÃO
-            modalTitulo.textContent = `Editar Peça: ${item.peca}`;
-            btnSubmit.textContent = 'Salvar Alterações';
-            formRoupa.action = '/roupas/salvar'; // Usa a rota unificada POST (o ID no campo hidden faz o Express entender que é um UPDATE)
-            
-            // 2. Preencher os campos do formulário
-            inputId.value = item.id || '';
-            inputPeca.value = item.peca || '';
-            selectCategoria.value = item.categoriaPeca || '';
-            selectTipo.value = item.tipo || 'Feminino';
-            inputTamanho.value = item.tamanho || '';
-            inputCor.value = item.cor || '';
-            inputTecido.value = item.tecido || '';
-            inputEstacao.value = item.estacao || '';
-            inputCondicao.value = item.condicao || '';
-            textareaDescricao.value = item.descricao || '';
-            
-            // 3. Exibir o modal
-            modal.style.display = "block";
+            files.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const container = document.createElement('div');
+                    container.className = 'foto-edicao-item';
+                    container.setAttribute('data-caminho-arquivo', file.name);
+                    
+                    container.innerHTML = `
+                        <div class="ordem-badge">?</div>
+                        <img src="${e.target.result}" alt="Nova imagem">
+                        <span class="foto-label">NOVA</span>
+                        <button type="button" class="remover-foto-btn" title="Remover">×</button>
+                    `;
+
+                    // Configurar remoção
+                    const btn = container.querySelector('.remover-foto-btn');
+                    btn.addEventListener('click', () => {
+                        container.remove();
+                        atualizarOrdemImagens();
+                    });
+
+                    galeriaEdicao.appendChild(container);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // 🎯 ATUALIZA ORDEM APÓS UPLOAD
+            setTimeout(atualizarOrdemImagens, 100);
         });
+    };
+
+    // ==============================================================================
+    // 5. POPULAR MODAL DE EDIÇÃO
+    // ==============================================================================
+
+    const popularModalEdicao = (item) => {
+        console.log('📝 Editando item:', item.id);
+
+        // Preencher campos do formulário
+        if (itemIdInput) itemIdInput.value = item.id;
+        ['peca', 'categoriaPeca', 'tipo', 'tamanho', 'cor', 'tecido', 'estacao', 'condicao', 'descricao'].forEach(campo => {
+            const el = document.getElementById(campo);
+            if (el) el.value = item[campo] || '';
+        });
+
+        // Configurar modal
+        if (modalTitulo) modalTitulo.textContent = `Editar: ${item.peca}`;
+        if (btnSubmit) btnSubmit.textContent = 'Salvar Alterações';
+        if (formRoupa) formRoupa.action = '/roupas/salvar-edicao';
+
+        // Configurar galeria
+        if (galeriaEdicao && fotosExistentesContainer) {
+            galeriaEdicao.innerHTML = '';
+            if (fotosRemovidasInput) fotosRemovidasInput.value = '[]';
+            if (imagensUploadInput) imagensUploadInput.value = '';
+
+            const imagens = item.imagens || [];
+            console.log(`🖼️ Carregando ${imagens.length} imagens`);
+
+            if (imagens.length > 0) {
+                fotosExistentesContainer.style.display = 'block';
+
+                imagens.forEach((img, index) => {
+                    const container = document.createElement('div');
+                    container.className = 'foto-edicao-item';
+                    container.setAttribute('data-imagem-id', img.id);
+                    container.setAttribute('data-caminho-arquivo', img.caminho_arquivo);
+                    
+                    const caminhoCompleto = img.caminho_url || img.caminho_arquivo;
+                    const src = caminhoCompleto.startsWith('/') ? caminhoCompleto : '/uploads/' + caminhoCompleto;
+                    
+                    container.innerHTML = `
+                        <div class="ordem-badge">${index + 1}</div>
+                        <img src="${src}" alt="${item.peca}">
+                        <span class="foto-label">${index === 0 ? '🖼️ CAPA' : `Pos ${index + 1}`}</span>
+                        <button type="button" class="remover-foto-btn" title="Remover">×</button>
+                    `;
+
+                    // Configurar remoção
+                    const btn = container.querySelector('.remover-foto-btn');
+                    btn.addEventListener('click', () => {
+                        if (confirm('Remover esta imagem?')) {
+                            if (fotosRemovidasInput) {
+                                const removidas = JSON.parse(fotosRemovidasInput.value);
+                                removidas.push(img.id);
+                                fotosRemovidasInput.value = JSON.stringify(removidas);
+                            }
+                            container.remove();
+                            atualizarOrdemImagens();
+                        }
+                    });
+
+                    galeriaEdicao.appendChild(container);
+                });
+
+                // 🎯 INICIALIZAR SORTABLE E ATUALIZAR ORDEM
+                inicializarSortable();
+                setTimeout(atualizarOrdemImagens, 100);
+            } else {
+                fotosExistentesContainer.style.display = 'none';
+            }
+        }
+
+        if (modalCadastro) modalCadastro.style.display = 'block';
+    };
+
+    // ==============================================================================
+    // 6. FUNÇÕES AUXILIARES
+    // ==============================================================================
+
+    const resetarFormulario = () => {
+        if (formRoupa) formRoupa.reset();
+        if (itemIdInput) itemIdInput.value = '';
+        if (formRoupa) formRoupa.action = '/roupas/salvar';
+        if (modalTitulo) modalTitulo.textContent = 'Cadastrar Nova Peça';
+        if (btnSubmit) btnSubmit.textContent = 'Cadastrar Roupa';
+        if (fotosExistentesContainer) fotosExistentesContainer.style.display = 'none';
+        if (galeriaEdicao) galeriaEdicao.innerHTML = '';
+        if (imagensUploadInput) {
+            imagensUploadInput.required = true;
+            imagensUploadInput.disabled = false;
+        }
+        if (sortable) {
+            sortable.destroy();
+            sortable = null;
+        }
+    };
+
+    const abrirModal = (modal) => {
+        if (modal) modal.style.display = 'block';
+    };
+
+    const fecharModal = (modal) => {
+        if (modal) modal.style.display = 'none';
+    };
+
+    // ==============================================================================
+    // 7. EVENT LISTENERS
+    // ==============================================================================
+
+    // Abrir modal de cadastro
+    if (btnAbrirModalCadastro) {
+        btnAbrirModalCadastro.addEventListener('click', () => {
+            resetarFormulario();
+            abrirModal(modalCadastro);
+        });
+    }
+
+    // Fechar modais
+    if (btnFecharModalCadastro) {
+        btnFecharModalCadastro.addEventListener('click', () => {
+            fecharModal(modalCadastro);
+            resetarFormulario();
+        });
+    }
+
+    if (btnFecharModalGaleria) {
+        btnFecharModalGaleria.addEventListener('click', () => fecharModal(modalGaleria));
+    }
+
+    // Clicar fora para fechar
+    window.addEventListener('click', (e) => {
+        if (e.target === modalCadastro) {
+            fecharModal(modalCadastro);
+            resetarFormulario();
+        }
+        if (e.target === modalGaleria) fecharModal(modalGaleria);
     });
 
+    // Botões de editar
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-editar')) {
+            e.preventDefault();
+            const itemData = e.target.getAttribute('data-item');
+            if (itemData) {
+                try {
+                    popularModalEdicao(JSON.parse(itemData));
+                } catch (error) {
+                    console.error('❌ Erro ao carregar item:', error);
+                }
+            }
+        }
 
-    // =======================================================
-    // 2. LÓGICA DE DESTAQUE DO FILTRO ATIVO (CORRIGIDA)
-    // =======================================================
-    
-    const filtros = document.querySelectorAll('.filtro-item');
-    
-    // Limpar todos os filtros ao iniciar
-    filtros.forEach(filtro => filtro.classList.remove('active'));
+        // Botões de ver fotos
+        if (e.target.classList.contains('btn-ver-fotos')) {
+            e.preventDefault();
+            const nome = e.target.getAttribute('data-peca-nome');
+            const imagensJson = e.target.getAttribute('data-imagens');
+            
+            if (galeriaContainer && galeriaTitulo && imagensJson) {
+                try {
+                    galeriaContainer.innerHTML = '';
+                    galeriaTitulo.textContent = `Fotos: ${nome}`;
+                    
+                    JSON.parse(imagensJson).forEach(src => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `<img src="${src}" alt="${nome}" style="width:100%;height:150px;object-fit:cover;">`;
+                        galeriaContainer.appendChild(div);
+                    });
+                    
+                    abrirModal(modalGaleria);
+                } catch (error) {
+                    console.error('❌ Erro ao carregar galeria:', error);
+                }
+            }
+        }
+    });
 
-    // Lógica para Histórico
-    if (urlParams.get('historico') === 'true') {
-        const filtroHistorico = document.getElementById('filtro-historico-link'); // ID CORRETO
-        if (filtroHistorico) filtroHistorico.classList.add('active');
-        return; 
+    // Validação do formulário
+    if (formRoupa) {
+        formRoupa.addEventListener('submit', (e) => {
+            const isEditing = itemIdInput.value !== '';
+            
+            // 🎯 GARANTIR QUE A ORDEM ESTÁ ATUALIZADA
+            if (isEditing) atualizarOrdemImagens();
+
+            const totalImagens = galeriaEdicao ? galeriaEdicao.children.length : 0;
+            
+            if (totalImagens === 0) {
+                e.preventDefault();
+                alert('❌ Adicione pelo menos uma foto');
+                return;
+            }
+
+            if (totalImagens > 5) {
+                e.preventDefault();
+                alert('❌ Máximo de 5 imagens');
+                return;
+            }
+
+            console.log('✅ Enviando formulário...');
+        });
     }
+
+    // ==============================================================================
+    // 8. INICIALIZAÇÃO
+    // ==============================================================================
+
+    configurarUpload();
+    console.log('✅ Sistema de roupas carregado');
+
+    // Filtros ativos
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status') || 'Ativo';
+    document.querySelectorAll('.filtro-item').forEach(filtro => {
+        filtro.classList.remove('ativo');
+    });
     
-    // Lógica para Filtros de Status (Ativo/EmTroca)
-    
-    // Se a URL tem ?status=EmTroca OU o controller definiu filtroStatus como EmTroca
-    if (urlParams.get('status') === 'EmTroca' || filtroStatus === 'EmTroca') {
-        const filtroEmTroca = document.getElementById('filtro-emtroca');
-        if (filtroEmTroca) filtroEmTroca.classList.add('active');
-    } 
-    // Caso contrário, assume Ativo (URL /roupas ou ?status=Ativo)
-    else {
-        const filtroAtivo = document.getElementById('filtro-ativas'); // ID CORRETO
-        if (filtroAtivo) filtroAtivo.classList.add('active');
-    }
+    const filtroAtivo = document.getElementById(
+        status === 'Ativo' ? 'filtro-ativas' :
+        status === 'EmTroca' ? 'filtro-emtroca' : 'filtro-historico-link'
+    );
+    if (filtroAtivo) filtroAtivo.classList.add('ativo');
 });
