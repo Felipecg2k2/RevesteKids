@@ -55,9 +55,10 @@
     color: white;
     text-decoration: none;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s; /* Adicionei 'color' para transição suave do texto/ícone */
 }
 
+/* Estado de HOVER (Mouse sobre o item) */
 .sidebar-item:hover {
     background-color: #D2FBF4;
     color: #8446AB; /* Texto roxo */
@@ -65,7 +66,29 @@
     margin-right: 10px;
 }
 
+/* Estado ATIVO (Item da página atual) */
+.sidebar-item.active {
+    background-color: #D2FBF4;
+    color: #8446AB; /* Texto roxo */
+}
+
+/* Estilização do Contêiner do Ícone */
 .sidebar-item .icon {
     margin-right: 15px;
-    font-size: 1.2em;
+    display: flex; /* Garante o alinhamento central do SVG */
+    align-items: center;
+    /* Remover 'font-size' e usar dimensões fixas para o SVG */
+}
+
+/* Estilização dos Ícones SVG (Default: Branco) */
+.sidebar-item .icon svg {
+    width: 20px; /* Tamanho fixo para ícone minimalista */
+    height: 20px;
+    stroke: currentColor; /* Cor do traço herda o 'color' do .sidebar-item (branco) */
+}
+
+/* Estilização dos Ícones SVG em HOVER e ATIVO (Roxo) */
+.sidebar-item:hover .icon svg,
+.sidebar-item.active .icon svg {
+    stroke: #8446AB; /* Força o ícone a ser roxo */
 }
