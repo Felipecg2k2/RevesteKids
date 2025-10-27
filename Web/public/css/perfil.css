@@ -227,15 +227,12 @@ h2 {
     margin-top: 20px;
 }
 
-/* *** CORREÇÃO: Faz a seção ser um container flexível para que os campos se alinhem horizontalmente *** */
+/* *** CORREÇÃO: Remove display:flex da seção para que h2 fique acima dos campos *** */
 .form-section {
-    display: flex;
-    /* ATIVA O ALINHAMENTO LADO A LADO */
+    /* display: flex; REMOVIDO - H2 deve ficar acima dos campos */
     flex-wrap: wrap;
-    /* PERMITE QUEBRA */
     align-items: flex-start;
     gap: 15px;
-    /* Espaço entre os grupos de formulário */
 
     padding: 15px 0;
     border-bottom: 1px solid #eee;
@@ -252,27 +249,31 @@ h2 {
     text-align: left;
 }
 
-
-/* Faz com que o form-group (Nome, Sobrenome, Email, etc.) ocupe 50% */
-/* Isso força a organização em duas colunas, a menos que seja full-width */
+/* Faz com que os form-groups com campos lado a lado usem flex */
 .form-group:not(.full-width) {
     /* Define o item para crescer, mas ter uma base de 50% menos o gap para caber */
     flex: 1 1 calc(50% - 7.5px);
     max-width: calc(50% - 7.5px);
     margin-bottom: 15px;
-    display: block;
-    /* Garante que os filhos (label, input) sejam dispostos como bloco */
+    
+    /* ADICIONADO: Display flex para campos lado a lado (Nome/Sobrenome, CEP/Número) */
+    display: flex;
+    gap: 15px;
+}
+
+/* Ajuste para os campos dentro do form-group dividirem o espaço */
+.form-group > div {
+    flex: 1; /* Permite que os campos duo-field (CEP/Número) dividam o espaço */
+    min-width: 0; /* Ajuda o flexbox a calcular corretamente */
 }
 
 /* Garante que o campo de largura total ocupe 100% */
 .form-group.full-width {
     flex: 0 0 100%;
-    /* Fixa em 100% de largura e não permite crescimento/encolhimento */
     max-width: 100%;
     margin-bottom: 15px;
     display: block;
 }
-
 
 /* Remove a borda inferior da última seção */
 .edit-form .form-section:last-of-type {
@@ -280,26 +281,17 @@ h2 {
     margin-bottom: 0;
 }
 
-
+/* ESTILO DO TÍTULO - CORRIGIDO PARA FICAR ACIMA DOS CAMPOS */
 .form-section h2 {
-    margin-bottom: 15px;
+    display: block; /* Garante que o título ocupe a linha inteira */
+    width: 100%; /* Força largura total */
+    text-align: center; /* Centraliza o texto */
+    
+    margin-bottom: 20px; /* Mais espaço para separar o título dos campos */
     border-bottom: 2px solid var(--color-primary);
     padding-bottom: 5px;
     color: var(--color-primary);
 }
-
-/* Este bloco era o que gerava a dupla coluna, mas foi movido para o .form-group acima */
-.form-group>div {
-    flex: 1;
-    /* Permite que os campos duo-field (CEP/Número) dividam o espaço */
-    min-width: 45%;
-}
-
-/* Remove esta definição, pois .form-group.full-width já a faz ser block */
-/* .form-group.full-width {
- display: block;
-} */
-
 
 /* Campos de entrada e labels */
 label {
@@ -318,7 +310,6 @@ input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 6px;
     box-sizing: border-box;
-    /* Inclui padding e borda na largura total */
     font-size: 1em;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
@@ -344,7 +335,6 @@ input:focus {
 .btn-submit {
     padding: 12px 25px;
     background-color: #28a745;
-    /* Verde para Salvar/Atualizar */
     color: white;
     border: none;
     border-radius: 6px;
@@ -381,24 +371,19 @@ input:focus {
 }
 
 /* Estilo para a opção de apagar conta: Garante a separação do bloco de botões acima */
-/* .separator não é mais usado; confiamos na borda do .acoes */
 .separator {
     display: none;
-    /* Garante que a classe antiga não apareça */
 }
 
 .acoes {
     padding-top: 20px;
-    /* Mais espaço para cima */
     text-align: left;
-    /* Borda superior para separar Opções da Conta dos botões (form-actions) */
     border-top: 1px solid #ddd;
     margin-top: 15px;
 }
 
 .acoes h2 {
     color: #dc3545;
-    /* Vermelho para destaque */
     border-bottom: 2px solid #dc3545;
     margin-top: 0;
     padding-bottom: 5px;
@@ -411,11 +396,8 @@ input:focus {
     font-weight: 600;
     text-decoration: none;
     display: inline-flex;
-    /* Para alinhar texto e ícone */
     align-items: center;
-    /* Centraliza verticalmente */
     gap: 8px;
-    /* Espaço entre o ícone e o texto */
     padding: 5px 0;
     transition: color 0.3s;
 }
@@ -429,13 +411,11 @@ input:focus {
     color: #c82333;
 }
 
-
 /* ----------------------------------------------------------
  Responsividade (Geral e Formulário)
  ---------------------------------------------------------- */
 
 @media (max-width: 768px) {
-
     /* Layout Geral */
     .content-area {
         margin-left: 0 !important;
@@ -477,35 +457,29 @@ input:focus {
         gap: 0;
     }
 
+    /* Remove o display flex dos form-groups no mobile */
+    .form-group:not(.full-width) {
+        display: block; /* Volta ao display block no mobile */
+        flex: none;
+        max-width: 100%;
+    }
+
     /* Faz com que todos os grupos de formulário ocupem 100% no mobile */
     .form-group:not(.full-width),
     .form-group.full-width {
         flex: 0 0 100%;
         max-width: 100%;
         margin-bottom: 15px;
-        /* Adiciona margem entre os grupos */
     }
 
-    /* Se houver wrappers de campos dentro de um form-group (e.g., duo-field), eles também devem empilhar */
-    .form-group.duo-field {
-        flex-direction: column;
-    }
-
-    .form-group>div {
-        min-width: 100%;
+    /* Remove gaps internos no mobile */
+    .form-group > div {
         margin-bottom: 15px;
     }
 
-    /* Remove a definição que força a coluna dupla em mobile */
-    /* .form-group.duo-field {
-     flex-direction: column;
-   } */
-
     .form-actions {
         flex-direction: column-reverse;
-        /* Coloca o Salvar em cima */
         justify-content: center;
-        /* Mantém a centralização dos botões empilhados */
         gap: 10px;
     }
 
