@@ -9,10 +9,13 @@
 </head>
 <body>
     
-    <div id="app-container">
+    <!-- O contêiner principal para o layout de Sidebar + Conteúdo -->
+    <div class="app-layout" id="app-container">
+        <!-- Supondo que o partial '_sidebar' usa a classe 'sidebar-menu' -->
         <%- include('partials/_sidebar') %> 
 
-        <main id="main-content">
+        <!-- A área de conteúdo principal, agora com ID para o layout de margem -->
+        <main id="main-content-area"> 
             <section class="config-block personal-block">
                 <div class="block-header"><i class="fas fa-user-cog"></i><h3>Pessoal</h3></div>
                 <ul>
@@ -36,55 +39,52 @@
                     <%- include('partials/config_item', { icon: 'fa-filter', title: 'Palavras Ocultas', description: 'Filtrar conteúdo com palavras específicas', action_link: '/configuracoes', action_label: 'Configurar' }) %>
                     <%- include('partials/config_item', { icon: 'fa-file-alt', title: 'Reporte', description: 'Reportar problemas ou usuários inadequados', action_link: '/configuracoes', action_label: 'Reportar' }) %>
                     <%- include('partials/config_item', { icon: 'fa-cogs', title: 'Gerenciamento', description: 'Configurações gerais da conta', action_link: '/configuracoes/', action_label: 'Acessar' }) %>
-                    
                 </ul>
             </section>
 
-            
             <section class="config-block danger-zone">
                 <div class="block-header"><i class="fas fa-exclamation-triangle"></i><h3 class="danger-title">Zona de Perigo</h3></div>
                 <ul>
                     <%- include('partials/config_item', { icon: 'fa-sign-out-alt', title: 'Sair da Conta', description: 'Desconectar do ReVeste Kids', action_link: '/logout', action_label: 'Sair', is_danger: true }) %>
-                    
-                                        <%- include('partials/config_item', { 
-                        icon: 'fa-trash-alt', 
-                        title: 'Excluir Conta', 
-                        description: 'Remover permanentemente sua conta e dados', 
-                        action_label: 'Excluir Conta', 
-                        is_danger: true,
-                        // Adicionamos um ID para o botão/link que acionará o JavaScript
-                        action_id: 'btn-excluir-conta'
-                    }) %>
+                    <%- include('partials/config_item', { 
+                        icon: 'fa-trash-alt', 
+                        title: 'Excluir Conta', 
+                        description: 'Remover permanentemente sua conta e dados', 
+                        action_label: 'Excluir Conta', 
+                        is_danger: true,
+                        action_id: 'btn-excluir-conta'
+                    }) %>
                 </ul>
             </section>
             
-            <form id="form-excluir-conta" method="POST" action="/perfil/apagar" style="display: none;">
-                </form>
-
+            <form id="form-excluir-conta" method="POST" action="/perfil/apagar" style="display: none;">
+            </form>
         </main>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnExcluir = document.getElementById('btn-excluir-conta');
-            const formExcluir = document.getElementById('form-excluir-conta');
+    <script>
+        // Adicionar uma função de modal simples (ou manter o window.confirm temporariamente)
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnExcluir = document.getElementById('btn-excluir-conta');
+            const formExcluir = document.getElementById('form-excluir-conta');
 
-            if (btnExcluir && formExcluir) {
-                // A ação de exclusão da conta deve ser feita pelo formulário POST
-                // Por isso, substituímos o link simples por um evento de clique
-                btnExcluir.addEventListener('click', (e) => {
-                    e.preventDefault(); // Impede o link padrão de redirecionar
+            if (btnExcluir && formExcluir) {
+                // ATENÇÃO: window.confirm() deve ser substituído por um modal/diálogo customizado.
+                btnExcluir.addEventListener('click', (e) => {
+                    e.preventDefault();
 
-                    const confirmacao = window.confirm(
-                        "ATENÇÃO: Você tem certeza que deseja excluir permanentemente sua conta? Esta ação não pode ser desfeita."
-                    );
+                    // USO TEMPORÁRIO DE CONFIRM: MUDAR PARA MODAL CUSTOMIZADO
+                    const confirmacao = window.confirm(
+                        "ATENÇÃO: Você tem certeza que deseja excluir permanentemente sua conta? Esta ação não pode ser desfeita."
+                    );
 
-                    if (confirmacao) {
-                        formExcluir.submit(); // Envia o formulário POST
-                    }
-                });
-            }
-        });
-    </script>
+                    if (confirmacao) {
+                        formExcluir.submit();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

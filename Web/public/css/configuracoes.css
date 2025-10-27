@@ -1,23 +1,11 @@
 /* Variáveis de Cores */
 :root {
-    /* ✅ CORREÇÃO: Novo Roxo principal (Background da Sidebar e cor ativa) */
-    --purple-main: #8E56B2; 
-    --purple-bg: #8E56B2; 
-    --purple-icon: #7943B2; /* Manteve um tom similar para ícones de bloco (opcionalmente pode ser ajustado) */
-    --green-light: #E0FFF7; 
-    --white: #FFFFFF;
-    --gray-text: #666; 
-    --icon-subitem-gray: #888; 
-    --dark-text: #333; 
-    --gray-border: #eee;
-    --red-danger: #D9534F; 
-    --red-hover: #C9302C;
+    --purple-main: #8446AB; --purple-icon: #7943B2; 
+    --green-light: #E0FFF7; --white: #FFFFFF;
+    --gray-text: #666; --icon-subitem-gray: #888; 
+    --dark-text: #333; --gray-border: #eee;
+    --red-danger: #D9534F; --red-hover: #C9302C;
     --blue-hover: #61FCDD; 
-    --menu-text-color: #f0f0f0; /* Texto claro na sidebar escura */
-    /* Fundo ativo/hover claro (Cor original do seu sidebar.css) */
-    --menu-active-bg: #D2FBF4; 
-    /* Texto/Ícone do item ativo/hover (Agora usando o novo Roxo principal) */
-    --menu-active-text: var(--purple-main); 
 }
 
 /* Estilo Geral e Container */
@@ -26,156 +14,13 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--green-light);
 }
-
-/* ⬅️ CORREÇÃO PRINCIPAL DE LAYOUT: Define as duas colunas (Sidebar + Conteúdo) */
 #app-container {
-    display: flex; 
-    min-height: 100vh;
-    /* ✅ ADICIONAL: Adiciona margem no container principal para compensar a largura da sidebar fixa */
-    margin-left: 250px; 
+    display: flex; min-height: 100vh;
 }
-
-/* ============================================== */
-/* ESTILOS DA SIDEBAR */
-/* ============================================== */
-
-.sidebar-menu {
-    /* Largura fixa da sidebar (aprox. 250px baseado na imagem) */
-    width: 250px; 
-    flex-shrink: 0; /* Não permite que a sidebar encolha */
-    background-color: var(--purple-bg); /* Usando o novo roxo */
-    padding-top: 20px;
-    /* ✅ MANTIDO: Fixação na esquerda */
-    height: 100vh; /* Ocupa toda a altura da viewport */
-    position: fixed; 
-    top: 0;
-    left: 0;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    
-    /* Configura o menu interno */
-    display: flex;
-    flex-direction: column;
-}
-
-.menu-header {
-    /* ✅ AJUSTE: Ajusta o padding para o botão hambúrguer */
-    padding: 0 10px 20px 10px; /* Top, Right, Bottom, Left */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex; /* Para alinhar o botão */
-    align-items: center; /* Centraliza verticalmente o botão */
-    justify-content: flex-start; /* Alinha o botão à esquerda */
-    height: 40px; /* Altura para o cabeçalho */
-}
-
-.menu-toggle {
-    background: none;
-    border: none;
-    color: var(--white);
-    font-size: 1.8rem; /* Tamanho do ícone de hambúrguer */
-    cursor: pointer;
-    display: block; 
-    padding: 5px; /* Adiciona um padding para facilitar o clique */
-    margin-left: 10px; /* Margem à esquerda para afastá-lo da borda */
-}
-
-.menu-links {
-    display: flex;
-    flex-direction: column;
-    padding-top: 10px;
-    list-style: none;
-    padding-left: 0; 
-    margin: 0;
-}
-
-.menu-links li {
-    padding-left: 0; /* Garante que o item da lista não tenha recuo */
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px; 
-    text-decoration: none;
-    color: var(--menu-text-color);
-    font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
-    /* Arredondamento maior */
-    border-radius: 0 50px 50px 0; 
-    /* Adicionando margem à direita para criar o "espaço" */
-    margin-right: 10px;
-}
-
-/* ➡️ ESTILO HOVER */
-.sidebar-item:hover {
-    background-color: var(--menu-active-bg); /* Fundo claro no hover */
-    color: var(--menu-active-text); /* Texto roxo no hover */
-}
-
-/* ➡️ Cor do ícone no HOVER (para Font Awesome) */
-.sidebar-item:hover .icon, 
-.sidebar-item:hover .icon i {
-    color: var(--menu-active-text); /* Ícone roxo no hover */
-}
-
-/* ➡️ Cor do ícone no HOVER (para SVG) */
-.sidebar-item:hover .icon svg {
-    stroke: var(--menu-active-text); /* Ícone roxo no hover */
-}
-
-/* ➡️ ESTILO DO ITEM ATIVO */
-.sidebar-item.active {
-    background-color: var(--menu-active-bg);
-    color: var(--menu-active-text);
-    font-weight: 600;
-    padding-right: 20px; 
-    border-radius: 0 50px 50px 0;
-}
-
-/* Ícone da Sidebar (Funciona para <i>/Font Awesome) */
-.icon {
-    margin-right: 15px;
-    display: inline-flex;
-    align-items: center;
-    font-size: 1.2rem; /* Tamanho do ícone */
-    color: var(--menu-text-color); /* Cor padrão do ícone: Branco */
-    transition: color 0.2s;
-}
-
-/* ➡️ Cor do ícone no item ativo (para Font Awesome) */
-.sidebar-item.active .icon, 
-.sidebar-item.active .icon i {
-    color: var(--menu-active-text); /* Ícone roxo no ativo */
-}
-
-/* Estilo original para SVG */
-.icon svg {
-    width: 20px;
-    height: 20px;
-    stroke: var(--menu-text-color); /* Cor do ícone padrão: Branco */
-    stroke-width: 2;
-    transition: stroke 0.2s;
-}
-
-/* ✅ AJUSTE: Ícone roxo no ativo/hover para SVG */
-.sidebar-item.active .icon svg,
-.sidebar-item:hover .icon svg {
-    stroke: var(--menu-active-text); /* Ícone roxo no ativo/hover */
-}
-
-.logout-item {
-    margin-top: auto; /* Empurra o item para o final da sidebar */
-    margin-bottom: 20px;
-}
-
-/* ============================================== */
-/* FIM DOS ESTILOS DA SIDEBAR */
-/* ============================================== */
-
 #main-content {
-    flex-grow: 1; /* Permite que o conteúdo ocupe o espaço restante */
-    padding: 40px; 
-    max-width: 900px; /* Mantém a largura máxima do conteúdo */
-    margin: 0 auto; /* Centraliza o conteúdo dentro do espaço disponível */
+    flex-grow: 1; padding: 40px; 
+    margin-left: 550px; margin-right: auto;
+    max-width: 900px; 
 }
 
 /* Blocos de Configuração (Sections) */
@@ -196,7 +41,7 @@ body {
 .block-header {
     display: flex; align-items: center;
     border-bottom: 1px solid var(--gray-border);
-    padding-bottom: 15px; margin-bottom: 0; 
+    padding-bottom: 15px; margin-bottom: 0; /* Removido margem para que o padding do LI separe */
 }
 .block-header h3 {
     font-size: 1.2rem; color: var(--purple-icon); margin: 0;
