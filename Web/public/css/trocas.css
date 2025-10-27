@@ -3,6 +3,26 @@
     SOLUÇÃO FINAL E COMPLETA: Fixação + Margem + Largura Corrigida
     ========================================================== */
 
+/* ------------------------------------------------------------
+   0. CORREÇÃO DE TAMANHO DE FONTE DA SIDEBAR (Ajuste Agressivo)
+   ------------------------------------------------------------ */
+/* Força o tamanho base em todos os elementos de texto dentro da sidebar (seleção ampla) */
+.sidebar-menu a,
+.sidebar-menu li,
+.sidebar-menu p,
+.sidebar-menu span,
+.sidebar-menu div { 
+    font-size: 17px !important; /* Tamanho do link/item */
+    font-weight: 500 !important;
+    line-height: 1.5 !important; /* Garante espaçamento legível */
+}
+
+/* Força o tamanho da fonte do título ou logo principal da sidebar */
+.sidebar-menu h2,
+.sidebar-menu h3 {
+    font-size: 19px !important; /* Tamanho do título */
+}
+
 :root {
     --color-primary: #9370DB; 
     --color-secondary: #7B68EE; 
@@ -12,8 +32,8 @@
 }
 
 /* ------------------------------------------------------------
-   1. CORREÇÃO CRÍTICA: Sidebar Fixa (Garanta a Sidebar na Lateral)
-   ------------------------------------------------------------ */
+    1. CORREÇÃO CRÍTICA: Sidebar Fixa (Garanta a Sidebar na Lateral)
+    ------------------------------------------------------------ */
 .sidebar-menu {
     position: fixed !important; 
     top: 0 !important;
@@ -23,11 +43,13 @@
     z-index: 2000 !important; 
     overflow-y: auto !important; 
     flex-shrink: 0 !important; 
+    /* Adicionando font-size aqui para forçar herança no container */
+    font-size: 16px !important; 
 }
 
 /* ------------------------------------------------------------
-   2. CORREÇÃO CRÍTICA: Content-Area (Margem de Compensação + LARGURA)
-   ------------------------------------------------------------ */
+    2. CORREÇÃO CRÍTICA: Content-Area (Margem de Compensação + LARGURA)
+    ------------------------------------------------------------ */
 .content-area {
     /* Força o conteúdo a começar 250px à direita (depois da sidebar fixa) */
     margin-left: var(--sidebar-width) !important; 
@@ -48,8 +70,8 @@
 }
 
 /* ------------------------------------------------------------
-   3. CORREÇÃO: Rolagem e Margens do Body
-   ------------------------------------------------------------ */
+    3. CORREÇÃO: Rolagem e Margens do Body
+    ------------------------------------------------------------ */
 body {
     background-color: var(--color-light-blue);
     margin: 0 !important;

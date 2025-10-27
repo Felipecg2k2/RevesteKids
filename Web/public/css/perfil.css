@@ -1,10 +1,10 @@
 /* ==========================================================
-  ESTILOS ESPECÍFICOS DA TELA DE PERFIL (perfil.css)
-  Layout Final: Sidebar Funcional + Cartão Centralizado
-  ----------------------------------------------------------
-  Este arquivo contém os estilos para a visualização e a edição 
-  do perfil, além da correção de layout da sidebar.
-  ========================================================== */
+ ESTILOS ESPECÍFICOS DA TELA DE PERFIL (perfil.css)
+ Layout Final: Sidebar Funcional + Cartão Centralizado
+ ----------------------------------------------------------
+ Este arquivo contém os estilos para a visualização e a edição 
+ do perfil, além da correção de layout da sidebar.
+ ========================================================== */
 
 :root {
     --color-primary: #9370DB;
@@ -17,8 +17,16 @@
     --sidebar-width: 250px;
 }
 
+/* CORREÇÃO PARA REMOVER O RISCO BRANCO NO TOPO */
+/* Garante que o elemento HTML raiz também tenha a cor de fundo correta,
+   evitando que a cor branca padrão do navegador apareça em pequenos vazamentos. */
+html {
+    background-color: var(--color-perfil-bg) !important;
+    min-height: 100vh; /* Garante altura total */
+}
+
 /* ------------------------------------------------------------
-  CORREÇÃO DE LAYOUT (Fixação + Margem para 100% de compatibilidade)
+ CORREÇÃO DE LAYOUT (Fixação + Margem para 100% de compatibilidade)
  ------------------------------------------------------------ */
 
 /* Configurações de fundo e margem do Body */
@@ -87,7 +95,7 @@ body {
 
 
 /* ------------------------------------------------------------
-  ESTILOS GERAIS DO PERFIL (Leitura e Edição)
+ ESTILOS GERAIS DO PERFIL (Leitura e Edição)
  ------------------------------------------------------------ */
 
 /* Container principal do perfil (O Cartão Centralizado) */
@@ -128,7 +136,7 @@ h2 {
 
 
 /* ------------------------------------------------------------
-  ESTILOS ESPECÍFICOS DA VIEW DE LEITURA
+ ESTILOS ESPECÍFICOS DA VIEW DE LEITURA
  ------------------------------------------------------------ */
 
 .secao {
@@ -206,7 +214,7 @@ h2 {
 }
 
 /* ------------------------------------------------------------
-  ESTILOS ESPECÍFICOS DO FORMULÁRIO DE EDIÇÃO
+ ESTILOS ESPECÍFICOS DO FORMULÁRIO DE EDIÇÃO
  ------------------------------------------------------------ */
 
 /* Ajusta o container para formulários */
@@ -287,16 +295,9 @@ h2 {
     min-width: 45%;
 }
 
-/* No EJS, use UM form-group para os campos lado a lado:
-    <div class="form-group duo-field">
-        <div> CEP </div>
-        <div> Número </div>
-    </div>
-*/
-
 /* Remove esta definição, pois .form-group.full-width já a faz ser block */
 /* .form-group.full-width {
-  display: block;
+ display: block;
 } */
 
 
@@ -430,8 +431,8 @@ input:focus {
 
 
 /* ----------------------------------------------------------
-  Responsividade (Geral e Formulário)
-  ---------------------------------------------------------- */
+ Responsividade (Geral e Formulário)
+ ---------------------------------------------------------- */
 
 @media (max-width: 768px) {
 
@@ -497,8 +498,8 @@ input:focus {
 
     /* Remove a definição que força a coluna dupla em mobile */
     /* .form-group.duo-field {
-    flex-direction: column;
-  } */
+     flex-direction: column;
+   } */
 
     .form-actions {
         flex-direction: column-reverse;
