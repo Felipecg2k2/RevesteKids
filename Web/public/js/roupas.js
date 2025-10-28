@@ -1,4 +1,4 @@
-// /js/roupas.js - VERSÃO CORRIGIDA (VISUAL DA CAPA)
+// /js/roupas.js - VERSÃO COMPLETA CORRIGIDA (DRAG & DROP NO CADASTRO E EDIÇÃO)
 
 document.addEventListener('DOMContentLoaded', () => {
     // ==============================================================================
@@ -25,7 +25,58 @@ document.addEventListener('DOMContentLoaded', () => {
     let sortable;
 
     // ==============================================================================
-    // 2. FUNÇÃO PRINCIPAL - ATUALIZAR ORDEM E CAPA
+    // 2. FUNÇÕES AUXILIARES BÁSICAS
+    // ==============================================================================
+
+    const abrirModal = (modal) => {
+        if (modal) {
+            modal.style.display = 'block';
+            console.log('📱 Modal aberto:', modal.id);
+        } else {
+            console.error('❌ Tentativa de abrir modal inexistente');
+        }
+    };
+
+    const fecharModal = (modal) => {
+        if (modal) {
+            modal.style.display = 'none';
+            console.log('📱 Modal fechado:', modal.id);
+        }
+    };
+
+    const resetarFormulario = () => {
+        console.log('🔄 Resetando formulário...');
+        
+        if (formRoupa) {
+            formRoupa.reset();
+            formRoupa.action = '/roupas/salvar';
+        }
+        if (itemIdInput) itemIdInput.value = '';
+        if (modalTitulo) modalTitulo.textContent = 'Cadastrar Nova Peça';
+        if (btnSubmit) btnSubmit.textContent = 'Cadastrar Roupa';
+        if (fotosExistentesContainer) fotosExistentesContainer.style.display = 'none';
+        if (galeriaEdicao) galeriaEdicao.innerHTML = '';
+        if (imagensUploadInput) {
+            imagensUploadInput.required = true;
+            imagensUploadInput.disabled = false;
+            imagensUploadInput.value = '';
+        }
+        
+        // Reseta os campos de ordem
+        if (fotosReordenadasInput) fotosReordenadasInput.value = '[]';
+        if (fotosRemovidasInput) fotosRemovidasInput.value = '[]';
+        
+        // Destrói Sortable se existir
+        if (sortable) {
+            sortable.destroy();
+            sortable = null;
+        }
+        
+        console.log('✅ Formulário resetado para cadastro');
+    };
+
+    // ==============================================================================
+    // 3. FUNÇÃO PRINCIPAL - ATUALIZAR ORDEM E CAPA
     // ==============================================================================
 
     const atualizarOrdemImagens = () => {
@@ -38,8 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgId = container.getAttribute('data-imagem-id');
             const caminho = container.getAttribute('data-caminho-arquivo');
 
+            // 🎯 CAPTURA TANTO IMAGENS EXISTENTES QUANTO NOVAS
             if (imgId) {
                 ordem.push({ id: imgId, caminho_arquivo: caminho });
+            } else if (caminho) {
+                // Para imagens novas no cadastro
+                ordem.push({ caminho_arquivo: caminho });
             }
 
             // 🎯 LÓGICA CORRIGIDA - APLICA ESTILO DE CAPA NA PRIMEIRA IMAGEM
@@ -72,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (removeBtn) {
-                    removeBtn.style.display = 'none'; // Oculta botão de remover da capa
+                    removeBtn.style.display = 'none';
                 }
 
                 if (ordemBadge) {
@@ -95,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (removeBtn) {
-                    removeBtn.style.display = 'flex'; // Mostra botão de remover
+                    removeBtn.style.display = 'flex';
                 }
 
                 if (ordemBadge) {
@@ -123,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==============================================================================
-    // 3. INICIALIZAR DRAG & DROP
+    // 4. INICIALIZAR DRAG & DROP (PARA EDIÇÃO)
     // ==============================================================================
 
     const inicializarSortable = () => {
@@ -137,24 +192,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 ghostClass: 'sortable-ghost',
                 onEnd: function() {
                     console.log('🔄 Imagem reposicionada - atualizando ordem...');
-                    atualizarOrdemImagens(); // 🎯 ATUALIZA IMEDIATAMENTE
+                    atualizarOrdemImagens();
                 }
             });
-            console.log('✅ Sortable.js inicializado');
+            console.log('✅ Sortable.js inicializado para edição');
         } catch (error) {
             console.error('❌ Erro no Sortable:', error);
         }
     };
 
     // ==============================================================================
-    // 4. CONFIGURAR UPLOAD DE IMAGENS
+    // 5. INICIALIZAR DRAG & DROP (PARA CADASTRO)
+    // ==============================================================================
+
+    const inicializarDragDropCadastro = () => {
+        if (!galeriaEdicao || typeof Sortable === 'undefined') return;
+        
+        console.log('🔄 Inicializando drag & drop para cadastro...');
+        
+        try {
+            if (sortable) {
+                sortable.destroy();
+            }
+            
+            sortable = new Sortable(galeriaEdicao, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: function() {
+                    console.log('🎯 Imagem reposicionada no cadastro - atualizando ordem...');
+                    atualizarOrdemImagens();
+                }
+            });
+            
+            console.log('✅ Drag & drop habilitado para cadastro');
+        } catch (error) {
+            console.error('❌ Erro ao inicializar drag & drop:', error);
+        }
+    };
+
+    // ==============================================================================
+    // 6. CONFIGURAR UPLOAD DE IMAGENS
     // ==============================================================================
 
     const configurarUpload = () => {
         if (!imagensUploadInput || !galeriaEdicao) return;
 
         imagensUploadInput.addEventListener('change', function(e) {
-            // Remove apenas miniaturas de novos uploads
+            // Remove apenas miniaturas de novos uploads (não as existentes do BD)
             Array.from(galeriaEdicao.children)
                 .filter(child => !child.getAttribute('data-imagem-id'))
                 .forEach(child => child.remove());
@@ -196,13 +282,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 reader.readAsDataURL(file);
             });
 
-            // 🎯 ATUALIZA ORDEM APÓS UPLOAD
-            setTimeout(atualizarOrdemImagens, 100);
+            // 🎯 ATUALIZA ORDEM E INICIALIZA DRAG & DROP APÓS UPLOAD
+            setTimeout(() => {
+                const isEditing = itemIdInput.value !== '';
+                if (isEditing) {
+                    inicializarSortable(); // Para edição
+                } else {
+                    inicializarDragDropCadastro(); // Para cadastro
+                }
+                atualizarOrdemImagens();
+            }, 100);
         });
     };
 
     // ==============================================================================
-    // 5. POPULAR MODAL DE EDIÇÃO
+    // 7. POPULAR MODAL DE EDIÇÃO
     // ==============================================================================
 
     const popularModalEdicao = (item) => {
@@ -277,45 +371,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==============================================================================
-    // 6. FUNÇÕES AUXILIARES
-    // ==============================================================================
-
-    const resetarFormulario = () => {
-        if (formRoupa) formRoupa.reset();
-        if (itemIdInput) itemIdInput.value = '';
-        if (formRoupa) formRoupa.action = '/roupas/salvar';
-        if (modalTitulo) modalTitulo.textContent = 'Cadastrar Nova Peça';
-        if (btnSubmit) btnSubmit.textContent = 'Cadastrar Roupa';
-        if (fotosExistentesContainer) fotosExistentesContainer.style.display = 'none';
-        if (galeriaEdicao) galeriaEdicao.innerHTML = '';
-        if (imagensUploadInput) {
-            imagensUploadInput.required = true;
-            imagensUploadInput.disabled = false;
-        }
-        if (sortable) {
-            sortable.destroy();
-            sortable = null;
-        }
-    };
-
-    const abrirModal = (modal) => {
-        if (modal) modal.style.display = 'block';
-    };
-
-    const fecharModal = (modal) => {
-        if (modal) modal.style.display = 'none';
-    };
-
-    // ==============================================================================
-    // 7. EVENT LISTENERS
+    // 8. EVENT LISTENERS
     // ==============================================================================
 
     // Abrir modal de cadastro
     if (btnAbrirModalCadastro) {
-        btnAbrirModalCadastro.addEventListener('click', () => {
+        console.log('✅ Botão "Adicionar Roupa" encontrado, configurando evento...');
+        
+        btnAbrirModalCadastro.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🎯 Botão "Adicionar Roupa" clicado!');
+            
             resetarFormulario();
             abrirModal(modalCadastro);
+            
+            // 🎯 INICIALIZA DRAG & DROP APÓS ABRIR O MODAL (PARA CADASTRO)
+            setTimeout(() => {
+                inicializarDragDropCadastro();
+                console.log('🎯 Modal de cadastro pronto com drag & drop');
+            }, 100);
         });
+    } else {
+        console.error('❌ Botão "Adicionar Roupa" NÃO encontrado no DOM!');
     }
 
     // Fechar modais
@@ -383,8 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
         formRoupa.addEventListener('submit', (e) => {
             const isEditing = itemIdInput.value !== '';
             
-            // 🎯 GARANTIR QUE A ORDEM ESTÁ ATUALIZADA
-            if (isEditing) atualizarOrdemImagens();
+            // 🎯 GARANTIR QUE A ORDEM ESTÁ ATUALIZADA (PARA CRIAÇÃO TAMBÉM)
+            atualizarOrdemImagens();
 
             const totalImagens = galeriaEdicao ? galeriaEdicao.children.length : 0;
             
@@ -400,12 +477,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            console.log('✅ Enviando formulário...');
+            console.log('✅ Enviando formulário com ordem:', JSON.parse(fotosReordenadasInput.value));
         });
     }
 
     // ==============================================================================
-    // 8. INICIALIZAÇÃO
+    // 9. INICIALIZAÇÃO
     // ==============================================================================
 
     configurarUpload();
