@@ -6,12 +6,9 @@
 /* ------------------------------------------------------------
    0. CORREÇÃO DE TAMANHO DE FONTE DA SIDEBAR (Ajuste Agressivo)
    ------------------------------------------------------------ */
-/* Força o tamanho base em todos os elementos de texto dentro da sidebar (seleção ampla) */
+/* Força o tamanho da fonte no link (A) e em QUALQUER elemento de texto dentro dele (A * - abrangendo spans, divs, etc.) */
 .sidebar-menu a,
-.sidebar-menu li,
-.sidebar-menu p,
-.sidebar-menu span,
-.sidebar-menu div { 
+.sidebar-menu a * { 
     font-size: 17px !important; /* Tamanho do link/item */
     font-weight: 500 !important;
     line-height: 1.5 !important; /* Garante espaçamento legível */
@@ -32,8 +29,8 @@
 }
 
 /* ------------------------------------------------------------
-    1. CORREÇÃO CRÍTICA: Sidebar Fixa (Garanta a Sidebar na Lateral)
-    ------------------------------------------------------------ */
+   1. CORREÇÃO CRÍTICA: Sidebar Fixa (Garanta a Sidebar na Lateral)
+   ------------------------------------------------------------ */
 .sidebar-menu {
     position: fixed !important; 
     top: 0 !important;
@@ -45,11 +42,12 @@
     flex-shrink: 0 !important; 
     /* Adicionando font-size aqui para forçar herança no container */
     font-size: 16px !important; 
+    transition: transform 0.3s ease-in-out; /* Adiciona transição para animação mobile */
 }
 
 /* ------------------------------------------------------------
-    2. CORREÇÃO CRÍTICA: Content-Area (Margem de Compensação + LARGURA)
-    ------------------------------------------------------------ */
+   2. CORREÇÃO CRÍTICA: Content-Area (Margem de Compensação + LARGURA)
+   ------------------------------------------------------------ */
 .content-area {
     /* Força o conteúdo a começar 250px à direita (depois da sidebar fixa) */
     margin-left: var(--sidebar-width) !important; 
@@ -70,8 +68,8 @@
 }
 
 /* ------------------------------------------------------------
-    3. CORREÇÃO: Rolagem e Margens do Body
-    ------------------------------------------------------------ */
+   3. CORREÇÃO: Rolagem e Margens do Body
+   ------------------------------------------------------------ */
 body {
     background-color: var(--color-light-blue);
     margin: 0 !important;
@@ -411,37 +409,42 @@ body {
 }
 
 /* ----------------------------------------------------------
-    Responsividade - AJUSTE FINAL PARA MOBILE 
+    Responsividade - AJUSTE FINAL PARA MOBILE (Overlay)
     ---------------------------------------------------------- */
 
 @media (max-width: 768px) {
     
-    /* Remove a margem do body */
-    body {
-        margin-left: 0 !important;
-    }
-    
-    /* Sidebar mobile (Volta ao fluxo normal) */
+    /* Sidebar mobile: FIXA, 80% da largura, ESCONDIDA */
     .sidebar-menu {
-        position: relative !important; 
-        top: auto !important;
-        left: auto !important;
-        width: 100% !important;
-        height: auto !important;
-        z-index: auto !important;
+        position: fixed !important; 
+        top: 0 !important;
+        left: 0 !important;
+        width: 80% !important; /* Largura da sidebar no mobile */
+        height: 100vh !important;
+        transform: translateX(-100%); /* Esconde a sidebar fora da tela */
+        z-index: 3000 !important; /* Z-index maior para sobrepor tudo */
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3); /* Adiciona sombra para destaque */
+    }
+
+    /* Classe que deve ser adicionada via JS para abrir a sidebar */
+    .sidebar-menu.is-open {
+        transform: translateX(0) !important;
     }
     
-    /* Content-Area mobile (Volta a 100% da largura e sem margem) */
+    /* Content-Area mobile: 100% da largura, sem margem */
     .content-area {
         margin-left: 0 !important; 
         width: 100% !important;
         padding: 15px 10px;
     }
 
+    /* Elementos Layout */
+    body {
+        margin-left: 0 !important;
+    }
     .app-layout {
         display: block !important; 
     }
-    
     .content-area-pad {
         padding: 0 5px;
     }

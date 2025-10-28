@@ -50,16 +50,27 @@ body {
     flex-shrink: 0 !important;
 }
 
-/* Content-Area com Margem e Largura de Compensação (Corrige a largura) */
+/* Container principal (app-layout) deve ser bloco e relativo para conter o content-area */
+.app-layout {
+    display: block !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+/* Content-Area com Posição Absoluta + Top: 0 (CORRIGIDO PARA REMOVER FAIXA BRANCA) */
 .content-area {
-    /* Força o conteúdo a começar 250px à direita (depois da sidebar fixa) */
-    margin-left: var(--sidebar-width) !important;
+    /* CORREÇÃO: Usa position: absolute e top: 0 para eliminar a faixa branca. */
+    position: absolute !important;
+    top: 0 !important; /* Força o conteúdo a iniciar no topo */
+    left: var(--sidebar-width) !important; /* Deslocamento correto */
+    margin-left: 0 !important; /* Zera a margem que causava conflito */
+    margin-top: 0 !important; /* Zera qualquer margem superior residual */
 
     /* FORÇA A LARGURA: 100% da tela - largura da sidebar */
     width: calc(100% - var(--sidebar-width)) !important;
 
     /* Anula conflitos */
-    position: relative !important;
     float: none !important;
     flex-grow: 0 !important;
     min-height: 100vh !important;
@@ -70,13 +81,6 @@ body {
     background-color: var(--color-perfil-bg) !important;
 }
 
-/* Container principal (app-layout) deve ser bloco para não interferir no fixed/margin-left */
-.app-layout {
-    display: block !important;
-    min-height: 100vh !important;
-    width: 100% !important;
-    position: relative !important;
-}
 
 /* Centraliza o Cartão de Perfil */
 .content-area-pad {
@@ -413,11 +417,14 @@ input:focus {
 
 /* ----------------------------------------------------------
  Responsividade (Geral e Formulário)
- ---------------------------------------------------------- */
+ ----------------------------------------------------------- */
 
 @media (max-width: 768px) {
     /* Layout Geral */
     .content-area {
+        /* CORREÇÃO: Remove a posição absoluta no mobile para que o fluxo volte ao normal */
+        position: relative !important;
+        left: auto !important;
         margin-left: 0 !important;
         width: 100% !important;
         padding: 15px 10px;
