@@ -21,17 +21,14 @@ function getUsuarioModel(req) {
 // FUNÇÃO AUXILIAR: Deleta a foto antiga do disco (Assíncrona)
 // ----------------------------------------------------------
 async function deletarFotoAntigaAsync(nomeFotoAntiga, diretorioUpload) {
-    // Verifica se a foto a ser deletada existe e não é a foto padrão
     if (nomeFotoAntiga && nomeFotoAntiga !== DEFAULT_USER_IMAGE) {
         const caminhoArquivo = path.join(diretorioUpload, nomeFotoAntiga);
         
         try {
-            // Verifica se o arquivo existe antes de tentar deletar
-            await fs.access(caminhoArquivo, fs.constants.F_OK);
             await fs.unlink(caminhoArquivo); 
             console.log(`[PERFIL] Foto antiga deletada: ${nomeFotoAntiga}`);
         } catch (err) {
-            // Se o erro for que o arquivo não existe (ENOENT), apenas ignora.
+            // Ignora se o arquivo não existe - não é um erro
             if (err.code !== 'ENOENT') { 
                 console.error(`[PERFIL] Erro ao deletar a foto antiga ${nomeFotoAntiga}:`, err);
             }
@@ -173,6 +170,7 @@ export const getFormularioEdicaoPerfil = async (req, res) => {
 
 
 // Lógica POST: Salvar alterações no Perfil (UPDATE) - IMPLEMENTAÇÃO CORRIGIDA
+// Lógica POST: Salvar alterações no Perfil (UPDATE) - VERSÃO CORRIGIDA
 export const salvarEdicaoPerfil = async (req, res) => {
     const Usuario = getUsuarioModel(req);
     const idUsuario = req.session.userId; 
@@ -180,46 +178,63 @@ export const salvarEdicaoPerfil = async (req, res) => {
     const arquivoFotoTemp = req.file; 
     
     try {
-        // 1. BUSCA O USUÁRIO ATUAL para obter o nome da foto antiga
+        // 1. BUSCA O USUÁRIO ATUAL
         const usuarioAtual = await Usuario.findByPk(idUsuario);
         if (!usuarioAtual) {
             req.flash('error_msg', 'Usuário não encontrado.');
             return res.redirect('/perfil');
         }
         
-        // Define o diretório de uploads com base no caminho do arquivo temporário do Multer
-        const diretorioUpload = arquivoFotoTemp ? path.dirname(arquivoFotoTemp.path) : path.join(process.cwd(), 'public', 'uploads', 'perfis');
+        const diretorioUpload = path.join(process.cwd(), 'public', 'uploads', 'perfis');
         
-        // 2. LÓGICA DE UPLOAD E ATUALIZAÇÃO DA FOTO
+        // 2. LÓGICA DE UPLOAD - CORRIGIDA
         if (arquivoFotoTemp) {
-            // 2.1. DELETA A FOTO ANTIGA
-            await deletarFotoAntigaAsync(usuarioAtual.foto_perfil, diretorioUpload); 
+            // Deleta a foto antiga se existir
+            const nomeFotoAntiga = usuarioAtual.foto_perfil;
+            if (nomeFotoAntiga && nomeFotoAntiga !== DEFAULT_USER_IMAGE) {
+                const caminhoArquivoAntigo = path.join(diretorioUpload, nomeFotoAntiga);
+                try {
+                    await fs.unlink(caminhoArquivoAntigo); 
+                    console.log(`[PERFIL] Foto antiga deletada: ${nomeFotoAntiga}`);
+                } catch (err) {
+                    if (err.code !== 'ENOENT') { 
+                        console.error(`[PERFIL] Erro ao deletar a foto antiga:`, err);
+                    }
+                }
+            }
             
-            // 2.2. RENOMEIA O NOVO ARQUIVO
-            const ext = path.extname(arquivoFotoTemp.filename);
+            // CORREÇÃO: Renomeia o arquivo temporário para o nome definitivo
+            const ext = path.extname(arquivoFotoTemp.originalname); // Pega a extensão do arquivo original
             const novoNomeFoto = `profile-${idUsuario}${ext}`;
+            const caminhoTemporario = arquivoFotoTemp.path;
+            const caminhoDefinitivo = path.join(diretorioUpload, novoNomeFoto);
             
-            const oldPath = arquivoFotoTemp.path;
-            const newPath = path.join(diretorioUpload, novoNomeFoto);
+            await fs.rename(caminhoTemporario, caminhoDefinitivo);
             
-            await fs.rename(oldPath, newPath);
-            
-            novosDados.foto_perfil = novoNomeFoto; // Atualiza o nome da foto nos dados
-            
+            novosDados.foto_perfil = novoNomeFoto;
         } 
         
-        // 3. LÓGICA DE REMOÇÃO DA FOTO (Se você tiver um checkbox "Remover Foto")
+        // 3. LÓGICA DE REMOÇÃO DA FOTO
         if (novosDados.remover_foto === 'on') {
-            await deletarFotoAntigaAsync(usuarioAtual.foto_perfil, diretorioUpload);
+            const nomeFotoAntiga = usuarioAtual.foto_perfil;
+            if (nomeFotoAntiga && nomeFotoAntiga !== DEFAULT_USER_IMAGE) {
+                const caminhoArquivoAntigo = path.join(diretorioUpload, nomeFotoAntiga);
+                try {
+                    await fs.unlink(caminhoArquivoAntigo);
+                    console.log(`[PERFIL] Foto removida: ${nomeFotoAntiga}`);
+                } catch (err) {
+                    if (err.code !== 'ENOENT') {
+                        console.error(`[PERFIL] Erro ao remover foto:`, err);
+                    }
+                }
+            }
             novosDados.foto_perfil = DEFAULT_USER_IMAGE;
         } else if (!arquivoFotoTemp) {
-             // Garante que se nenhuma foto foi enviada E o checkbox de remover não foi marcado,
-             // o campo foto_perfil NÃO seja sobrescrito com um valor vazio/null do req.body.
-             delete novosDados.foto_perfil;
+            delete novosDados.foto_perfil;
         }
 
         // 4. ATUALIZA O BANCO DE DADOS
-        const [numLinhasAtualizadas] = await Usuario.update(novosDados, {
+        await Usuario.update(novosDados, {
             where: { id: idUsuario }
         });
         
@@ -233,15 +248,15 @@ export const salvarEdicaoPerfil = async (req, res) => {
     } catch (error) {
         console.error("ERRO AO SALVAR PERFIL:", error);
 
-        // Se a renomeação falhar, deleta o arquivo temporário
         if (arquivoFotoTemp) {
             try {
                 await fs.unlink(arquivoFotoTemp.path);
             } catch (e) {
-                console.error("Falha ao deletar arquivo temporário após erro:", e);
+                console.error("Falha ao deletar arquivo temporário:", e);
             }
         }
-        req.flash('error_msg', 'Erro ao salvar as alterações do perfil. Verifique os dados.');
+        
+        req.flash('error_msg', 'Erro ao salvar as alterações do perfil.');
         res.redirect('/perfil/editar');
     }
 };

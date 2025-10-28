@@ -389,29 +389,29 @@
                 <label for="tamanho">Tamanho:</label>
                 <select id="tamanho" name="tamanho" required>
                     <option value="">Selecione o Tamanho</option>
+                    <!-- CORREÇÃO: Valores exatos do ENUM do banco -->
                     <option value="RN">RN (Recém-Nascido)</option>
-                    <option value="P1">P (3-6 meses)</option>
-                    <option value="M1">M (6-9 meses)</option>
-                    <option value="G1">G (9-12 meses)</option>
-                    <option value="1">1 ano</option>
-                    <option value="2">2 anos</option>
-                    <option value="3">3 anos</option>
-                    <option value="4">4 anos</option>
-                    <option value="6">6 anos</option>
-                    <option value="8">8 anos</option>
-                    <option value="10">10 anos</option>
-                    <option value="12">12 anos</option>
-                    <option value="PP">PP</option>
-                    <option value="P">P</option>
-                    <option value="M">M</option>
-                    <option value="G">G</option>
-                    <option value="GG">GG</option>
-                    <option value="34">34</option>
-                    <option value="36">36</option>
-                    <option value="38">38</option>
-                    <option value="40">40</option>
-                    <option value="42">42</option>
-                    <option value="Unico">Tamanho Único</option>
+                    <option value="0-3M">0-3M (0 a 3 meses)</option>
+                    <option value="3-6M">3-6M (3 a 6 meses)</option>
+                    <option value="6-9M">6-9M (6 a 9 meses)</option>
+                    <option value="9-12M">9-12M (9 a 12 meses)</option>
+                    <option value="1A">1A (1 ano)</option>
+                    <option value="2A">2A (2 anos)</option>
+                    <option value="3A">3A (3 anos)</option>
+                    <option value="4A">4A (4 anos)</option>
+                    <option value="5A">5A (5 anos)</option>
+                    <option value="6A">6A (6 anos)</option>
+                    <option value="7A">7A (7 anos)</option>
+                    <option value="8A">8A (8 anos)</option>
+                    <option value="10A">10A (10 anos)</option>
+                    <option value="12A">12A (12 anos)</option>
+                    <option value="14A">14A (14 anos)</option>
+                    <option value="16A">16A (16 anos)</option>
+                    <option value="P">P (Pequeno)</option>
+                    <option value="M">M (Médio)</option>
+                    <option value="G">G (Grande)</option>
+                    <option value="GG">GG (Extra Grande)</option>
+                    <option value="Único">Tamanho Único</option>
                 </select>
 
                 <label for="cor">Cor:</label>
@@ -433,10 +433,13 @@
                 <label for="condicao">Condição (Qualidade de Uso):</label>
                 <select id="condicao" name="condicao" required>
                     <option value="">Selecione a Condição</option>
-                    <option value="Novo">Novo (Com etiqueta/Nunca usado)</option>
-                    <option value="Com pouco uso">Com pouco uso (Excelente estado)</option>
-                    <option value="Usado">Usado (Bom estado, sem defeitos graves)</option>
-                    <option value="Com detalhes">Com pequenos detalhes (Para conserto ou ajuste)</option>
+                    <!-- CORREÇÃO: Valores exatos do ENUM do banco -->
+                    <option value="Novo com Etiqueta">Novo com Etiqueta (Nunca usado)</option>
+                    <option value="Novo sem Etiqueta">Novo sem Etiqueta (Nunca usado)</option>
+                    <option value="Usado em Perfeitas Condições">Usado em Perfeitas Condições</option>
+                    <option value="Usado com Pequeno Desgaste">Usado com Pequeno Desgaste</option>
+                    <option value="Requer Reparo Simples">Requer Reparo Simples</option>
+                    <option value="Com pouco uso">Com pouco uso</option>
                 </select>
 
                 <label for="descricao">Descrição Detalhada:</label>

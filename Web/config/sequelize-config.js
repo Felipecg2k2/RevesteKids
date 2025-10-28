@@ -3,7 +3,7 @@ const connection = new Sequelize({
     dialect: "mysql",
     host: "localhost",
     username: "root",
-    password: "",
+    password: "1234",
     database: "RevesteKids",
     timezone: "-03:00",
 });

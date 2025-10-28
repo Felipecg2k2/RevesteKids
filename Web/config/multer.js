@@ -50,25 +50,29 @@ const itemImageLimits = {
 // ==================================================================
 
 // 🚨 CAMINHO CORRIGIDO: De /Web/config/ para /Web/public/uploads/perfis
+// ==================================================================
+// 1. UPLOAD DE PERFIL (Edição) - CORRIGIDO
+// ==================================================================
+
 const profileUploadDir = path.join(__dirname, '..', 'public', 'uploads', 'perfis');
 ensureDirectoryExists(profileUploadDir);
 
 const profileStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, profileUploadDir);
-    },
-    filename: (req, file, cb) => {
-        // Usa o ID do usuário logado para nomear o arquivo
-        const userId = req.session && req.session.userId ? req.session.userId : `temp-${Date.now()}`;
-        const ext = path.extname(file.originalname);
-        cb(null, `profile-${userId}${ext}`);
-    }
+    destination: (req, file, cb) => {
+        cb(null, profileUploadDir);
+    },
+    filename: (req, file, cb) => {
+        // CORREÇÃO: Usa nome temporário e depois renomeia no controller
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname); // Preserva a extensão original
+        cb(null, `temp-profile-${uniqueSuffix}${ext}`);
+    }
 });
 
 export const profileUpload = multer({
-    storage: profileStorage,
-    fileFilter: imageFileFilter,
-    limits: imageLimits
+    storage: profileStorage,
+    fileFilter: imageFileFilter,
+    limits: imageLimits
 });
 
 // ==================================================================
