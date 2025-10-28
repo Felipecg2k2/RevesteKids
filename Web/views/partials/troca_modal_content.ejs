@@ -41,14 +41,15 @@
     }
 %>
 
-<div class="modal-troca-details">
+<!-- ADICIONAR ESTILO INLINE PARA FORÇAR FUNDO BRANCO -->
+<div class="modal-troca-details" style="background: white !important; border-radius: 12px; padding: 20px;">
    
-    <div class="modal-header">
+    <div class="modal-header" style="background: white !important;">
         <h2 class="modal-title">Detalhes da Proposta de Troca</h2>
         <span class="troca-status status-<%= troca.status.toLowerCase() %>"><%= troca.status %></span>
     </div>
    
-    <div class="troca-meta">
+    <div class="troca-meta" style="background: white !important;">
         <div class="meta-item">
             <i class="fas fa-calendar"></i>
             <span>Criada em: <strong><%= new Date(troca.createdAt).toLocaleDateString('pt-BR') %></strong></span>
@@ -61,7 +62,7 @@
         <% } %>
     </div>
 
-    <div class="items-comparison">
+    <div class="items-comparison" style="background: white !important;">
        
         <div class="item-card item-oferecido">
             <div class="card-header">
@@ -72,9 +73,9 @@
                 </div>
             </div>
            
-            <div class="item-details">
+            <div class="item-details" style="background: white !important;">
                 <!-- FOTO DESTACADA -->
-                <div class="photo-section">
+                <div class="photo-section" style="background: white !important;">
                     <% if (imagemOferecido) { %>
                         <div class="item-photo-container">
                             <img src="<%= imagemOferecido.caminho_arquivo %>" 
@@ -92,8 +93,8 @@
                     <% } %>
                 </div>
                 
-                <div class="item-info">
-                    <div class="info-row">
+                <div class="item-info" style="background: white !important;">
+                    <div class="info-row" style="background: white !important;">
                         <i class="fas fa-tag"></i>
                         <div>
                             <strong class="item-name"><%= itemOferecido.peca %></strong>
@@ -101,20 +102,20 @@
                         </div>
                     </div>
                     
-                    <div class="info-grid">
-                        <div class="info-item">
+                    <div class="info-grid" style="background: white !important;">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-ruler"></i>
                             <span>Tamanho: <strong><%= itemOferecido.tamanho %></strong></span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-palette"></i>
                             <span>Cor: <strong><%= itemOferecido.cor || 'Não informada' %></strong></span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-snowflake"></i>
                             <span>Estação: <strong><%= itemOferecido.estacao || 'Todas' %></strong></span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-star"></i>
                             <span>Condição: <strong><%= itemOferecido.condicao %></strong></span>
                         </div>
@@ -130,7 +131,7 @@
             </div>
         </div>
 
-        <div class="troca-icon">
+        <div class="troca-icon" style="background: white !important;">
             <div class="exchange-arrow">
                 <i class="fas fa-exchange-alt"></i>
             </div>
@@ -148,9 +149,9 @@
                 </div>
             </div>
 
-            <div class="item-details">
+            <div class="item-details" style="background: white !important;">
                 <!-- FOTO DESTACADA -->
-                <div class="photo-section">
+                <div class="photo-section" style="background: white !important;">
                     <% if (imagemDesejado) { %>
                         <div class="item-photo-container">
                             <img src="<%= imagemDesejado.caminho_arquivo %>" 
@@ -168,8 +169,8 @@
                     <% } %>
                 </div>
                 
-                <div class="item-info">
-                    <div class="info-row">
+                <div class="item-info" style="background: white !important;">
+                    <div class="info-row" style="background: white !important;">
                         <i class="fas fa-tag"></i>
                         <div>
                             <strong class="item-name"><%= itemDesejado.peca %></strong>
@@ -177,20 +178,20 @@
                         </div>
                     </div>
                     
-                    <div class="info-grid">
-                        <div class="info-item">
+                    <div class="info-grid" style="background: white !important;">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-ruler"></i>
                             <span>Tamanho: <strong><%= itemDesejado.tamanho %></strong></span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-palette"></i>
                             <span>Cor: <strong><%= itemDesejado.cor || 'Não informada' %></strong></span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-snowflake"></i>
                             <span>Estação: <strong><%= itemDesejado.estacao || 'Todas' %></strong></span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="background: white !important;">
                             <i class="fas fa-star"></i>
                             <span>Condição: <strong><%= itemDesejado.condicao %></strong></span>
                         </div>
@@ -207,8 +208,8 @@
         </div>
     </div>
    
-    <div class="modal-actions-summary">
-        <div class="actions-header">
+    <div class="modal-actions-summary" style="background: white !important;">
+        <div class="actions-header" style="background: white !important;">
             <i class="fas fa-cogs"></i>
             <h4>Ações e Status da Troca</h4>
         </div>
@@ -217,14 +218,14 @@
         <% if (troca.status === 'Pendente') { %>
             <% if (isReceptor) { %>
                 <!-- RECEPTOR vê botões de Aceitar/Rejeitar -->
-                <div class="action-panel pending">
+                <div class="action-panel pending" style="background: white !important;">
                     <div class="action-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <div class="action-content">
+                    <div class="action-content" style="background: white !important;">
                         <h5>Proposta Recebida</h5>
                         <p><strong><%= proponenteUser.nome %></strong> quer trocar <strong>"<%= itemOferecido.peca %>"</strong> pelo seu <strong>"<%= itemDesejado.peca %>"</strong></p>
-                        <div class="action-buttons">
+                        <div class="action-buttons" style="background: white !important;">
                             <form method="POST" action="/trocas/aceitar/<%= troca.id %>">
                                 <button type="submit" class="btn-action btn-success">
                                     <i class="fas fa-check"></i> Aceitar Troca
@@ -240,15 +241,15 @@
                 </div>
             <% } else if (isProponente) { %>
                 <!-- PROPONENTE vê botão de Cancelar -->
-                <div class="action-panel pending">
+                <div class="action-panel pending" style="background: white !important;">
                     <div class="action-icon">
                         <i class="fas fa-paper-plane"></i>
                     </div>
-                    <div class="action-content">
+                    <div class="action-content" style="background: white !important;">
                         <h5>Proposta Enviada</h5>
                         <p>Você ofereceu <strong>"<%= itemOferecido.peca %>"</strong> para <strong><%= receptorUser.nome %></strong> em troca de <strong>"<%= itemDesejado.peca %>"</strong></p>
                         <p><em>Aguardando resposta de <%= receptorUser.nome %>...</em></p>
-                        <div class="action-buttons">
+                        <div class="action-buttons" style="background: white !important;">
                             <form method="POST" action="/trocas/cancelar/<%= troca.id %>">
                                 <button type="submit" class="btn-action btn-warning">
                                     <i class="fas fa-ban"></i> Cancelar Proposta
@@ -259,11 +260,11 @@
                 </div>
             <% } else { %>
                 <!-- CASO DE SEGURANCA: usuário não envolvido -->
-                <div class="action-panel historical">
+                <div class="action-panel historical" style="background: white !important;">
                     <div class="action-icon">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <div class="action-content">
+                    <div class="action-content" style="background: white !important;">
                         <h5>Acesso Restrito</h5>
                         <p>Você não tem permissão para visualizar esta troca.</p>
                     </div>
@@ -282,11 +283,11 @@
                 const itemQueOfereci = isProponente ? itemOferecido.peca : itemDesejado.peca;
             %>
            
-            <div class="action-panel accepted">
+            <div class="action-panel accepted" style="background: white !important;">
                 <div class="action-icon">
                     <i class="fas fa-handshake"></i>
                 </div>
-                <div class="action-content">
+                <div class="action-content" style="background: white !important;">
                     <h5>Troca Aceita!</h5>
                     <p>Ambos concordaram com a troca. Agora confirme que você recebeu o item.</p>
                     
@@ -295,8 +296,8 @@
                         <p><strong>Você enviou:</strong> <%= itemQueOfereci %></p>
                     </div>
                     
-                    <div class="confirmation-status">
-                        <div class="user-confirmation <%= minhaConfirmacao ? 'confirmed' : 'pending' %>">
+                    <div class="confirmation-status" style="background: white !important;">
+                        <div class="user-confirmation <%= minhaConfirmacao ? 'confirmed' : 'pending' %>" style="background: white !important;">
                             <div class="confirmation-icon">
                                 <i class="fas fa-<%= minhaConfirmacao ? 'check-circle' : 'clock' %>"></i>
                             </div>
@@ -313,7 +314,7 @@
                             <% } %>
                         </div>
                         
-                        <div class="user-confirmation <%= outraConfirmacao ? 'confirmed' : 'pending' %>">
+                        <div class="user-confirmation <%= outraConfirmacao ? 'confirmed' : 'pending' %>" style="background: white !important;">
                             <div class="confirmation-icon">
                                 <i class="fas fa-<%= outraConfirmacao ? 'check-circle' : 'clock' %>"></i>
                             </div>
@@ -327,11 +328,11 @@
             </div>
            
         <% } else if (troca.status === 'Finalizada') { %>
-            <div class="action-panel completed">
+            <div class="action-panel completed" style="background: white !important;">
                 <div class="action-icon">
                     <i class="fas fa-trophy"></i>
                 </div>
-                <div class="action-content">
+                <div class="action-content" style="background: white !important;">
                     <h5>Troca Concluída!</h5>
                     <p>Troca finalizada com sucesso em <strong><%= troca.dataFinalizacao ? new Date(troca.dataFinalizacao).toLocaleDateString('pt-BR') : 'Data Indisponível' %></strong></p>
                     <div class="success-message">
@@ -342,11 +343,11 @@
             </div>
        
         <% } else { %>
-            <div class="action-panel historical">
+            <div class="action-panel historical" style="background: white !important;">
                 <div class="action-icon">
                     <i class="fas fa-history"></i>
                 </div>
-                <div class="action-content">
+                <div class="action-content" style="background: white !important;">
                     <h5>Status: <%= troca.status %></h5>
                     <p>Esta proposta está no histórico de trocas.</p>
                 </div>
@@ -355,522 +356,4 @@
     </div>
 </div>
 
-<style>
-.modal-troca-details {
-    max-width: 900px;
-    margin: 0 auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: white;
-    border-radius: 12px;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.modal-title {
-    color: #2c3e50;
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-}
-
-.troca-meta {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.meta-item i {
-    color: #007bff;
-}
-
-.items-comparison {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    gap: 30px;
-    margin-bottom: 30px;
-}
-
-.item-card {
-    flex: 1;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 0;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.item-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-}
-
-.card-header {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    padding: 20px;
-    text-align: center;
-}
-
-.card-subtitle {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-.item-details {
-    padding: 20px;
-}
-
-.photo-section {
-    margin-bottom: 20px;
-}
-
-.item-photo-container {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 2px solid #e9ecef;
-}
-
-.item-photo-real {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.item-photo-container:hover .item-photo-real {
-    transform: scale(1.05);
-}
-
-.photo-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.item-photo-container:hover .photo-overlay {
-    opacity: 1;
-}
-
-.photo-overlay i {
-    color: white;
-    font-size: 24px;
-}
-
-.item-photo-placeholder {
-    width: 100%;
-    height: 200px;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #6c757d;
-}
-
-.item-photo-placeholder i {
-    font-size: 32px;
-    margin-bottom: 10px;
-    color: #adb5bd;
-}
-
-
-.info-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.info-row i {
-    color: #007bff;
-    font-size: 18px;
-    width: 20px;
-}
-
-.item-name {
-    font-size: 18px;
-    color: #2c3e50;
-    display: block;
-}
-
-.item-category {
-    font-size: 12px;
-    color: #6c757d;
-    background: #e9ecef;
-    padding: 2px 8px;
-    border-radius: 12px;
-    margin-left: 8px;
-}
-
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.info-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #555;
-}
-
-.info-item i {
-    color: #007bff;
-    width: 16px;
-    text-align: center;
-}
-
-.description-box {
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 6px;
-    border-left: 3px solid #007bff;
-    display: flex;
-    gap: 10px;
-}
-
-.description-box i {
-    color: #007bff;
-    margin-top: 2px;
-}
-
-.description-box p {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.4;
-    color: #555;
-}
-
-.troca-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin: 0 10px;
-}
-
-.exchange-arrow {
-    background: #007bff;
-    color: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
-}
-
-.troca-symbol {
-    color: #28a745;
-    font-size: 24px;
-}
-
-.modal-actions-summary {
-    background: linear-gradient(135deg, #f8f9fa, #ffffff);
-    border-radius: 12px;
-    padding: 25px;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.actions-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.actions-header i {
-    color: #007bff;
-    font-size: 20px;
-}
-
-.actions-header h4 {
-    margin: 0;
-    color: #2c3e50;
-    font-size: 18px;
-}
-
-.action-panel {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-}
-
-.action-icon {
-    background: #007bff;
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.action-panel.pending .action-icon { background: #ffc107; }
-.action-panel.accepted .action-icon { background: #17a2b8; }
-.action-panel.completed .action-icon { background: #28a745; }
-.action-panel.historical .action-icon { background: #6c757d; }
-
-.action-content {
-    flex: 1;
-}
-
-.action-content h5 {
-    margin: 0 0 8px 0;
-    color: #2c3e50;
-    font-size: 16px;
-}
-
-.action-content p {
-    margin: 0 0 15px 0;
-    color: #555;
-    line-height: 1.5;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.btn-action {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-action:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.btn-success { 
-    background: linear-gradient(135deg, #28a745, #20c997); 
-    color: white; 
-}
-.btn-danger { 
-    background: linear-gradient(135deg, #dc3545, #e83e8c); 
-    color: white; 
-}
-.btn-warning { 
-    background: linear-gradient(135deg, #ffc107, #fd7e14); 
-    color: #212529; 
-}
-
-.confirmation-status {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.user-confirmation {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    border: 2px solid #e9ecef;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.user-confirmation.confirmed {
-    border-color: #28a745;
-    background: #f8fff9;
-}
-
-.user-confirmation.pending {
-    border-color: #ffc107;
-    background: #fffdf6;
-}
-
-.confirmation-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-}
-
-.user-confirmation.confirmed .confirmation-icon {
-    background: #28a745;
-    color: white;
-}
-
-.user-confirmation.pending .confirmation-icon {
-    background: #ffc107;
-    color: white;
-}
-
-.confirmation-info {
-    flex: 1;
-}
-
-.confirmation-info strong {
-    display: block;
-    color: #2c3e50;
-    font-size: 14px;
-}
-
-.confirmation-info span {
-    font-size: 12px;
-    color: #6c757d;
-}
-
-.btn-confirm {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.btn-confirm:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(40,167,69,0.3);
-}
-
-.success-message {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #d4edda;
-    color: #155724;
-    padding: 12px 15px;
-    border-radius: 6px;
-    border: 1px solid #c3e6cb;
-}
-
-.success-message i {
-    font-size: 18px;
-}
-
-/* Status badges */
-.troca-status {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-pendente { background: #fff3cd; color: #856404; }
-.status-aceita { background: #d1ecf1; color: #0c5460; }
-.status-finalizada { background: #d4edda; color: #155724; }
-.status-cancelada { background: #f8d7da; color: #721c24; }
-.status-rejeitada { background: #f8d7da; color: #721c24; }
-
-/* Adicionar este CSS para o resumo da troca */
-.trade-summary {
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 6px;
-    margin: 15px 0;
-    border-left: 3px solid #17a2b8;
-}
-
-.trade-summary p {
-    margin: 5px 0;
-    font-size: 14px;
-}
-
-@media (max-width: 768px) {
-    .items-comparison {
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    .troca-icon {
-        flex-direction: row;
-        margin: 10px 0;
-    }
-    
-    .confirmation-status {
-        grid-template-columns: 1fr;
-    }
-    
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .modal-header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-    
-    .troca-meta {
-        justify-content: center;
-    }
-}
-</style>
+<link rel="stylesheet" href="/css/troca-details.css">
