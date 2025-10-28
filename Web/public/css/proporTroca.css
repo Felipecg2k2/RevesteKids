@@ -1,35 +1,24 @@
-/* =========================================== */
-/* 0. RESET BÁSICO E TIPOGRAFIA GLOBAL         */
-/* =========================================== */
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%; 
+    height: 100%;
     min-height: 100vh;
     box-sizing: border-box;
-    /* Define uma fonte limpa e padrão para evitar problemas de compatibilidade */
     font-family: Arial, sans-serif;
 }
 
 .app-layout {
-    /* Garante que o container principal Flex/Grid ocupe a altura total */
     min-height: 100vh;
 }
 
-/* ------------------------------------------- */
-/* VARIÁVEIS DE COR E LAYOUT (Melhora a padronização) */
-/* ------------------------------------------- */
 :root {
-    --color-primary: #8347AA; /* Roxo principal */
-    --color-secondary: #35eecf; /* Menta/Ciano */
-    --color-light-bg: #f8f9fa; /* Fundo leve para cards */
+    --color-primary: #8347AA;
+    --color-secondary: #35eecf;
+    --color-light-bg: #f8f9fa;
     --color-border: #ddd;
-    --color-success: #28a745; /* Verde para seleção/sucesso */
+    --color-success: #28a745;
 }
 
-/* ------------------------------------------- */
-/* ESTILOS PADRÃO DE ALERTA (req.flash) */
-/* ------------------------------------------- */
 .message-container { margin-bottom: 20px; }
 .alert {
     padding: 10px 15px;
@@ -49,12 +38,8 @@ html, body {
     color: #856404; background-color: #fff3cd; border-color: #ffeeba;
 }
 
-/* ------------------------------------------- */
-/* 1. ESTILOS GERAIS DA PROPOSTA */
-/* ------------------------------------------- */
-
 .content-area {
-    padding: 20px; 
+    padding: 20px;
 }
 
 h1 { margin-top: 0; }
@@ -63,11 +48,11 @@ h1 { margin-top: 0; }
     display: flex;
     justify-content: space-between;
     gap: 40px;
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
 }
 
 .item-desejado-card, .item-oferecido-form {
-    flex: 1 1 45%; 
+    flex: 1 1 45%;
     min-width: 300px;
 }
 .item-desejado-card {
@@ -92,22 +77,19 @@ h1 { margin-top: 0; }
     margin: 10px 0;
     font-size: 0.95em;
 }
-.item-info hr { 
+.item-info hr {
     border: none;
-    border-top: 1px solid #eee; 
-    margin: 5px 0; 
+    border-top: 1px solid #eee;
+    margin: 5px 0;
 }
 .item-desejado-card img {
-    max-width: 100%; 
-    height: auto; 
-    max-height: 200px; 
-    display: block; 
+    max-width: 100%;
+    height: auto;
+    max-height: 200px;
+    display: block;
     margin: 0 auto;
 }
 
-/* ------------------------------------------- */
-/* 2. ESTILOS DO SELETOR DE CARDS (OFERTA) */
-/* ------------------------------------------- */
 .lista-de-pecas-oferecer {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -116,7 +98,7 @@ h1 { margin-top: 0; }
 }
 
 .item-card-oferta {
-    display: block; 
+    display: block;
     cursor: pointer;
     border: 2px solid #ccc;
     border-radius: 8px;
@@ -124,11 +106,11 @@ h1 { margin-top: 0; }
     text-align: center;
     background-color: white;
     position: relative;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
 .item-card-oferta:hover {
-    border-color: var(--color-primary); 
+    border-color: var(--color-primary);
     box-shadow: 0 0 5px rgba(131, 71, 170, 0.5);
 }
 
@@ -144,7 +126,7 @@ h1 { margin-top: 0; }
     justify-content: center;
     font-size: 0.8em;
     color: #555;
-    border-top-left-radius: 6px; 
+    border-top-left-radius: 6px;
     border-top-right-radius: 6px;
 }
 
@@ -158,22 +140,16 @@ h1 { margin-top: 0; }
     margin-top: 5px;
 }
 
-/* ESTILO CRÍTICO: Mude o estilo do card quando SELECIONADO */
 input[type="radio"]:checked + .card-conteudo {
-    border: 2px solid var(--color-success); 
-    background-color: #e6ffed; 
+    border: 2px solid var(--color-success);
+    background-color: #e6ffed;
     border-radius: 6px;
-    /* CORREÇÃO: Removemos o posicionamento absoluto que estava fazendo o card sumir do fluxo */
-    /* top: -2px; left: -2px; right: -2px; bottom: -2px; */
-    /* position: absolute; */
-    /* z-index: 10; */
 }
 
 input[type="radio"]:checked + .card-conteudo .card-imagem {
     border-bottom: 1px solid var(--color-success);
 }
 
-/* Esconde o radio button nativo */
 input[type="radio"] {
     position: absolute;
     opacity: 0;
@@ -181,12 +157,11 @@ input[type="radio"] {
     height: 0;
 }
 
-/* Botão de Envio */
 .btn-enviar-proposta {
-    padding: 12px 20px; 
-    background-color: var(--color-primary); 
-    color: white; 
-    border: none; 
+    padding: 12px 20px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
     cursor: pointer;
     margin-top: 20px;
     width: 100%;
@@ -199,17 +174,16 @@ input[type="radio"] {
 }
 
 .link-cadastro-peca {
-    display: inline-block; 
-    padding: 10px; 
-    background-color: #ffc107; 
-    color: #333; 
-    text-decoration: none; 
+    display: inline-block;
+    padding: 10px;
+    background-color: #ffc107;
+    color: #333;
+    text-decoration: none;
     border-radius: 4px;
     margin-top: 15px;
     font-weight: 600;
 }
 
-/* Media Query para Responsividade */
 @media (max-width: 768px) {
     .proposta-container {
         flex-direction: column;

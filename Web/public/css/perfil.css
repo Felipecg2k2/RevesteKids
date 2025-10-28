@@ -1,35 +1,16 @@
-/* ==========================================================
- ESTILOS ESPECÍFICOS DA TELA DE PERFIL (perfil.css)
- Layout Final: Sidebar Funcional + Cartão Centralizado
- ----------------------------------------------------------
- Este arquivo contém os estilos para a visualização e a edição 
- do perfil, além da correção de layout da sidebar.
- ========================================================== */
-
 :root {
     --color-primary: #9370DB;
-    /* Roxo principal */
     --color-secondary: #7B68EE;
-    /* Roxo secundário */
     --color-background-soft: #f7f7f7;
     --color-perfil-bg: #D2FBF4;
-    /* Cor de fundo suave para a página */
     --sidebar-width: 250px;
 }
 
-/* CORREÇÃO PARA REMOVER O RISCO BRANCO NO TOPO */
-/* Garante que o elemento HTML raiz também tenha a cor de fundo correta,
-   evitando que a cor branca padrão do navegador apareça em pequenos vazamentos. */
 html {
     background-color: var(--color-perfil-bg) !important;
-    min-height: 100vh; /* Garante altura total */
+    min-height: 100vh;
 }
 
-/* ------------------------------------------------------------
- CORREÇÃO DE LAYOUT (Fixação + Margem para 100% de compatibilidade)
- ------------------------------------------------------------ */
-
-/* Configurações de fundo e margem do Body */
 body {
     font-family: Arial, sans-serif;
     background-color: var(--color-perfil-bg) !important;
@@ -38,7 +19,6 @@ body {
     overflow-x: hidden !important;
 }
 
-/* Sidebar Fixa (Corrige a sobreposição) */
 .sidebar-menu {
     position: fixed !important;
     top: 0 !important;
@@ -50,7 +30,6 @@ body {
     flex-shrink: 0 !important;
 }
 
-/* Container principal (app-layout) deve ser bloco e relativo para conter o content-area */
 .app-layout {
     display: block !important;
     min-height: 100vh !important;
@@ -58,51 +37,30 @@ body {
     position: relative !important;
 }
 
-/* Content-Area com Posição Absoluta + Top: 0 (CORRIGIDO PARA REMOVER FAIXA BRANCA) */
 .content-area {
-    /* CORREÇÃO: Usa position: absolute e top: 0 para eliminar a faixa branca. */
     position: absolute !important;
-    top: 0 !important; /* Força o conteúdo a iniciar no topo */
-    left: var(--sidebar-width) !important; /* Deslocamento correto */
-    margin-left: 0 !important; /* Zera a margem que causava conflito */
-    margin-top: 0 !important; /* Zera qualquer margem superior residual */
-
-    /* FORÇA A LARGURA: 100% da tela - largura da sidebar */
+    top: 0 !important;
+    left: var(--sidebar-width) !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
     width: calc(100% - var(--sidebar-width)) !important;
-
-    /* Anula conflitos */
     float: none !important;
     flex-grow: 0 !important;
     min-height: 100vh !important;
-
-    /* Estilos Visuais */
     padding: 30px;
-    /* Padding interno do content-area */
     background-color: var(--color-perfil-bg) !important;
 }
 
-
-/* Centraliza o Cartão de Perfil */
 .content-area-pad {
     padding: 0;
     max-width: none;
     margin: 0;
-
-    /* Centraliza o cartão horizontalmente */
     display: flex;
     justify-content: center;
-    /* Centraliza horizontalmente */
     align-items: flex-start;
-    /* Alinha o conteúdo ao topo */
     width: 100%;
 }
 
-
-/* ------------------------------------------------------------
- ESTILOS GERAIS DO PERFIL (Leitura e Edição)
- ------------------------------------------------------------ */
-
-/* Container principal do perfil (O Cartão Centralizado) */
 .perfil-container {
     width: 100%;
     max-width: 600px;
@@ -110,14 +68,10 @@ body {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
-    /* Margem para afastamento superior e inferior */
     margin: 30px 0;
-
     text-align: left;
 }
 
-/* Título Principal */
 h1 {
     font-size: 2em;
     color: #333;
@@ -128,7 +82,6 @@ h1 {
     text-align: center;
 }
 
-/* Subtítulos */
 h2 {
     font-size: 1.3em;
     color: #555;
@@ -137,11 +90,6 @@ h2 {
     text-align: left;
     font-weight: 700;
 }
-
-
-/* ------------------------------------------------------------
- ESTILOS ESPECÍFICOS DA VIEW DE LEITURA
- ------------------------------------------------------------ */
 
 .secao {
     padding: 10px 0;
@@ -162,7 +110,6 @@ h2 {
     color: #444;
 }
 
-/* Efeito de alinhamento em duas colunas para as informações */
 .secao p strong {
     font-weight: bold;
     min-width: 150px;
@@ -170,7 +117,6 @@ h2 {
     color: #333;
 }
 
-/* Estilo do Botão Principal (Editar Meu Perfil) */
 .botao {
     display: inline-block;
     padding: 10px 20px;
@@ -190,7 +136,6 @@ h2 {
     background-color: var(--color-secondary);
 }
 
-/* Estilo do Link de Apagar Conta - BOTÃO SÓLIDO */
 .link-apagar {
     background-color: #dc3545;
     color: white;
@@ -211,39 +156,28 @@ h2 {
     color: white;
 }
 
-/* Centraliza os botões na seção Ações */
 .secao.acoes {
     text-align: center;
     padding-top: 15px;
 }
 
-/* ------------------------------------------------------------
- ESTILOS ESPECÍFICOS DO FORMULÁRIO DE EDIÇÃO
- ------------------------------------------------------------ */
-
-/* Ajusta o container para formulários */
 .perfil-container.form-container {
     padding: 30px 40px;
-    /* Mais padding nas laterais */
 }
 
 .edit-form {
     margin-top: 20px;
 }
 
-/* *** CORREÇÃO: Remove display:flex da seção para que h2 fique acima dos campos *** */
 .form-section {
-    /* display: flex; REMOVIDO - H2 deve ficar acima dos campos */
     flex-wrap: wrap;
     align-items: flex-start;
     gap: 15px;
-
     padding: 15px 0;
     border-bottom: 1px solid #eee;
     margin-bottom: 20px;
 }
 
-/* Corrige a primeira seção (Foto) para voltar a ser bloco e centralizar corretamente */
 .edit-form .form-section:first-child {
     display: block;
     text-align: center;
@@ -253,25 +187,19 @@ h2 {
     text-align: left;
 }
 
-/* Faz com que os form-groups com campos lado a lado usem flex */
 .form-group:not(.full-width) {
-    /* Define o item para crescer, mas ter uma base de 50% menos o gap para caber */
     flex: 1 1 calc(50% - 7.5px);
     max-width: calc(50% - 7.5px);
     margin-bottom: 15px;
-    
-    /* ADICIONADO: Display flex para campos lado a lado (Nome/Sobrenome, CEP/Número) */
     display: flex;
     gap: 15px;
 }
 
-/* Ajuste para os campos dentro do form-group dividirem o espaço */
 .form-group > div {
-    flex: 1; /* Permite que os campos duo-field (CEP/Número) dividam o espaço */
-    min-width: 0; /* Ajuda o flexbox a calcular corretamente */
+    flex: 1;
+    min-width: 0;
 }
 
-/* Garante que o campo de largura total ocupe 100% */
 .form-group.full-width {
     flex: 0 0 100%;
     max-width: 100%;
@@ -279,25 +207,21 @@ h2 {
     display: block;
 }
 
-/* Remove a borda inferior da última seção */
 .edit-form .form-section:last-of-type {
     border-bottom: none;
     margin-bottom: 0;
 }
 
-/* ESTILO DO TÍTULO - CORRIGIDO PARA FICAR ACIMA DOS CAMPOS */
 .form-section h2 {
-    display: block; /* Garante que o título ocupe a linha inteira */
-    width: 100%; /* Força largura total */
-    text-align: center; /* Centraliza o texto */
-    
-    margin-bottom: 20px; /* Mais espaço para separar o título dos campos */
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
     border-bottom: 2px solid var(--color-primary);
     padding-bottom: 5px;
     color: var(--color-primary);
 }
 
-/* Campos de entrada e labels */
 label {
     display: block;
     font-weight: 600;
@@ -324,7 +248,6 @@ input:focus {
     outline: none;
 }
 
-/* Botões de Ação do Formulário: Centraliza horizontalmente e remove borda superior desnecessária */
 .form-actions {
     display: flex;
     justify-content: center;
@@ -374,7 +297,6 @@ input:focus {
     background-color: #e0e0e0;
 }
 
-/* Estilo para a opção de apagar conta: Garante a separação do bloco de botões acima */
 .separator {
     display: none;
 }
@@ -415,14 +337,8 @@ input:focus {
     color: #c82333;
 }
 
-/* ----------------------------------------------------------
- Responsividade (Geral e Formulário)
- ----------------------------------------------------------- */
-
 @media (max-width: 768px) {
-    /* Layout Geral */
     .content-area {
-        /* CORREÇÃO: Remove a posição absoluta no mobile para que o fluxo volte ao normal */
         position: relative !important;
         left: auto !important;
         margin-left: 0 !important;
@@ -453,25 +369,21 @@ input:focus {
         margin: 20px auto;
     }
 
-    /* Responsividade do Formulário */
     .perfil-container.form-container {
         padding: 20px;
     }
 
-    /* Faz com que a seção do formulário empilhe todos os campos */
     .form-section {
         flex-direction: column;
         gap: 0;
     }
 
-    /* Remove o display flex dos form-groups no mobile */
     .form-group:not(.full-width) {
-        display: block; /* Volta ao display block no mobile */
+        display: block;
         flex: none;
         max-width: 100%;
     }
 
-    /* Faz com que todos os grupos de formulário ocupem 100% no mobile */
     .form-group:not(.full-width),
     .form-group.full-width {
         flex: 0 0 100%;
@@ -479,7 +391,6 @@ input:focus {
         margin-bottom: 15px;
     }
 
-    /* Remove gaps internos no mobile */
     .form-group > div {
         margin-bottom: 15px;
     }
@@ -496,7 +407,6 @@ input:focus {
         text-align: center;
     }
 
-    /* Outros ajustes de leitura/botões */
     .secao p strong {
         min-width: 120px;
     }
