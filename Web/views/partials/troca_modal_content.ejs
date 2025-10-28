@@ -41,15 +41,14 @@
     }
 %>
 
-<!-- ADICIONAR ESTILO INLINE PARA FORÇAR FUNDO BRANCO -->
-<div class="modal-troca-details" style="background: white !important; border-radius: 12px; padding: 20px;">
+<div class="modal-troca-details">
    
-    <div class="modal-header" style="background: white !important;">
+    <div class="modal-header">
         <h2 class="modal-title">Detalhes da Proposta de Troca</h2>
         <span class="troca-status status-<%= troca.status.toLowerCase() %>"><%= troca.status %></span>
     </div>
    
-    <div class="troca-meta" style="background: white !important;">
+    <div class="troca-meta">
         <div class="meta-item">
             <i class="fas fa-calendar"></i>
             <span>Criada em: <strong><%= new Date(troca.createdAt).toLocaleDateString('pt-BR') %></strong></span>
@@ -62,7 +61,7 @@
         <% } %>
     </div>
 
-    <div class="items-comparison" style="background: white !important;">
+    <div class="items-comparison">
        
         <div class="item-card item-oferecido">
             <div class="card-header">
@@ -73,9 +72,9 @@
                 </div>
             </div>
            
-            <div class="item-details" style="background: white !important;">
+            <div class="item-details">
                 <!-- FOTO DESTACADA -->
-                <div class="photo-section" style="background: white !important;">
+                <div class="photo-section">
                     <% if (imagemOferecido) { %>
                         <div class="item-photo-container">
                             <img src="<%= imagemOferecido.caminho_arquivo %>" 
@@ -93,8 +92,8 @@
                     <% } %>
                 </div>
                 
-                <div class="item-info" style="background: white !important;">
-                    <div class="info-row" style="background: white !important;">
+                <div class="item-info">
+                    <div class="info-row">
                         <i class="fas fa-tag"></i>
                         <div>
                             <strong class="item-name"><%= itemOferecido.peca %></strong>
@@ -102,20 +101,20 @@
                         </div>
                     </div>
                     
-                    <div class="info-grid" style="background: white !important;">
-                        <div class="info-item" style="background: white !important;">
+                    <div class="info-grid">
+                        <div class="info-item">
                             <i class="fas fa-ruler"></i>
                             <span>Tamanho: <strong><%= itemOferecido.tamanho %></strong></span>
                         </div>
-                        <div class="info-item" style="background: white !important;">
+                        <div class="info-item">
                             <i class="fas fa-palette"></i>
                             <span>Cor: <strong><%= itemOferecido.cor || 'Não informada' %></strong></span>
                         </div>
-                        <div class="info-item" style="background: white !important;">
+                        <div class="info-item">
                             <i class="fas fa-snowflake"></i>
                             <span>Estação: <strong><%= itemOferecido.estacao || 'Todas' %></strong></span>
                         </div>
-                        <div class="info-item" style="background: white !important;">
+                        <div class="info-item">
                             <i class="fas fa-star"></i>
                             <span>Condição: <strong><%= itemOferecido.condicao %></strong></span>
                         </div>
@@ -131,7 +130,7 @@
             </div>
         </div>
 
-        <div class="troca-icon" style="background: white !important;">
+        <div class="troca-icon">
             <div class="exchange-arrow">
                 <i class="fas fa-exchange-alt"></i>
             </div>
@@ -149,9 +148,9 @@
                 </div>
             </div>
 
-            <div class="item-details" style="background: white !important;">
+            <div class="item-details">
                 <!-- FOTO DESTACADA -->
-                <div class="photo-section" style="background: white !important;">
+                <div class="photo-section">
                     <% if (imagemDesejado) { %>
                         <div class="item-photo-container">
                             <img src="<%= imagemDesejado.caminho_arquivo %>" 
@@ -169,8 +168,8 @@
                     <% } %>
                 </div>
                 
-                <div class="item-info" style="background: white !important;">
-                    <div class="info-row" style="background: white !important;">
+                <div class="item-info">
+                    <div class="info-row">
                         <i class="fas fa-tag"></i>
                         <div>
                             <strong class="item-name"><%= itemDesejado.peca %></strong>
@@ -178,20 +177,20 @@
                         </div>
                     </div>
                     
-                    <div class="info-grid" style="background: white !important;">
-                        <div class="info-item" style="background: white !important;">
+                    <div class="info-grid">
+                        <div class="info-item">
                             <i class="fas fa-ruler"></i>
                             <span>Tamanho: <strong><%= itemDesejado.tamanho %></strong></span>
                         </div>
-                        <div class="info-item" style="background: white !important;">
+                        <div class="info-item">
                             <i class="fas fa-palette"></i>
                             <span>Cor: <strong><%= itemDesejado.cor || 'Não informada' %></strong></span>
                         </div>
-                        <div class="info-item" style="background: white !important;">
+                        <div class="info-item">
                             <i class="fas fa-snowflake"></i>
                             <span>Estação: <strong><%= itemDesejado.estacao || 'Todas' %></strong></span>
                         </div>
-                        <div class="info-item" style="background: white !important;">
+                        <div class="info-item">
                             <i class="fas fa-star"></i>
                             <span>Condição: <strong><%= itemDesejado.condicao %></strong></span>
                         </div>
@@ -208,8 +207,8 @@
         </div>
     </div>
    
-    <div class="modal-actions-summary" style="background: white !important;">
-        <div class="actions-header" style="background: white !important;">
+    <div class="modal-actions-summary">
+        <div class="actions-header">
             <i class="fas fa-cogs"></i>
             <h4>Ações e Status da Troca</h4>
         </div>
@@ -218,14 +217,14 @@
         <% if (troca.status === 'Pendente') { %>
             <% if (isReceptor) { %>
                 <!-- RECEPTOR vê botões de Aceitar/Rejeitar -->
-                <div class="action-panel pending" style="background: white !important;">
+                <div class="action-panel pending">
                     <div class="action-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <div class="action-content" style="background: white !important;">
+                    <div class="action-content">
                         <h5>Proposta Recebida</h5>
                         <p><strong><%= proponenteUser.nome %></strong> quer trocar <strong>"<%= itemOferecido.peca %>"</strong> pelo seu <strong>"<%= itemDesejado.peca %>"</strong></p>
-                        <div class="action-buttons" style="background: white !important;">
+                        <div class="action-buttons">
                             <form method="POST" action="/trocas/aceitar/<%= troca.id %>">
                                 <button type="submit" class="btn-action btn-success">
                                     <i class="fas fa-check"></i> Aceitar Troca
@@ -241,15 +240,15 @@
                 </div>
             <% } else if (isProponente) { %>
                 <!-- PROPONENTE vê botão de Cancelar -->
-                <div class="action-panel pending" style="background: white !important;">
+                <div class="action-panel pending">
                     <div class="action-icon">
                         <i class="fas fa-paper-plane"></i>
                     </div>
-                    <div class="action-content" style="background: white !important;">
+                    <div class="action-content">
                         <h5>Proposta Enviada</h5>
                         <p>Você ofereceu <strong>"<%= itemOferecido.peca %>"</strong> para <strong><%= receptorUser.nome %></strong> em troca de <strong>"<%= itemDesejado.peca %>"</strong></p>
                         <p><em>Aguardando resposta de <%= receptorUser.nome %>...</em></p>
-                        <div class="action-buttons" style="background: white !important;">
+                        <div class="action-buttons">
                             <form method="POST" action="/trocas/cancelar/<%= troca.id %>">
                                 <button type="submit" class="btn-action btn-warning">
                                     <i class="fas fa-ban"></i> Cancelar Proposta
@@ -260,11 +259,11 @@
                 </div>
             <% } else { %>
                 <!-- CASO DE SEGURANCA: usuário não envolvido -->
-                <div class="action-panel historical" style="background: white !important;">
+                <div class="action-panel historical">
                     <div class="action-icon">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <div class="action-content" style="background: white !important;">
+                    <div class="action-content">
                         <h5>Acesso Restrito</h5>
                         <p>Você não tem permissão para visualizar esta troca.</p>
                     </div>
@@ -283,11 +282,11 @@
                 const itemQueOfereci = isProponente ? itemOferecido.peca : itemDesejado.peca;
             %>
            
-            <div class="action-panel accepted" style="background: white !important;">
+            <div class="action-panel accepted">
                 <div class="action-icon">
                     <i class="fas fa-handshake"></i>
                 </div>
-                <div class="action-content" style="background: white !important;">
+                <div class="action-content">
                     <h5>Troca Aceita!</h5>
                     <p>Ambos concordaram com a troca. Agora confirme que você recebeu o item.</p>
                     
@@ -296,8 +295,8 @@
                         <p><strong>Você enviou:</strong> <%= itemQueOfereci %></p>
                     </div>
                     
-                    <div class="confirmation-status" style="background: white !important;">
-                        <div class="user-confirmation <%= minhaConfirmacao ? 'confirmed' : 'pending' %>" style="background: white !important;">
+                    <div class="confirmation-status">
+                        <div class="user-confirmation <%= minhaConfirmacao ? 'confirmed' : 'pending' %>">
                             <div class="confirmation-icon">
                                 <i class="fas fa-<%= minhaConfirmacao ? 'check-circle' : 'clock' %>"></i>
                             </div>
@@ -314,7 +313,7 @@
                             <% } %>
                         </div>
                         
-                        <div class="user-confirmation <%= outraConfirmacao ? 'confirmed' : 'pending' %>" style="background: white !important;">
+                        <div class="user-confirmation <%= outraConfirmacao ? 'confirmed' : 'pending' %>">
                             <div class="confirmation-icon">
                                 <i class="fas fa-<%= outraConfirmacao ? 'check-circle' : 'clock' %>"></i>
                             </div>
@@ -328,11 +327,11 @@
             </div>
            
         <% } else if (troca.status === 'Finalizada') { %>
-            <div class="action-panel completed" style="background: white !important;">
+            <div class="action-panel completed">
                 <div class="action-icon">
                     <i class="fas fa-trophy"></i>
                 </div>
-                <div class="action-content" style="background: white !important;">
+                <div class="action-content">
                     <h5>Troca Concluída!</h5>
                     <p>Troca finalizada com sucesso em <strong><%= troca.dataFinalizacao ? new Date(troca.dataFinalizacao).toLocaleDateString('pt-BR') : 'Data Indisponível' %></strong></p>
                     <div class="success-message">
@@ -343,11 +342,11 @@
             </div>
        
         <% } else { %>
-            <div class="action-panel historical" style="background: white !important;">
+            <div class="action-panel historical">
                 <div class="action-icon">
                     <i class="fas fa-history"></i>
                 </div>
-                <div class="action-content" style="background: white !important;">
+                <div class="action-content">
                     <h5>Status: <%= troca.status %></h5>
                     <p>Esta proposta está no histórico de trocas.</p>
                 </div>
