@@ -1,123 +1,80 @@
-/* ==========================================================
-    ESTILOS ESPECÍFICOS DA TELA DE TROCAS (trocas.css)
-    SOLUÇÃO FINAL E COMPLETA: Fixação + Margem + Largura Corrigida
-    ========================================================== */
-
-/* ------------------------------------------------------------
-   0. CORREÇÃO DE TAMANHO DE FONTE DA SIDEBAR (Ajuste Agressivo)
-   ------------------------------------------------------------ */
-/* Força o tamanho da fonte no link (A) e em QUALQUER elemento de texto dentro dele (A * - abrangendo spans, divs, etc.) */
-.sidebar-menu a,
-.sidebar-menu a * { 
-    font-size: 17px !important; /* Tamanho do link/item */
-    font-weight: 500 !important;
-    line-height: 1.5 !important; /* Garante espaçamento legível */
-}
-
-/* Força o tamanho da fonte do título ou logo principal da sidebar */
-.sidebar-menu h2,
-.sidebar-menu h3 {
-    font-size: 19px !important; /* Tamanho do título */
-}
-
 :root {
-    --color-primary: #9370DB; 
-    --color-secondary: #7B68EE; 
+    --color-primary: #9370DB;
+    --color-secondary: #7B68EE;
     --color-background-soft: #f7f7f7;
     --color-light-blue: #e6f7ff;
-    --sidebar-width: 250px; 
+    --sidebar-width: 250px;
 }
-
-/* ------------------------------------------------------------
-   1. CORREÇÃO CRÍTICA: Sidebar Fixa (Garanta a Sidebar na Lateral)
-   ------------------------------------------------------------ */
+.sidebar-menu a,
+.sidebar-menu a * {
+    font-size: 17px !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+}
+.sidebar-menu h2,
+.sidebar-menu h3 {
+    font-size: 19px !important;
+}
 .sidebar-menu {
-    position: fixed !important; 
+    position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     height: 100vh !important;
     width: var(--sidebar-width) !important;
-    z-index: 2000 !important; 
-    overflow-y: auto !important; 
-    flex-shrink: 0 !important; 
-    /* Adicionando font-size aqui para forçar herança no container */
-    font-size: 16px !important; 
-    transition: transform 0.3s ease-in-out; /* Adiciona transição para animação mobile */
+    z-index: 2000 !important;
+    overflow-y: auto !important;
+    flex-shrink: 0 !important;
+    font-size: 16px !important;
+    transition: transform 0.3s ease-in-out;
 }
-
-/* ------------------------------------------------------------
-   2. CORREÇÃO CRÍTICA: Content-Area (Margem de Compensação + LARGURA)
-   ------------------------------------------------------------ */
 .content-area {
-    /* Força o conteúdo a começar 250px à direita (depois da sidebar fixa) */
-    margin-left: var(--sidebar-width) !important; 
-    
-    /* FORÇA A LARGURA: 100% da tela - largura da sidebar */
+    margin-left: var(--sidebar-width) !important;
     width: calc(100% - var(--sidebar-width)) !important;
-    
-    /* Anula conflitos de Flexbox/Posicionamento */
-    position: relative !important; 
+    position: relative !important;
     float: none !important;
     flex-grow: 0 !important;
     min-height: 100vh !important;
-    overflow-y: visible !important; 
-    
-    /* Estilos Visuais */
-    padding: 30px; 
+    overflow-y: visible !important;
+    padding: 30px;
     background-color: var(--color-background-soft);
 }
-
-/* ------------------------------------------------------------
-   3. CORREÇÃO: Rolagem e Margens do Body
-   ------------------------------------------------------------ */
 body {
     background-color: var(--color-light-blue);
     margin: 0 !important;
     padding: 0 !important;
-    overflow-y: scroll !important; 
-    overflow-x: hidden !important; 
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
 }
-
-/* Garante que o container pai não interfira */
 .app-layout {
-    display: block !important; /* Desabilita o Flexbox que está quebrando */
+    display: block !important;
     min-height: 100vh !important;
     width: 100% !important;
     position: relative !important;
     margin-left: 0 !important;
 }
-
-
-.content-area-pad { 
+.content-area-pad {
     padding: 0 20px;
     max-width: 1400px;
     margin: 0 auto;
 }
-
 .page-title {
     margin-bottom: 25px;
     font-size: 1.8rem;
     color: #333;
 }
-
-/* ----------------------------------------------------------
-    Navegação por Abas (Tabs) 
-    ---------------------------------------------------------- */
-
 .tabs-navigation {
     display: flex;
-    gap: 20px; 
+    gap: 20px;
     border-bottom: 2px solid #ddd;
-    margin-bottom: 30px; 
-    overflow-x: auto; 
+    margin-bottom: 30px;
+    overflow-x: auto;
 }
-
 .tab-button {
     background-color: transparent;
     border: none;
     border-bottom: 3px solid transparent;
-    padding: 10px 0; 
-    font-size: 17px; 
+    padding: 10px 0;
+    font-size: 17px;
     font-weight: 500;
     color: #888;
     cursor: pointer;
@@ -128,47 +85,35 @@ body {
     letter-spacing: 0.5px;
     flex-shrink: 0;
 }
-
 .tab-button:hover { color: var(--color-secondary); }
-
 .tab-button.active {
-    color: var(--color-primary); 
+    color: var(--color-primary);
     border-bottom-color: var(--color-primary);
     font-weight: 700;
 }
-
 .tab-button .badge {
-    background-color: var(--color-primary); 
+    background-color: var(--color-primary);
     color: white;
-    padding: 3px 8px; 
+    padding: 3px 8px;
     border-radius: 12px;
-    font-size: 11px; 
+    font-size: 11px;
     margin-left: 8px;
 }
-
-/* Esconde as abas por padrão (JS controla a exibição) */
 .tab-pane {
-    display: none; 
+    display: none;
     flex-direction: column;
-    gap: 15px; 
+    gap: 15px;
     width: 100%;
 }
-
 .tab-pane.active-tab-pane {
     display: flex;
 }
-
-/* ----------------------------------------------------------
-    Lista de Cards (Flexbox Colunar)
-    ---------------------------------------------------------- */
-
 .proposta-list {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     gap: 15px;
     margin-top: 15px;
 }
-
 .troca-list-card {
     display: flex;
     justify-content: space-between;
@@ -177,36 +122,29 @@ body {
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-left: 5px solid #ddd; 
-    min-height: 80px; 
+    border-left: 5px solid #ddd;
+    min-height: 80px;
     transition: all 0.2s;
     flex-wrap: nowrap;
 }
-
 .troca-list-card:hover {
-    transform: translateY(-2px); 
+    transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
-
-/* Cores da borda lateral conforme o status */
-.troca-list-card.status-pendente { border-left-color: #ffc107; } 
-.troca-list-card.status-aceita { border-left-color: #007bff; } 
-.troca-list-card.status-finalizada { border-left-color: var(--color-primary); } 
-.troca-list-card.status-cancelada, 
-.troca-list-card.status-rejeitada { border-left-color: #dc3545; } 
-
-
-/* Conteúdo do Card */
+.troca-list-card.status-pendente { border-left-color: #ffc107; }
+.troca-list-card.status-aceita { border-left-color: #007bff; }
+.troca-list-card.status-finalizada { border-left-color: var(--color-primary); }
+.troca-list-card.status-cancelada,
+.troca-list-card.status-rejeitada { border-left-color: #dc3545; }
 .card-info {
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-grow: 1; 
-    min-width: 0; 
+    flex-grow: 1;
+    min-width: 0;
 }
-
 .item-thumb-placeholder {
-    width: 60px; 
+    width: 60px;
     height: 60px;
     background-color: #f0f0f0;
     border-radius: 6px;
@@ -214,190 +152,157 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px; 
+    font-size: 22px;
     color: #999;
 }
-
 .text-content {
-    min-width: 0; 
+    min-width: 0;
 }
-
 .item-title {
-    font-size: 17px; 
+    font-size: 17px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%; 
+    max-width: 100%;
 }
-
 .item-description {
-    font-size: 13px; 
+    font-size: 13px;
 }
-
-/* Ações e Status do Card */
 .card-actions {
     display: flex;
-    flex-direction: row; 
+    flex-direction: row;
     align-items: center;
-    gap: 15px; 
+    gap: 15px;
     flex-shrink: 0;
-    padding-left: 10px; 
+    padding-left: 10px;
 }
-
 .action-buttons {
     display: flex;
-    gap: 5px; 
+    gap: 5px;
     align-items: center;
 }
-
 .current-status {
     font-size: 11px;
-    font-weight: 700; 
-    padding: 5px 10px; 
-    border-radius: 20px; 
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 20px;
     text-transform: uppercase;
     flex-shrink: 0;
     letter-spacing: 0.5px;
 }
-
-/* ------------------------------------------------- */
-/* CORES DOS STATUS E BOTÕES */
-/* ------------------------------------------------- */
-
-.status-label-pendente { background-color: #fff3cd; color: #856404; } 
-.status-label-acao-pendente { background-color: #ffc107; color: #343a40; } 
-.status-label-aguardando-outro { background-color: #d1ecf1; color: #0c5460; } 
-.status-label-finalizada { background-color: #d4edda; color: #155724; } 
-.status-label-cancelada, .status-label-rejeitada { background-color: #f8d7da; color: #721c24; } 
-
+.status-label-pendente { background-color: #fff3cd; color: #856404; }
+.status-label-acao-pendente { background-color: #ffc107; color: #343a40; }
+.status-label-aguardando-outro { background-color: #d1ecf1; color: #0c5460; }
+.status-label-finalizada { background-color: #d4edda; color: #155724; }
+.status-label-cancelada, .status-label-rejeitada { background-color: #f8d7da; color: #721c24; }
 .btn-detalhes, .btn-delete, .action-buttons .btn-action {
-    padding: 7px 12px; 
-    font-size: 13px; 
+    padding: 7px 12px;
+    font-size: 13px;
     font-weight: 700;
-    border-radius: 4px; 
+    border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.2s;
     text-transform: uppercase;
     display: inline-block;
 }
-
 .btn-detalhes { background-color: #e0e0e0; color: #333; border: 1px solid #ccc; }
 .btn-detalhes:hover { background-color: #d0d0d0; }
-
 .btn-delete { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 .btn-delete:hover { background-color: #f5b7bd; }
-
 .btn-success { background-color: #28a745; color: white; border: 1px solid #218838; }
 .btn-danger { background-color: #dc3545; color: white; border: 1px solid #c82333; }
 .btn-warning { background-color: #ffc107; color: #333; border: 1px solid #e0a800; }
 .btn-primary { background-color: var(--color-primary); color: white; border: 1px solid #7B68EE; }
-
 .empty-state {
-    padding: 50px; 
+    padding: 50px;
     text-align: center;
     background-color: white;
     border-radius: 8px;
     margin-top: 20px;
-    border: 2px dashed #ddd; 
+    border: 2px dashed #ddd;
     color: #777;
 }
 .empty-state i {
-    font-size: 3rem; 
+    font-size: 3rem;
     color: var(--color-primary);
 }
-
-
-/* ==========================================================
-    ESTILOS DO MODAL (trocaModal)
-    ========================================================== */
-
 .modal-overlay {
-    position: fixed; 
+    position: fixed;
     z-index: 2000;
     left: 0;
     top: 0;
-    width: 100%; 
+    width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); 
+    background-color: rgba(0, 0, 0, 0.7);
     justify-content: center;
     align-items: center;
     padding: 20px;
     display: flex;
 }
-
 .modal-content {
     background-color: #fefefe;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    width: 95%; 
-    max-width: 950px; 
+    width: 95%;
+    max-width: 950px;
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
 }
-
 .close-button {
     color: #aaa;
     font-size: 28px;
     font-weight: bold;
     position: absolute;
     top: 10px;
-    right: 25px; 
+    right: 25px;
     cursor: pointer;
     line-height: 1;
 }
 .close-button:hover {
     color: var(--color-primary);
 }
-
 .modal-title {
     border-bottom: 2px solid #eee;
     padding-bottom: 15px;
-    margin-bottom: 25px; 
+    margin-bottom: 25px;
     font-size: 1.8rem;
     color: var(--color-primary);
 }
-
 .items-comparison {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 40px; 
+    gap: 40px;
     margin-bottom: 30px;
 }
-
 .item-card {
     flex: 1;
-    padding: 25px; 
+    padding: 25px;
     border-radius: 8px;
     background-color: #fcfcfc;
     border: 1px solid #e0e0e0;
 }
-
 .item-card.item-oferecido { border-left: 5px solid #ffc107; }
 .item-card.item-desejado { border-left: 5px solid var(--color-primary); }
-
 .troca-icon {
     align-self: center;
     font-size: 32px;
     color: var(--color-primary);
-    padding-top: 50px; 
-    transform: rotate(90deg); 
+    padding-top: 50px;
+    transform: rotate(90deg);
 }
-
-/* Detalhes do Item e Status do Modal */
 .item-details .item-photo-placeholder-full {
     width: 100%; height: 200px; background-color: #f0f0f0; color: #999;
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; border-radius: 6px; margin-top: 15px; font-size: 1rem;
 }
-
 .finalization-status-box {
     margin-top: 25px;
-    padding: 20px; 
-    background-color: #f7f5ff; 
+    padding: 20px;
+    background-color: #f7f5ff;
     border: 1px solid #dcdcdc;
     border-radius: 8px;
     box-shadow: inset 0 0 5px rgba(147, 112, 219, 0.1);
@@ -407,49 +312,34 @@ body {
     margin-top: 0; margin-bottom: 10px; color: var(--color-primary);
     border-bottom: 1px solid #eee; padding-bottom: 5px;
 }
-
-/* ----------------------------------------------------------
-    Responsividade - AJUSTE FINAL PARA MOBILE (Overlay)
-    ---------------------------------------------------------- */
-
 @media (max-width: 768px) {
-    
-    /* Sidebar mobile: FIXA, 80% da largura, ESCONDIDA */
     .sidebar-menu {
-        position: fixed !important; 
+        position: fixed !important;
         top: 0 !important;
         left: 0 !important;
-        width: 80% !important; /* Largura da sidebar no mobile */
+        width: 80% !important;
         height: 100vh !important;
-        transform: translateX(-100%); /* Esconde a sidebar fora da tela */
-        z-index: 3000 !important; /* Z-index maior para sobrepor tudo */
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3); /* Adiciona sombra para destaque */
+        transform: translateX(-100%);
+        z-index: 3000 !important;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
     }
-
-    /* Classe que deve ser adicionada via JS para abrir a sidebar */
     .sidebar-menu.is-open {
         transform: translateX(0) !important;
     }
-    
-    /* Content-Area mobile: 100% da largura, sem margem */
     .content-area {
-        margin-left: 0 !important; 
+        margin-left: 0 !important;
         width: 100% !important;
         padding: 15px 10px;
     }
-
-    /* Elementos Layout */
     body {
         margin-left: 0 !important;
     }
     .app-layout {
-        display: block !important; 
+        display: block !important;
     }
     .content-area-pad {
         padding: 0 5px;
     }
-    
-    /* Ajuste do Modal para telas pequenas */
     .modal-overlay {
         width: 100%;
     }
@@ -459,27 +349,22 @@ body {
     }
     .troca-icon {
         padding: 10px 0;
-        transform: rotate(0deg); 
+        transform: rotate(0deg);
     }
-    
-    /* Layout dos Cards de Lista no Mobile */
     .troca-list-card {
         flex-direction: column;
         align-items: flex-start;
     }
-
     .card-info {
         width: 100%;
         margin-bottom: 10px;
     }
-    
     .card-actions {
         width: 100%;
         margin-top: 10px;
-        padding-left: 0; 
+        padding-left: 0;
         justify-content: space-between;
     }
-    
     .action-buttons {
         justify-content: flex-end;
     }

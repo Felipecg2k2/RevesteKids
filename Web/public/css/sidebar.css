@@ -1,39 +1,24 @@
-/* ========================================================== */
-/* ESTILOS DE LAYOUT PRINCIPAL (Para feed.ejs, roupas.ejs, etc.) */
-/* ========================================================== */
-
-/* Container principal que cria a estrutura de duas colunas */
 .app-layout {
     display: flex;
-    min-height: 100vh; /* Garante que o menu lateral tenha altura total */
-    background-color: #f8f8f8; 
-    margin: 0; /* Limpa margens */
-    padding: 0; /* Limpa paddings */
+    min-height: 100vh;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
 }
-
-/* Área de Conteúdo (ocupa o resto do espaço ao lado da sidebar) */
 .content-area {
-    flex-grow: 1; 
+    flex-grow: 1;
     padding: 20px;
-    /* max-width pode ser ajustado se necessário, mas flex-grow 1 é o suficiente */
 }
-
-/* ========================================================== */
-/* ESTILOS DA SIDEBAR (Conforme image_55be3d.png) */
-/* ========================================================== */
-
 .sidebar-menu {
-    width: 250px; 
-    background-color: #8446abe8; /* Roxo principal */
+    width: 250px;
+    background-color: #8446abe8;
     color: white;
     padding-top: 20px;
-    flex-shrink: 0; /* Impede que a barra lateral encolha */
+    flex-shrink: 0;
 }
-
 .menu-header {
     padding: 0 20px 10px 20px;
 }
-
 .menu-toggle {
     background: none;
     border: none;
@@ -41,11 +26,9 @@
     font-size: 24px;
     cursor: pointer;
 }
-
 .menu-links {
     padding-top: 10px;
 }
-
 .sidebar-item {
     display: flex;
     align-items: center;
@@ -55,40 +38,29 @@
     color: white;
     text-decoration: none;
     font-weight: 500;
-    transition: background-color 0.2s, color 0.2s; /* Adicionei 'color' para transição suave do texto/ícone */
+    transition: background-color 0.2s, color 0.2s;
 }
-
-/* Estado de HOVER (Mouse sobre o item) */
 .sidebar-item:hover {
     background-color: #D2FBF4;
-    color: #8446AB; /* Texto roxo */
+    color: #8446AB;
     border-radius: 0 50px 50px 0;
     margin-right: 10px;
 }
-
-/* Estado ATIVO (Item da página atual) */
 .sidebar-item.active {
     background-color: #D2FBF4;
-    color: #8446AB; /* Texto roxo */
+    color: #8446AB;
 }
-
-/* Estilização do Contêiner do Ícone */
 .sidebar-item .icon {
     margin-right: 15px;
-    display: flex; /* Garante o alinhamento central do SVG */
+    display: flex;
     align-items: center;
-    /* Remover 'font-size' e usar dimensões fixas para o SVG */
 }
-
-/* Estilização dos Ícones SVG (Default: Branco) */
 .sidebar-item .icon svg {
-    width: 20px; /* Tamanho fixo para ícone minimalista */
+    width: 20px;
     height: 20px;
-    stroke: currentColor; /* Cor do traço herda o 'color' do .sidebar-item (branco) */
+    stroke: currentColor;
 }
-
-/* Estilização dos Ícones SVG em HOVER e ATIVO (Roxo) */
 .sidebar-item:hover .icon svg,
 .sidebar-item.active .icon svg {
-    stroke: #8446AB; /* Força o ícone a ser roxo */
+    stroke: #8446AB;
 }
