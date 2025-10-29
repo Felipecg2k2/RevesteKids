@@ -224,7 +224,7 @@ function fecharImagemExpandida() {
 }
 
 // =======================================================
-// FUNÇÕES EXISTENTES (mantidas)
+// FUNÇÕES EXISTENTES 
 // =======================================================
 
 function fecharModalDetalhes() {
@@ -238,7 +238,7 @@ function iniciarTroca(itemRecebidoId) {
     window.location.href = `/trocas/propor/${itemRecebidoId}`;
 }
 
-// Fechar modal ao clicar fora (mantido)
+// Fechar modal ao clicar fora 
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('itemDetalhesModal');
     if (modal) {

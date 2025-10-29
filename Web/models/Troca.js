@@ -1,8 +1,5 @@
 import { DataTypes } from 'sequelize';
 import connection from '../config/sequelize-config.js';
-// REMOVIDO: import Usuario from './Usuario.js';
-// REMOVIDO: import Item from './Item.js';
-// Os Models serão acessados via 'models' dentro da função associate.
 
 const Troca = connection.define('Troca', {
     id: {
@@ -74,11 +71,6 @@ Troca.associate = function(models) {
         onDelete: 'SET NULL', 
         onUpdate: 'CASCADE'
     });
-    
-    // Associações inversas (do lado do Item ou Usuario) devem ser definidas em seus respectivos models:
-    // Ex: models.Usuario.hasMany(Troca, { as: 'trocasIniciadas', foreignKey: 'ProponenteId' });
-    // Ex: models.Item.hasOne(Troca, { as: 'trocaOfertada', foreignKey: 'ItemOferecidoId' });
-    // Certifique-se de que essas associações inversas também estejam em Item.associate e Usuario.associate.
 };
 
 export default Troca;

@@ -1,7 +1,5 @@
     import { DataTypes } from "sequelize";
     import connection from "../config/sequelize-config.js";
-    // REMOVIDO: import Item from "./Item.js"; 
-    // O Model 'Item' será acessado via 'models' dentro da função associate.
 
     const Imagem = connection.define('imagens', {
         id: {
@@ -27,7 +25,6 @@
         defaultValue: 0,
         comment: 'Posição de exibição da imagem'
     },
-        // O campo ItemId será criado e usado pelo Sequelize
     }, {
         tableName: 'imagens',
         freezeTableName: true,

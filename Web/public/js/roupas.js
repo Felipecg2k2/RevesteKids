@@ -1,5 +1,3 @@
-// /js/roupas.js - VERSÃO COMPLETA CORRIGIDA (DRAG & DROP NO CADASTRO E EDIÇÃO)
-
 document.addEventListener('DOMContentLoaded', () => {
     // ==============================================================================
     // 1. VARIÁVEIS GLOBAIS
@@ -33,19 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.style.display = 'block';
             console.log('📱 Modal aberto:', modal.id);
         } else {
-            console.error('❌ Tentativa de abrir modal inexistente');
+            console.error('Tentativa de abrir modal inexistente');
         }
     };
 
     const fecharModal = (modal) => {
         if (modal) {
             modal.style.display = 'none';
-            console.log('📱 Modal fechado:', modal.id);
+            console.log(' Modal fechado:', modal.id);
         }
     };
 
     const resetarFormulario = () => {
-        console.log('🔄 Resetando formulário...');
+        console.log(' Resetando formulário...');
         
         if (formRoupa) {
             formRoupa.reset();
@@ -72,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sortable = null;
         }
         
-        console.log('✅ Formulário resetado para cadastro');
+        console.log(' Formulário resetado para cadastro');
     };
 
     // ==============================================================================
@@ -89,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgId = container.getAttribute('data-imagem-id');
             const caminho = container.getAttribute('data-caminho-arquivo');
 
-            // 🎯 CAPTURA TANTO IMAGENS EXISTENTES QUANTO NOVAS
+            //  CAPTURA TANTO IMAGENS EXISTENTES QUANTO NOVAS
             if (imgId) {
                 ordem.push({ id: imgId, caminho_arquivo: caminho });
             } else if (caminho) {
@@ -97,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ordem.push({ caminho_arquivo: caminho });
             }
 
-            // 🎯 LÓGICA CORRIGIDA - APLICA ESTILO DE CAPA NA PRIMEIRA IMAGEM
+            //  LÓGICA CORRIGIDA - APLICA ESTILO DE CAPA NA PRIMEIRA IMAGEM
             const isCapa = index === 0;
             
             // Encontra os elementos dentro do container
@@ -110,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ordemBadge.textContent = index + 1;
             }
 
-            // 🎯 APLICA ESTILOS VISUAIS DIFERENCIADOS
+            //  APLICA ESTILOS VISUAIS DIFERENCIADOS
             if (isCapa) {
                 // ESTILO PARA CAPA
                 container.style.border = '3px solid #9370DB';
@@ -119,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.style.transform = 'scale(1.05)';
                 
                 if (label) {
-                    label.textContent = '🖼️ CAPA';
+                    label.textContent = ' CAPA';
                     label.style.background = '#ffffff';
                     label.style.color = '#9370DB';
                     label.style.fontWeight = 'bold';
@@ -174,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fotosExistentesContainer.style.display = totalImagens > 0 ? 'block' : 'none';
         }
 
-        console.log(`🔄 Ordem atualizada: ${ordem.length} imagens | Capa: ${ordem[0]?.id || 'Nenhuma'}`);
+        console.log(` Ordem atualizada: ${ordem.length} imagens | Capa: ${ordem[0]?.id || 'Nenhuma'}`);
     };
 
     // ==============================================================================
@@ -191,13 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 animation: 150,
                 ghostClass: 'sortable-ghost',
                 onEnd: function() {
-                    console.log('🔄 Imagem reposicionada - atualizando ordem...');
+                    console.log(' Imagem reposicionada - atualizando ordem...');
                     atualizarOrdemImagens();
                 }
             });
-            console.log('✅ Sortable.js inicializado para edição');
+            console.log(' Sortable.js inicializado para edição');
         } catch (error) {
-            console.error('❌ Erro no Sortable:', error);
+            console.error(' Erro no Sortable:', error);
         }
     };
 
@@ -208,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inicializarDragDropCadastro = () => {
         if (!galeriaEdicao || typeof Sortable === 'undefined') return;
         
-        console.log('🔄 Inicializando drag & drop para cadastro...');
+        console.log(' Inicializando drag & drop para cadastro...');
         
         try {
             if (sortable) {
@@ -221,14 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 chosenClass: 'sortable-chosen',
                 dragClass: 'sortable-drag',
                 onEnd: function() {
-                    console.log('🎯 Imagem reposicionada no cadastro - atualizando ordem...');
+                    console.log(' Imagem reposicionada no cadastro - atualizando ordem...');
                     atualizarOrdemImagens();
                 }
             });
             
-            console.log('✅ Drag & drop habilitado para cadastro');
+            console.log(' Drag & drop habilitado para cadastro');
         } catch (error) {
-            console.error('❌ Erro ao inicializar drag & drop:', error);
+            console.error(' Erro ao inicializar drag & drop:', error);
         }
     };
 
@@ -250,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const slotsDisponiveis = 5 - totalAtual;
 
             if (files.length > slotsDisponiveis) {
-                alert(`⚠️ Limite: ${slotsDisponiveis} foto(s) disponível(eis)`);
+                alert(` Limite: ${slotsDisponiveis} foto(s) disponível(eis)`);
                 return;
             }
 
@@ -282,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 reader.readAsDataURL(file);
             });
 
-            // 🎯 ATUALIZA ORDEM E INICIALIZA DRAG & DROP APÓS UPLOAD
+            //  ATUALIZA ORDEM E INICIALIZA DRAG & DROP APÓS UPLOAD
             setTimeout(() => {
                 const isEditing = itemIdInput.value !== '';
                 if (isEditing) {
@@ -300,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==============================================================================
 
     const popularModalEdicao = (item) => {
-        console.log('📝 Editando item:', item.id);
+        console.log(' Editando item:', item.id);
 
         // Preencher campos do formulário
         if (itemIdInput) itemIdInput.value = item.id;
@@ -321,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (imagensUploadInput) imagensUploadInput.value = '';
 
             const imagens = item.imagens || [];
-            console.log(`🖼️ Carregando ${imagens.length} imagens`);
+            console.log(` Carregando ${imagens.length} imagens`);
 
             if (imagens.length > 0) {
                 fotosExistentesContainer.style.display = 'block';
@@ -338,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     container.innerHTML = `
                         <div class="ordem-badge">${index + 1}</div>
                         <img src="${src}" alt="${item.peca}">
-                        <span class="foto-label">${index === 0 ? '🖼️ CAPA' : `Pos ${index + 1}`}</span>
+                        <span class="foto-label">${index === 0 ? ' CAPA' : `Pos ${index + 1}`}</span>
                         <button type="button" class="remover-foto-btn" title="Remover">×</button>
                     `;
 
@@ -359,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     galeriaEdicao.appendChild(container);
                 });
 
-                // 🎯 INICIALIZAR SORTABLE E ATUALIZAR ORDEM
+                //  INICIALIZAR SORTABLE E ATUALIZAR ORDEM
                 inicializarSortable();
                 setTimeout(atualizarOrdemImagens, 100);
             } else {
@@ -376,23 +374,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Abrir modal de cadastro
     if (btnAbrirModalCadastro) {
-        console.log('✅ Botão "Adicionar Roupa" encontrado, configurando evento...');
+        console.log(' Botão "Adicionar Roupa" encontrado, configurando evento...');
         
         btnAbrirModalCadastro.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('🎯 Botão "Adicionar Roupa" clicado!');
+            console.log(' Botão "Adicionar Roupa" clicado!');
             
             resetarFormulario();
             abrirModal(modalCadastro);
             
-            // 🎯 INICIALIZA DRAG & DROP APÓS ABRIR O MODAL (PARA CADASTRO)
+            //  INICIALIZA DRAG & DROP APÓS ABRIR O MODAL (PARA CADASTRO)
             setTimeout(() => {
                 inicializarDragDropCadastro();
-                console.log('🎯 Modal de cadastro pronto com drag & drop');
+                console.log(' Modal de cadastro pronto com drag & drop');
             }, 100);
         });
     } else {
-        console.error('❌ Botão "Adicionar Roupa" NÃO encontrado no DOM!');
+        console.error(' Botão "Adicionar Roupa" NÃO encontrado no DOM!');
     }
 
     // Fechar modais
@@ -425,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     popularModalEdicao(JSON.parse(itemData));
                 } catch (error) {
-                    console.error('❌ Erro ao carregar item:', error);
+                    console.error(' Erro ao carregar item:', error);
                 }
             }
         }
@@ -449,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     abrirModal(modalGaleria);
                 } catch (error) {
-                    console.error('❌ Erro ao carregar galeria:', error);
+                    console.error(' Erro ao carregar galeria:', error);
                 }
             }
         }
@@ -460,24 +458,24 @@ document.addEventListener('DOMContentLoaded', () => {
         formRoupa.addEventListener('submit', (e) => {
             const isEditing = itemIdInput.value !== '';
             
-            // 🎯 GARANTIR QUE A ORDEM ESTÁ ATUALIZADA (PARA CRIAÇÃO TAMBÉM)
+            //  GARANTIR QUE A ORDEM ESTÁ ATUALIZADA (PARA CRIAÇÃO TAMBÉM)
             atualizarOrdemImagens();
 
             const totalImagens = galeriaEdicao ? galeriaEdicao.children.length : 0;
             
             if (totalImagens === 0) {
                 e.preventDefault();
-                alert('❌ Adicione pelo menos uma foto');
+                alert(' Adicione pelo menos uma foto');
                 return;
             }
 
             if (totalImagens > 5) {
                 e.preventDefault();
-                alert('❌ Máximo de 5 imagens');
+                alert(' Máximo de 5 imagens');
                 return;
             }
 
-            console.log('✅ Enviando formulário com ordem:', JSON.parse(fotosReordenadasInput.value));
+            console.log(' Enviando formulário com ordem:', JSON.parse(fotosReordenadasInput.value));
         });
     }
 
@@ -486,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==============================================================================
 
     configurarUpload();
-    console.log('✅ Sistema de roupas carregado');
+    console.log(' Sistema de roupas carregado');
 
     // Filtros ativos
     const urlParams = new URLSearchParams(window.location.search);

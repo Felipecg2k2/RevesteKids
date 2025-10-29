@@ -1,5 +1,3 @@
-// Arquivo: /js/trocas.js
-
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- Referências do DOM ---
@@ -34,11 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (activeButton && activePane) {
             activeButton.classList.add('active');
-            
-            // O CSS .proposta-list é um grid, então setamos display: grid.
-            // Se o painel for apenas para mensagens vazias, 'flex' também funciona.
             activePane.style.display = 'grid'; 
-            
             localStorage.setItem('activeTab', targetTabId);
         }
     };

@@ -1,15 +1,13 @@
-import { DataTypes } from "sequelize"; // CORRIGIDO: Usando DataTypes
+import { DataTypes } from "sequelize";
 import connection from "../config/sequelize-config.js";
 
-// Não importamos Item ou Troca aqui para evitar dependência circular.
-// Eles serão passados via função associate.
 
 const Usuario = connection.define('usuarios', {
     // ==========================================================
     // 1. IDENTIFICAÇÃO BÁSICA
     // ==========================================================
     nome: {
-        type: DataTypes.STRING, // CORRIGIDO: Usando DataTypes
+        type: DataTypes.STRING,
         allowNull: false
     },
     sobrenome: {
@@ -65,8 +63,8 @@ const Usuario = connection.define('usuarios', {
     // 4. METADATA
     // ==========================================================
 }, {
-    tableName: 'usuarios', // Adicionando tableName para consistência
-    freezeTableName: true, // Impedindo pluralização indesejada (opcional)
+    tableName: 'usuarios', 
+    freezeTableName: true, 
     timestamps: true
 });
 
