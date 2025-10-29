@@ -2,11 +2,9 @@
     --color-primary: #9370DB;
     --color-secondary: #7B68EE;
     --color-background-soft: #f7f7f7;
-    --color-light-blue: #e6f7ff;
     --sidebar-width: 250px;
 }
 
-/* USAR O MESMO ESTILO DA TELA DE PERFIL QUE FUNCIONA */
 .sidebar-menu {
     position: fixed !important;
     top: 0 !important;
@@ -15,7 +13,6 @@
     width: var(--sidebar-width) !important;
     z-index: 2000 !important;
     overflow-y: auto !important;
-    flex-shrink: 0 !important;
 }
 
 .app-layout {
@@ -29,11 +26,7 @@
     position: absolute !important;
     top: 0 !important;
     left: var(--sidebar-width) !important;
-    margin-left: 0 !important;
-    margin-top: 0 !important;
     width: calc(100% - var(--sidebar-width)) !important;
-    float: none !important;
-    flex-grow: 0 !important;
     min-height: 100vh !important;
     padding: 30px;
     background-color: #f7f7f7 !important;
@@ -55,12 +48,10 @@ body {
     overflow-x: hidden !important;
 }
 
-/* SEUS ESTILOS ESPECÍFICOS DA PÁGINA DE TROCAS */
 .page-title {
     margin-bottom: 25px;
     font-size: 1.8rem;
     color: #333;
-    text-align: left;
 }
 
 .tabs-navigation {
@@ -77,14 +68,12 @@ body {
     border-bottom: 3px solid transparent;
     padding: 10px 0;
     font-size: 17px;
-    font-weight: 500;
     color: #888;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     display: flex;
     align-items: center;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
     flex-shrink: 0;
 }
 
@@ -104,20 +93,8 @@ body {
     margin-left: 8px;
 }
 
-.tab-content-area {
-    width: 100%;
-}
-
-.tab-pane {
-    display: none;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
-}
-
-.tab-pane.active-tab-pane {
-    display: flex;
-}
+.tab-pane { display: none; flex-direction: column; gap: 15px; width: 100%; }
+.tab-pane.active-tab-pane { display: flex; }
 
 .proposta-list {
     display: flex;
@@ -138,7 +115,6 @@ body {
     border-left: 5px solid #ddd;
     min-height: 80px;
     transition: all 0.2s;
-    flex-wrap: nowrap;
     gap: 10px;
     width: 100%;
     box-sizing: border-box;
@@ -177,26 +153,9 @@ body {
     color: #999;
 }
 
-.text-content {
-    min-width: 0;
-    flex: 1;
-}
-
-.item-title {
-    font-size: 17px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-.item-description {
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 250px;
-}
+.text-content { min-width: 0; flex: 1; }
+.item-title { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.item-description { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
 
 .card-actions {
     display: flex;
@@ -207,12 +166,7 @@ body {
     padding-left: 5px;
 }
 
-.action-buttons {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    flex-wrap: wrap;
-}
+.action-buttons { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
 
 .current-status {
     font-size: 11px;
@@ -221,8 +175,6 @@ body {
     border-radius: 20px;
     text-transform: uppercase;
     flex-shrink: 0;
-    letter-spacing: 0.5px;
-    max-width: 150px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -268,11 +220,6 @@ body {
     box-sizing: border-box;
 }
 
-.empty-state i {
-    font-size: 3rem;
-    color: var(--color-primary);
-}
-
 .modal-overlay {
     position: fixed;
     z-index: 2000;
@@ -310,22 +257,12 @@ body {
     line-height: 1;
 }
 
-.close-button:hover {
-    color: var(--color-primary);
-}
-
-.modal-title {
-    border-bottom: 2px solid #eee;
-    padding-bottom: 15px;
-    margin-bottom: 25px;
-    font-size: 1.8rem;
-    color: var(--color-primary);
-}
+.close-button:hover { color: var(--color-primary); }
 
 .items-comparison {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* CORRIGIDO: center em vez de flex-start */
+    align-items: center;
     gap: 40px;
     margin-bottom: 30px;
 }
@@ -341,7 +278,6 @@ body {
 .item-card.item-oferecido { border-left: 5px solid #ffc107; }
 .item-card.item-desejado { border-left: 5px solid var(--color-primary); }
 
-/* ÍCONE DE TROCAS CENTRALIZADO */
 .troca-icon {
     display: flex;
     justify-content: center;
@@ -355,105 +291,26 @@ body {
     min-height: 200px;
 }
 
-.item-details .item-photo-placeholder-full {
-    width: 100%; 
-    height: 200px; 
-    background-color: #f0f0f0; 
-    color: #999;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center;
-    justify-content: center; 
-    border-radius: 6px; 
-    margin-top: 15px; 
-    font-size: 1rem;
-}
-
-.finalization-status-box {
-    margin-top: 25px;
-    padding: 20px;
-    background-color: #f7f5ff;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    box-shadow: inset 0 0 5px rgba(147, 112, 219, 0.1);
-    text-align: left;
-}
-
-.finalization-status-box h4 {
-    margin-top: 0; 
-    margin-bottom: 10px; 
-    color: var(--color-primary);
-    border-bottom: 1px solid #eee; 
-    padding-bottom: 5px;
-}
-
-/* MOBILE */
 @media (max-width: 768px) {
     .content-area {
         position: relative !important;
         left: auto !important;
-        margin-left: 0 !important;
         width: 100% !important;
         padding: 15px 10px;
     }
 
     .sidebar-menu {
         position: relative !important;
-        top: auto !important;
-        left: auto !important;
         width: 100% !important;
         height: auto !important;
         z-index: auto !important;
     }
 
-    .app-layout {
-        display: block !important;
-    }
-
-    .content-area-pad {
-        padding: 0 10px;
-        justify-content: flex-start;
-        max-width: none;
-    }
-
-    .items-comparison {
-        flex-direction: column;
-        gap: 20px;
-        align-items: center;
-    }
-
-    .troca-icon {
-        padding: 20px 0;
-        transform: rotate(0deg);
-        margin: 0 auto;
-        min-height: auto;
-    }
-
-    .troca-list-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .card-info {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .card-actions {
-        width: 100%;
-        margin-top: 10px;
-        padding-left: 0;
-        justify-content: space-between;
-        gap: 8px;
-    }
-
-    .action-buttons {
-        justify-content: flex-end;
-        width: 100%;
-    }
-    
-    .item-description {
-        max-width: 100%;
-    }
+    .items-comparison { flex-direction: column; gap: 20px; }
+    .troca-icon { transform: rotate(0deg); margin: 0 auto; min-height: auto; padding: 20px 0; }
+    .troca-list-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .card-info { width: 100%; margin-bottom: 10px; }
+    .card-actions { width: 100%; margin-top: 10px; padding-left: 0; justify-content: space-between; gap: 8px; }
+    .action-buttons { justify-content: flex-end; width: 100%; }
+    .item-description { max-width: 100%; }
 }
