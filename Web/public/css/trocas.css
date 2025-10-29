@@ -5,16 +5,8 @@
     --color-light-blue: #e6f7ff;
     --sidebar-width: 250px;
 }
-.sidebar-menu a,
-.sidebar-menu a * {
-    font-size: 17px !important;
-    font-weight: 500 !important;
-    line-height: 1.5 !important;
-}
-.sidebar-menu h2,
-.sidebar-menu h3 {
-    font-size: 19px !important;
-}
+
+/* USAR O MESMO ESTILO DA TELA DE PERFIL QUE FUNCIONA */
 .sidebar-menu {
     position: fixed !important;
     top: 0 !important;
@@ -24,44 +16,53 @@
     z-index: 2000 !important;
     overflow-y: auto !important;
     flex-shrink: 0 !important;
-    font-size: 16px !important;
-    transition: transform 0.3s ease-in-out;
 }
-.content-area {
-    margin-left: var(--sidebar-width) !important;
-    width: calc(100% - var(--sidebar-width)) !important;
-    position: relative !important;
-    float: none !important;
-    flex-grow: 0 !important;
-    min-height: 100vh !important;
-    overflow-y: visible !important;
-    padding: 30px;
-    background-color: var(--color-background-soft);
-}
-body {
-    background-color: var(--color-light-blue);
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow-y: scroll !important;
-    overflow-x: hidden !important;
-}
+
 .app-layout {
     display: block !important;
     min-height: 100vh !important;
     width: 100% !important;
     position: relative !important;
-    margin-left: 0 !important;
 }
+
+.content-area {
+    position: absolute !important;
+    top: 0 !important;
+    left: var(--sidebar-width) !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    width: calc(100% - var(--sidebar-width)) !important;
+    float: none !important;
+    flex-grow: 0 !important;
+    min-height: 100vh !important;
+    padding: 30px;
+    background-color: #f7f7f7 !important;
+}
+
 .content-area-pad {
     padding: 0 20px;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+}
+
+/* SEUS ESTILOS ESPECÍFICOS DA PÁGINA DE TROCAS */
 .page-title {
     margin-bottom: 25px;
     font-size: 1.8rem;
     color: #333;
+    text-align: left;
 }
+
 .tabs-navigation {
     display: flex;
     gap: 20px;
@@ -69,6 +70,7 @@ body {
     margin-bottom: 30px;
     overflow-x: auto;
 }
+
 .tab-button {
     background-color: transparent;
     border: none;
@@ -85,12 +87,14 @@ body {
     letter-spacing: 0.5px;
     flex-shrink: 0;
 }
+
 .tab-button:hover { color: var(--color-secondary); }
 .tab-button.active {
     color: var(--color-primary);
     border-bottom-color: var(--color-primary);
     font-weight: 700;
 }
+
 .tab-button .badge {
     background-color: var(--color-primary);
     color: white;
@@ -99,21 +103,30 @@ body {
     font-size: 11px;
     margin-left: 8px;
 }
+
+.tab-content-area {
+    width: 100%;
+}
+
 .tab-pane {
     display: none;
     flex-direction: column;
     gap: 15px;
     width: 100%;
 }
+
 .tab-pane.active-tab-pane {
     display: flex;
 }
+
 .proposta-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
     margin-top: 15px;
+    width: 100%;
 }
+
 .troca-list-card {
     display: flex;
     justify-content: space-between;
@@ -126,23 +139,31 @@ body {
     min-height: 80px;
     transition: all 0.2s;
     flex-wrap: nowrap;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
 }
+
 .troca-list-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
+
 .troca-list-card.status-pendente { border-left-color: #ffc107; }
 .troca-list-card.status-aceita { border-left-color: #007bff; }
 .troca-list-card.status-finalizada { border-left-color: var(--color-primary); }
 .troca-list-card.status-cancelada,
 .troca-list-card.status-rejeitada { border-left-color: #dc3545; }
+
 .card-info {
     display: flex;
     align-items: center;
     gap: 15px;
     flex-grow: 1;
     min-width: 0;
+    flex-wrap: wrap;
 }
+
 .item-thumb-placeholder {
     width: 60px;
     height: 60px;
@@ -155,9 +176,12 @@ body {
     font-size: 22px;
     color: #999;
 }
+
 .text-content {
     min-width: 0;
+    flex: 1;
 }
+
 .item-title {
     font-size: 17px;
     white-space: nowrap;
@@ -165,22 +189,31 @@ body {
     text-overflow: ellipsis;
     max-width: 100%;
 }
+
 .item-description {
     font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
 }
+
 .card-actions {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     flex-shrink: 0;
-    padding-left: 10px;
+    padding-left: 5px;
 }
+
 .action-buttons {
     display: flex;
     gap: 5px;
     align-items: center;
+    flex-wrap: wrap;
 }
+
 .current-status {
     font-size: 11px;
     font-weight: 700;
@@ -189,12 +222,18 @@ body {
     text-transform: uppercase;
     flex-shrink: 0;
     letter-spacing: 0.5px;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
 .status-label-pendente { background-color: #fff3cd; color: #856404; }
 .status-label-acao-pendente { background-color: #ffc107; color: #343a40; }
 .status-label-aguardando-outro { background-color: #d1ecf1; color: #0c5460; }
 .status-label-finalizada { background-color: #d4edda; color: #155724; }
 .status-label-cancelada, .status-label-rejeitada { background-color: #f8d7da; color: #721c24; }
+
 .btn-detalhes, .btn-delete, .action-buttons .btn-action {
     padding: 7px 12px;
     font-size: 13px;
@@ -205,7 +244,9 @@ body {
     transition: background-color 0.2s;
     text-transform: uppercase;
     display: inline-block;
+    white-space: nowrap;
 }
+
 .btn-detalhes { background-color: #e0e0e0; color: #333; border: 1px solid #ccc; }
 .btn-detalhes:hover { background-color: #d0d0d0; }
 .btn-delete { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -214,6 +255,7 @@ body {
 .btn-danger { background-color: #dc3545; color: white; border: 1px solid #c82333; }
 .btn-warning { background-color: #ffc107; color: #333; border: 1px solid #e0a800; }
 .btn-primary { background-color: var(--color-primary); color: white; border: 1px solid #7B68EE; }
+
 .empty-state {
     padding: 50px;
     text-align: center;
@@ -222,11 +264,15 @@ body {
     margin-top: 20px;
     border: 2px dashed #ddd;
     color: #777;
+    width: 100%;
+    box-sizing: border-box;
 }
+
 .empty-state i {
     font-size: 3rem;
     color: var(--color-primary);
 }
+
 .modal-overlay {
     position: fixed;
     z-index: 2000;
@@ -240,6 +286,7 @@ body {
     padding: 20px;
     display: flex;
 }
+
 .modal-content {
     background-color: #fefefe;
     padding: 30px;
@@ -251,6 +298,7 @@ body {
     max-height: 90vh;
     overflow-y: auto;
 }
+
 .close-button {
     color: #aaa;
     font-size: 28px;
@@ -261,9 +309,11 @@ body {
     cursor: pointer;
     line-height: 1;
 }
+
 .close-button:hover {
     color: var(--color-primary);
 }
+
 .modal-title {
     border-bottom: 2px solid #eee;
     padding-bottom: 15px;
@@ -271,13 +321,15 @@ body {
     font-size: 1.8rem;
     color: var(--color-primary);
 }
+
 .items-comparison {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center; /* CORRIGIDO: center em vez de flex-start */
     gap: 40px;
     margin-bottom: 30px;
 }
+
 .item-card {
     flex: 1;
     padding: 25px;
@@ -285,20 +337,38 @@ body {
     background-color: #fcfcfc;
     border: 1px solid #e0e0e0;
 }
+
 .item-card.item-oferecido { border-left: 5px solid #ffc107; }
 .item-card.item-desejado { border-left: 5px solid var(--color-primary); }
+
+/* ÍCONE DE TROCAS CENTRALIZADO */
 .troca-icon {
-    align-self: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 32px;
     color: var(--color-primary);
-    padding-top: 50px;
     transform: rotate(90deg);
+    margin: 0 20px;
+    align-self: center;
+    height: 100%;
+    min-height: 200px;
 }
+
 .item-details .item-photo-placeholder-full {
-    width: 100%; height: 200px; background-color: #f0f0f0; color: #999;
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; border-radius: 6px; margin-top: 15px; font-size: 1rem;
+    width: 100%; 
+    height: 200px; 
+    background-color: #f0f0f0; 
+    color: #999;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center; 
+    border-radius: 6px; 
+    margin-top: 15px; 
+    font-size: 1rem;
 }
+
 .finalization-status-box {
     margin-top: 25px;
     padding: 20px;
@@ -308,64 +378,82 @@ body {
     box-shadow: inset 0 0 5px rgba(147, 112, 219, 0.1);
     text-align: left;
 }
+
 .finalization-status-box h4 {
-    margin-top: 0; margin-bottom: 10px; color: var(--color-primary);
-    border-bottom: 1px solid #eee; padding-bottom: 5px;
+    margin-top: 0; 
+    margin-bottom: 10px; 
+    color: var(--color-primary);
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 5px;
 }
+
+/* MOBILE */
 @media (max-width: 768px) {
-    .sidebar-menu {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 80% !important;
-        height: 100vh !important;
-        transform: translateX(-100%);
-        z-index: 3000 !important;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-    }
-    .sidebar-menu.is-open {
-        transform: translateX(0) !important;
-    }
     .content-area {
+        position: relative !important;
+        left: auto !important;
         margin-left: 0 !important;
         width: 100% !important;
         padding: 15px 10px;
     }
-    body {
-        margin-left: 0 !important;
+
+    .sidebar-menu {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        width: 100% !important;
+        height: auto !important;
+        z-index: auto !important;
     }
+
     .app-layout {
         display: block !important;
     }
+
     .content-area-pad {
-        padding: 0 5px;
+        padding: 0 10px;
+        justify-content: flex-start;
+        max-width: none;
     }
-    .modal-overlay {
-        width: 100%;
-    }
+
     .items-comparison {
         flex-direction: column;
         gap: 20px;
+        align-items: center;
     }
+
     .troca-icon {
-        padding: 10px 0;
+        padding: 20px 0;
         transform: rotate(0deg);
+        margin: 0 auto;
+        min-height: auto;
     }
+
     .troca-list-card {
         flex-direction: column;
         align-items: flex-start;
+        gap: 15px;
     }
+
     .card-info {
         width: 100%;
         margin-bottom: 10px;
     }
+
     .card-actions {
         width: 100%;
         margin-top: 10px;
         padding-left: 0;
         justify-content: space-between;
+        gap: 8px;
     }
+
     .action-buttons {
         justify-content: flex-end;
+        width: 100%;
+    }
+    
+    .item-description {
+        max-width: 100%;
     }
 }
