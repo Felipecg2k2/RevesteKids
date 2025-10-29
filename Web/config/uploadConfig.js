@@ -13,7 +13,7 @@ const uploadDir = path.join(__dirname, '..', '..', 'public', 'uploads', 'itens')
 // Configuração de Armazenamento do Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // ESSA PARTE CRIA A PASTA DE UPLOAD SE ELA NÃO EXISTIR! (RESOLVE O ENOENT)
+        // Essa parte cria a pasta de upload se ela não existir!
         if (!fs.existsSync(uploadDir)) {
             // Cria a pasta de forma recursiva (cria 'uploads' e 'itens' se for necessário)
             fs.mkdirSync(uploadDir, { recursive: true });

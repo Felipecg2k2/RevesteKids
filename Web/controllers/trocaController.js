@@ -280,7 +280,7 @@ export const exibirFormularioProposta = async (req, res) => {
         });
         
     } catch (error) {
-        console.error("❌ ERRO AO CARREGAR FORMULÁRIO DE PROPOSTA:", error);
+        console.error(" ERRO AO CARREGAR FORMULÁRIO DE PROPOSTA:", error);
         if (req.flash) req.flash('error', 'Não foi possível carregar o formulário de proposta.');
         res.redirect('/trocas/catalogo'); 
     }

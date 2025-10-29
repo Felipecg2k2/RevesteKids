@@ -101,10 +101,10 @@ router.get("/feed", authMiddleware, async (req, res) => {
                 itemPlain.imagemPrincipal = itemPlain.imagens.find(img => img.is_principal) 
                     || itemPlain.imagens[0];
                     
-                console.log(`   📸 Imagem principal: ${itemPlain.imagemPrincipal.caminho_arquivo}`);
+                console.log(` Imagem principal: ${itemPlain.imagemPrincipal.caminho_arquivo}`);
             } else {
                 itemPlain.imagemPrincipal = null;
-                console.log(`   ❌ Sem imagens`);
+                console.log(` Sem imagens`);
             }
             
             return itemPlain;
@@ -118,7 +118,7 @@ router.get("/feed", authMiddleware, async (req, res) => {
         });
         
     } catch (error) {
-        console.error("❌ ERRO FATAL AO CARREGAR O FEED:", error.message || error); 
+        console.error("ERRO FATAL AO CARREGAR O FEED:", error.message || error); 
         if (req.flash) {
             req.flash('error', 'Ocorreu um erro ao carregar o Feed. Tente novamente mais tarde.');
         }
@@ -178,7 +178,6 @@ router.get('/api/item/:itemId', authMiddleware, async (req, res) => {
             condicao: itemData.condicao,
             data_cadastro: itemData.createdAt,
             descricao_completa: itemData.descricao || 'Nenhuma descrição detalhada.',
-            // 🔥 CRÍTICO: Incluir TODAS as imagens no response
             imagens: itemData.imagens || []
         };
         

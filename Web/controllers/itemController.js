@@ -1,14 +1,8 @@
-// Web/controllers/itemController.js
-
 import { Op } from 'sequelize';
 import { contarTrocasRealizadas, buscarHistoricoTrocas } from './trocaController.js';
-
-// NOVAS IMPORTAÇÕES NECESSÁRIAS PARA MANIPULAR O UPLOAD E CAMINHO
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs'; // Módulo nativo para operações de sistema de arquivos (criar pasta, deletar arquivo)
-
-// Importa o DB centralizado (incluindo Item, Imagem, e sequelize)
+import fs from 'fs';
 import db from '../models/index.js';
 const { Item, Imagem, sequelize } = db;
 
@@ -18,37 +12,31 @@ const __dirname = path.dirname(__filename);
 // =================================================================
 // Variáveis de Configuração e Funções Auxiliares
 // =================================================================
-
 // Define o caminho ABSOLUTO para o diretório de uploads: .../Web/public/uploads/itens
 const UPLOADS_DIR = path.join(__dirname, '..', 'public', 'uploads', 'itens');
-
 // Função para buscar o objeto DB centralizado
 function getDB(req) {
     // Retorna o objeto DB configurado em app.js (contendo Item, Usuario, Imagem, etc.)
     return req.app.get('db');
 };
-
 // Função de exclusão de arquivo (para remover arquivos antigos do disco)
 const excluirArquivo = (filename) => {
     // filename é o valor de caminho_arquivo (ex: '/uploads/itens/item-123.jpg')
     if (!filename || filename.startsWith('http')) return;
-
     // O caminho_arquivo salvo no BD inclui o prefixo /uploads/itens/
     // Se o caminho salvo for: /uploads/itens/item-123.jpg, extraímos apenas o nome do arquivo
     const nomeArquivo = path.basename(filename);
-
     // Constrói o caminho completo no disco
     const caminhoCompleto = path.join(UPLOADS_DIR, nomeArquivo);
-
     try {
         if (fs.existsSync(caminhoCompleto)) {
             fs.unlinkSync(caminhoCompleto);
-            console.log(`✅ Arquivo deletado do disco: ${caminhoCompleto}`);
+            console.log(` Arquivo deletado do disco: ${caminhoCompleto}`);
         } else {
-            console.warn(`⚠️ Tentativa de deletar arquivo inexistente: ${caminhoCompleto}`);
+            console.warn(` Tentativa de deletar arquivo inexistente: ${caminhoCompleto}`);
         }
     } catch (error) {
-        console.error(`❌ ERRO FATAL ao tentar deletar arquivo ${caminhoCompleto}:`, error);
+        console.error(` ERRO FATAL ao tentar deletar arquivo ${caminhoCompleto}:`, error);
     }
 }
 
@@ -71,13 +59,11 @@ async function buscarContadores(DB, idUsuario) {
 // ----------------------------------------------------------
 // 1. FUNÇÕES DE LEITURA E VISUALIZAÇÃO
 // ----------------------------------------------------------
-
 // LÓGICA GET: CARREGAR O FEED PRINCIPAL
 export const carregarFeed = async (req, res) => {
     const DB = getDB(req);
     const { Item, Usuario, Imagem } = DB;
     const userId = req.session.userId;
-
     // Se o usuário não estiver logado, ele pode ver o feed, mas não pode filtrar por si mesmo.
     const whereClause = {
         statusPosse: 'Ativo',
@@ -85,7 +71,6 @@ export const carregarFeed = async (req, res) => {
     if (userId) {
         whereClause.UsuarioId = { [Op.ne]: userId }; // Exclui itens do próprio usuário
     }
-
     try {
         const itensFeed = await Item.findAll({
             where: whereClause,
@@ -101,7 +86,7 @@ export const carregarFeed = async (req, res) => {
                 {
                     model: Imagem,
                     as: 'imagens',
-                    // CRÍTICO: Remove o filtro de imagem principal para pegar TODAS as imagens
+                    //Remove o filtro de imagem principal para pegar TODAS as imagens
                     required: false, // Usa LEFT JOIN
                     attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem']
                 }
@@ -110,11 +95,9 @@ export const carregarFeed = async (req, res) => {
                 ['createdAt', 'DESC']
             ]
         });
-
         // Processar as imagens para ordenação
         const itensProcessados = itensFeed.map(item => {
             const itemPlain = item.get({ plain: true });
-
             // Ordenar imagens pela ordem
             if (itemPlain.imagens && itemPlain.imagens.length > 0) {
                 itemPlain.imagens.sort((a, b) => a.ordem - b.ordem);
@@ -123,46 +106,38 @@ export const carregarFeed = async (req, res) => {
                 itemPlain.imagemPrincipal = itemPlain.imagens.find(img => img.is_principal)
                     || itemPlain.imagens[0];
             }
-
             return itemPlain;
         });
-
         // VIEW: Renderiza o Feed
         res.render('feed', {
-            itens: itensProcessados,  // Mudei de itensFeed para itens (padrão do seu EJS)
+            itens: itensProcessados,
             title: 'Feed Principal',
             messages: req.flash()
         });
-
     } catch (error) {
-        console.error("❌ ERRO FATAL AO CARREGAR O FEED:", error);
+        console.error(" ERRO FATAL AO CARREGAR O FEED:", error);
         req.flash('error', 'Ocorreu um erro ao carregar o Feed. Tente novamente mais tarde.');
         // Renderiza com feed vazio em caso de erro
         res.render('feed', { itens: [], title: 'Feed Principal', messages: req.flash() });
     }
 };
-
 // Lógica GET: LISTAR AS ROUPAS DO USUÁRIO LOGADO (READ ALL)
 export const getItensUsuario = async (req, res) => {
     const DB = getDB(req);
     const { Item, Imagem } = DB;
     const idUsuario = req.session.userId;
-
     // Filtros
     const statusFiltro = req.query.status || 'Ativo';
     const mostrarHistorico = statusFiltro === 'Historico';
     let whereClause = { UsuarioId: idUsuario };
-
     if (statusFiltro === 'EmTroca') {
         whereClause.statusPosse = 'EmTroca';
     } else if (statusFiltro === 'Ativo') {
         whereClause.statusPosse = 'Ativo';
     }
-
     try {
         let itens = [];
         let historicoTrocas = [];
-
         if (mostrarHistorico) {
             historicoTrocas = await buscarHistoricoTrocas(idUsuario);
         } else {
@@ -174,13 +149,11 @@ export const getItensUsuario = async (req, res) => {
                         as: 'imagens',
                         required: false,
                         attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'],
-                        // 🎯 REMOVER order daqui - não está funcionando
                     }
                 ],
                 order: [['createdAt', 'DESC']]
             });
-
-            // 🎯 CORREÇÃO CRÍTICA: ORDENAR MANUALMENTE AS IMAGENS
+            // ORDENAR MANUALMENTE AS IMAGENS
             itens = itens.map(item => {
                 if (item.imagens && item.imagens.length > 0) {
                     // Ordenar as imagens pela ordem ASC
@@ -188,8 +161,7 @@ export const getItensUsuario = async (req, res) => {
                 }
                 return item;
             });
-
-            console.log('🔍 VERIFICAÇÃO DA ORDEM DAS IMAGENS:');
+            console.log(' VERIFICAÇÃO DA ORDEM DAS IMAGENS:');
             itens.forEach(item => {
                 if (item.imagens && item.imagens.length > 0) {
                     console.log(`Item ${item.id} - ${item.peca}:`);
@@ -199,10 +171,8 @@ export const getItensUsuario = async (req, res) => {
                 }
             });
         }
-
         // Contadores
         const { totalAtivas, emTroca, trocasRealizadas } = await buscarContadores(DB, idUsuario);
-
         // VIEW
         res.render('roupas', {
             title: 'Minhas Roupas',
@@ -219,19 +189,17 @@ export const getItensUsuario = async (req, res) => {
             messages: req.flash()
         });
     } catch (error) {
-        console.error("❌ ERRO AO CARREGAR VIEW DE GERENCIAMENTO/HISTÓRICO:", error);
+        console.error(" ERRO AO CARREGAR VIEW DE GERENCIAMENTO/HISTÓRICO:", error);
         req.flash('error_msg', 'Ocorreu um erro ao carregar seus itens.');
         res.redirect('/feed');
     }
 };
-
 // Lógica GET: BUSCAR ITEM PARA EDIÇÃO (READ ONE)
 export const getFormularioEdicao = async (req, res) => {
     const DB = getDB(req);
     const { Item, Imagem } = DB;
     const idItem = req.params.id;
     const idUsuario = req.session.userId;
-
     try {
         const item = await Item.findOne({
             where: {
@@ -244,22 +212,19 @@ export const getFormularioEdicao = async (req, res) => {
                     as: 'imagens',
                     attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'],
                     required: false,
-                    // 🎯 REMOVER order daqui - não está funcionando
+                    // order daqui - não está funcionando
                 }
             ]
         });
-
         if (!item) {
             req.flash('error_msg', 'Item não encontrado ou você não tem permissão para editá-lo.');
             return res.redirect('/roupas');
         }
-
-        // 🎯 CORREÇÃO CRÍTICA: ORDENAR MANUALMENTE AS IMAGENS DO ITEM
+        // ORDENAR MANUALMENTE AS IMAGENS DO ITEM
         if (item.imagens && item.imagens.length > 0) {
             item.imagens.sort((a, b) => a.ordem - b.ordem);
             console.log(`🔄 Item ${item.id} - Imagens ordenadas:`, item.imagens.map(img => ({ id: img.id, ordem: img.ordem })));
         }
-
         // Recarrega todos os itens para a lista lateral/card
         const itensLista = await Item.findAll({
             where: { UsuarioId: idUsuario, statusPosse: { [Op.ne]: 'Historico' } },
@@ -269,27 +234,22 @@ export const getFormularioEdicao = async (req, res) => {
                     as: 'imagens',
                     required: false,
                     attributes: ['id', 'caminho_arquivo', 'is_principal', 'ordem'],
-                    // 🎯 REMOVER order daqui - não está funcionando
                 }
             ],
             order: [['createdAt', 'DESC']],
         });
-
-        // 🎯 CORREÇÃO CRÍTICA: ORDENAR MANUALMENTE AS IMAGENS DA LISTA
         const itensListaOrdenados = itensLista.map(itemLista => {
             if (itemLista.imagens && itemLista.imagens.length > 0) {
                 itemLista.imagens.sort((a, b) => a.ordem - b.ordem);
             }
             return itemLista;
         });
-
         const { totalAtivas, emTroca, trocasRealizadas } = await buscarContadores(DB, idUsuario);
-
         // VIEW
         res.render('roupas', {
             title: 'Editar Peça',
             userId: idUsuario,
-            itens: itensListaOrdenados, // 🎯 Usar a lista ordenada
+            itens: itensListaOrdenados, //  Usar a lista ordenada
             itemParaEditar: item.get({ plain: true }),
             totalCadastradas: totalAtivas + emTroca,
             totalAtivas: totalAtivas,
@@ -301,7 +261,7 @@ export const getFormularioEdicao = async (req, res) => {
             messages: req.flash()
         });
     } catch (error) {
-        console.error("❌ ERRO AO BUSCAR ITEM PARA EDIÇÃO:", error);
+        console.error(" ERRO AO BUSCAR ITEM PARA EDIÇÃO:", error);
         req.flash('error_msg', 'Erro ao carregar item para edição.');
         res.redirect('/roupas');
     }
@@ -310,71 +270,47 @@ export const getFormularioEdicao = async (req, res) => {
 // ----------------------------------------------------------
 // 2. FUNÇÕES DE CRIAÇÃO E ATUALIZAÇÃO
 // ----------------------------------------------------------
-
 // Lógica POST: ATUALIZAÇÃO DO ITEM (EDIÇÃO DE METADADOS E IMAGENS)
 export const salvarEdicao = async (req, res) => {
-    // Desestrutura o Item, Imagem e a instância do Sequelize para transações
     const { Item, Imagem, sequelize } = getDB(req);
-
     const {
         id, peca, categoriaPeca, tipo, tamanho, cor, tecido, estacao, condicao, descricao,
-        // O JSON com os IDs/caminhos das fotos que restaram e na ordem atual
         fotos_reordenadas_json
     } = req.body;
-
-    // req.files contém os arquivos novos, se algum foi enviado (processados pelo Multer)
     const novasFotosUpload = req.files || [];
-
     if (!id) {
         req.flash('error_msg', 'ID do Item não fornecido para edição.');
         novasFotosUpload.forEach(file => excluirArquivo(file.filename));
         return res.redirect('/roupas');
     }
-
-    // Usaremos uma Transação
     const t = await sequelize.transaction();
-
     try {
         // 1. ATUALIZAÇÃO DOS DADOS DO ITEM (Metadados)
         const dadosItem = {
             peca, categoriaPeca, tipo, tamanho, cor, tecido, estacao, condicao, descricao
         };
-
         await Item.update(dadosItem, {
             where: { id: id, UsuarioId: req.session.userId }, // Garante que o usuário é o dono
             transaction: t
         });
-
         // 2. PROCESSAMENTO DA GALERIA DE IMAGENS
-
         // A. Carrega as imagens ATUAIS do BD antes de qualquer mudança (para identificar o que deletar)
         const imagensAtuaisBD = await Imagem.findAll({
             where: { ItemId: id },
             attributes: ['id', 'caminho_arquivo'],
             transaction: t
         });
-
         // B. Parse do JSON enviado pelo frontend (a nova ordem das imagens ANTIGAS)
         let fotosReordenadas = [];
         try {
-            // CRÍTICO: O frontend deve enviar a lista final e ordenada de imagens *antigas* que devem permanecer
             fotosReordenadas = JSON.parse(fotos_reordenadas_json || '[]');
         } catch (e) {
-            console.error('❌ Erro ao analisar fotos_reordenadas_json:', e);
+            console.error(' Erro ao analisar fotos_reordenadas_json:', e);
             throw new Error('Dados de imagem inválidos: JSON mal formatado.');
         }
-
-        // --- DEBUG E LOGS ---
-        console.log(`🔍 [DEBUG - ${id}] Imagens Atuais no BD (${imagensAtuaisBD.length}):`, imagensAtuaisBD.map(img => img.id));
-        console.log(`🔍 [DEBUG - ${id}] Fotos Reordenadas/Mantidas do Frontend (${fotosReordenadas.length}):`, fotosReordenadas.map(f => f.id));
-        // --- FIM DEBUG ---
-
-        // --- LIMPEZA: Identificação e Exclusão ---
         // IDs das fotos antigas que devem PERMANECER (vieram no JSON)
         const idsReordenadosDoFrontend = new Set(fotosReordenadas.map(img => img.id.toString()));
-
         let imagensParaDeletarFisico = []; // Caminhos a serem deletados do disco
-
         // Itera sobre o BD para encontrar quais IDs foram removidos pelo frontend
         const idsDeletarBD = imagensAtuaisBD
             .filter(img => !idsReordenadosDoFrontend.has(img.id.toString()))
@@ -382,70 +318,52 @@ export const salvarEdicao = async (req, res) => {
                 imagensParaDeletarFisico.push(img.caminho_arquivo); // Adiciona para exclusão física
                 return img.id; // Retorna o ID para exclusão do BD
             });
-
-        console.log(`🗑️ [DEBUG - ${id}] IDs a Deletar do BD (${idsDeletarBD.length}):`, idsDeletarBD);
-
-        // 🚨 EXCLUIR REGISTROS REMOVIDOS DO BANCO DE DADOS (DENTRO DA TRANSAÇÃO)
+        //EXCLUIR REGISTROS REMOVIDOS DO BANCO DE DADOS (DENTRO DA TRANSAÇÃO)
         if (idsDeletarBD.length > 0) {
             await Imagem.destroy({
                 where: { id: idsDeletarBD },
                 transaction: t
             });
         }
-
         // --- ADIÇÃO: Inserção das Novas Imagens (Upload) ---
         let novosIdsInseridos = []; // Array para guardar os IDs das novas fotos inseridas
-
         const imagensParaCriar = novasFotosUpload.map(file => ({
             ItemId: id,
             // Salva o caminho que será servido pelo Express: /uploads/itens/nome_do_arquivo.png
             caminho_arquivo: `/uploads/itens/${file.filename}`,
-            is_principal: false, // Será corrigido no próximo passo
-            ordem: 0 // Valor temporário, será atualizado abaixo
+            is_principal: false,
+            ordem: 0
         }));
 
         if (imagensParaCriar.length > 0) {
-            // CRÍTICO: bulkCreate com { returning: true } para obter os IDs das novas linhas
             const novasImagensCriadas = await Imagem.bulkCreate(imagensParaCriar, {
                 transaction: t
             });
             novosIdsInseridos = novasImagensCriadas.map(img => img.id.toString());
         }
-
         // --- REORDENAÇÃO E DEFINIÇÃO DA PRINCIPAL ---
-
         // D. Monta a ORDEM FINAL DE IDs
         // 1. Ids que vieram do frontend (reordenados)
         const idsReordenados = fotosReordenadas.map(f => f.id.toString());
-
         // 2. A ordem final é a reordenada (antigas) + as novas (nesta sequência)
-        const ordemFinalIDs = idsReordenados.concat(novosIdsInseridos);
-
-        console.log(`📋 [DEBUG - ${id}] Ordem Final de IDs (${ordemFinalIDs.length}):`, ordemFinalIDs);
-
-        // 🚨 VALIDAÇÃO CRÍTICA 1: O item DEVE ter pelo menos 1 foto.
+        // O item DEVE ter pelo menos 1 foto.
         if (ordemFinalIDs.length === 0) {
             throw new Error('O item deve ter pelo menos uma imagem. Operação de galeria cancelada.');
         }
-
         // 3. Verifica o limite de 5 imagens
         if (ordemFinalIDs.length > 5) {
-            // CRÍTICO: Se o limite for ultrapassado, cancelamos tudo e limpamos os novos uploads
+            // Se o limite for ultrapassado, cancelamos tudo e limpamos os novos uploads
             novasFotosUpload.forEach(file => excluirArquivo(file.filename));
             throw new Error(`O número total de imagens (${ordemFinalIDs.length}) excede o limite de 5. Por favor, remova fotos antigas ou diminua o número de novos uploads.`);
         }
-
-        // 🆕 4. ATUALIZAÇÃO DA ORDEM E IMAGEM PRINCIPAL
-        console.log(`🔄 [DEBUG - ${id}] Atualizando ordem e imagem principal...`);
-
+        // 4. ATUALIZAÇÃO DA ORDEM E IMAGEM PRINCIPAL
         // Atualiza cada imagem com sua ordem e define a principal
         for (let i = 0; i < ordemFinalIDs.length; i++) {
             const imagemId = ordemFinalIDs[i];
             const isPrincipal = i === 0;
-
             await Imagem.update(
                 {
-                    ordem: i, // 🆕 ATUALIZA A ORDEM!
+                    ordem: i, // ATUALIZA A ORDEM!
                     is_principal: isPrincipal
                 },
                 {
@@ -453,80 +371,60 @@ export const salvarEdicao = async (req, res) => {
                     transaction: t
                 }
             );
-
-            console.log(`📸 [DEBUG] Imagem ${imagemId} -> ordem: ${i}, principal: ${isPrincipal}`);
         }
-
         // 5. COMITAR TRANSAÇÃO
         await t.commit();
-        console.log(`✅ [SUCESSO - ${id}] Transação concluída com sucesso!`);
-
         // 6. EXCLUSÃO FÍSICA NO DISCO (APÓS COMMIT BEM SUCEDIDO)
         if (imagensParaDeletarFisico.length > 0) {
-            console.log(`🗑️ [DEBUG] Excluindo ${imagensParaDeletarFisico.length} arquivos físicos...`);
             imagensParaDeletarFisico.forEach(filename => excluirArquivo(filename));
         }
-
         req.flash('success_msg', 'Peça e galeria de fotos atualizadas com sucesso!');
         res.redirect('/roupas');
 
     } catch (error) {
         // Se algo falhou, faz rollback no BD e limpa os arquivos recém-uploadados
         await t.rollback();
-        console.error(`❌ [ERRO - ${id}] Rollback executado:`, error.message);
-
-        // CRÍTICO: Limpa os novos arquivos recém-upados (novasFotosUpload) 
+        console.error(` [ERRO - ${id}] Rollback executado:`, error.message);
+        // Limpa os novos arquivos recém-upados (novasFotosUpload) 
         if (novasFotosUpload.length > 0) {
-            console.log(`🧹 [DEBUG] Limpando ${novasFotosUpload.length} arquivos uploadados...`);
             novasFotosUpload.forEach(file => excluirArquivo(file.filename));
         }
-
-        console.error('❌ Erro ao salvar edição do Item:', error);
-
+        console.error(' Erro ao salvar edição do Item:', error);
         // Define a mensagem de erro
         const errorMessage = error.message.includes('limite de 5')
             ? error.message
             : error.message.includes('pelo menos uma imagem')
                 ? error.message
                 : 'Erro ao salvar a edição. As alterações foram desfeitas.';
-
         req.flash('error_msg', errorMessage);
         // Redireciona de volta ao formulário de edição
         res.redirect(`/roupas/editar/${id}`);
     }
 };
-
 // Lógica POST: CRIA UM NOVO ITEM (CREATE)
 export const salvarItem = async (req, res) => {
-    console.log("🔍 INICIANDO salvarItem...");
-    console.log("📦 req.body:", req.body);
-    console.log("📁 req.files:", req.files ? req.files.length : 0, "arquivos");
-
+    console.log(" INICIANDO salvarItem...");
+    console.log(" req.body:", req.body);
+    console.log(" req.files:", req.files ? req.files.length : 0, "arquivos");
     const DB = getDB(req);
     const { Item, Imagem } = DB;
     const idUsuario = req.session.userId;
     const dadosItem = req.body;
-
     const files = req.files;
     const itemId = dadosItem.id || null;
-
-    console.log("👤 Usuario ID:", idUsuario);
-    console.log("🆔 Item ID:", itemId);
-
+    console.log(" Usuario ID:", idUsuario);
+    console.log(" Item ID:", itemId);
     // Validação básica
     if (!dadosItem.peca || !dadosItem.tipo || !dadosItem.tamanho || !dadosItem.condicao || !dadosItem.categoriaPeca) {
-        console.log("❌ VALIDAÇÃO FALHOU - Campos obrigatórios faltando");
+        console.log(" VALIDAÇÃO FALHOU - Campos obrigatórios faltando");
         req.flash('error_msg', 'Todos os campos obrigatórios devem ser preenchidos.');
-
         if (files && files.length > 0) {
             files.forEach(file => {
                 excluirArquivo(file.filename);
             });
         }
-
         return res.redirect(itemId ? `/roupas/editar/${itemId}` : '/roupas');
     }
-
 
     // Campos permitidos e sanitização 
     const itemDados = {
@@ -545,37 +443,31 @@ export const salvarItem = async (req, res) => {
     try {
         if (itemId) {
             // --- UPDATE (EDIÇÃO) - DEPRECADO POR 'salvarEdicao' ---
-
             await Item.update(itemDados, {
                 where: { id: itemId, UsuarioId: idUsuario }
             });
             req.flash('success_msg', 'Item atualizado com sucesso!');
-
             // Limpeza de novos uploads na rota salvarItem (Edição) para forçar uso de salvarEdicao
             if (files && files.length > 0) {
                 req.flash('warning', 'As novas imagens enviadas não foram salvas. Use o modal de edição para gerenciar as fotos.');
                 files.forEach(file => excluirArquivo(file.filename));
             }
-
         } else {
             // --- CREATE (CRIAÇÃO) ---
-
             // Validação: Exigir fotos na criação de um novo item
             if (!itemId && (!files || files.length === 0)) {
-                console.log("❌ VALIDAÇÃO FALHOU - Nenhuma foto enviada");
+                console.log(" VALIDAÇÃO FALHOU - Nenhuma foto enviada");
                 req.flash('error_msg', 'É obrigatório anexar pelo menos uma foto ao cadastrar uma nova peça.');
                 return res.redirect('/roupas');
             }
-
             const itemParaCriar = { ...itemDados, statusPosse: 'Ativo' };
             const novoItem = await Item.create(itemParaCriar);
-
-            // CRÍTICO: Criação dos registros de Imagem no DB COM ORDEM
+            // Criação dos registros de Imagem no DB COM ORDEM
             const imagensParaCriar = files.map((file, index) => ({
                 ItemId: novoItem.id, // O ID do novo Item
                 caminho_arquivo: `/uploads/itens/${file.filename}`, // Caminho salvo no BD
                 is_principal: index === 0, // A primeira imagem é a principal
-                ordem: index // 🆕 DEFINE A ORDEM!
+                ordem: index //  DEFINE A ORDEM!
             }));
 
             await Imagem.bulkCreate(imagensParaCriar);
@@ -583,7 +475,7 @@ export const salvarItem = async (req, res) => {
         }
         res.redirect('/roupas');
     } catch (error) {
-        console.error(`❌ ERRO AO SALVAR ITEM (ID: ${itemId || 'novo'}):`, error);
+        console.error(`ERRO AO SALVAR ITEM (ID: ${itemId || 'novo'}):`, error);
 
         // Lógica de limpeza de arquivos em caso de erro no DB
         if (files) {
@@ -624,7 +516,7 @@ export const excluirItem = async (req, res) => {
             return res.redirect('/roupas?status=EmTroca');
         }
 
-        // NOVO: Deletar os arquivos físicos associados (USANDO FUNÇÃO AUXILIAR)
+        // Deletar os arquivos físicos associados (USANDO FUNÇÃO AUXILIAR)
         item.imagens.forEach(img => {
             excluirArquivo(img.caminho_arquivo);
         });
@@ -642,7 +534,7 @@ export const excluirItem = async (req, res) => {
 
         res.redirect('/roupas');
     } catch (error) {
-        console.error("❌ ERRO AO EXCLUIR ITEM:", error);
+        console.error(" ERRO AO EXCLUIR ITEM:", error);
         req.flash('error_msg', 'Erro interno ao tentar excluir o item.');
         res.redirect('/roupas');
     }

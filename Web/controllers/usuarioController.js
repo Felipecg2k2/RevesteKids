@@ -1,15 +1,11 @@
-// controllers/usuarioController.js
-
-// ----------------------------------------------------------
-// Importações Necessárias (Módulos nativos Node.js)
 import fs from 'fs/promises'; // Módulo para manipulação de arquivos assíncrona
 import path from 'path'; // Módulo para manipulação de caminhos
+
 // ----------------------------------------------------------
-// Importações de Módulos (Se necessário, ajuste conforme sua estrutura)
-// import bcrypt from 'bcryptjs'; // Módulo para hash de senha (Recomendado, mas mantendo o seu padrão)
+// Importações de Módulos 
 // ----------------------------------------------------------
 
-// Constantes úteis (Ajuste o nome da imagem padrão se for diferente)
+// Constantes úteis
 const DEFAULT_USER_IMAGE = 'default-user.png'; 
 
 function getUsuarioModel(req) {
@@ -44,37 +40,27 @@ export const cadastrarUsuario = async (req, res) => {
     const Usuario = getUsuarioModel(req);
     const dadosUsuario = req.body; 
     const arquivoFotoTemp = req.file; 
-
     if (arquivoFotoTemp) {
         dadosUsuario.foto_perfil = arquivoFotoTemp.filename; 
     }
-    
     let usuarioCriado;
     try {
         usuarioCriado = await Usuario.create(dadosUsuario);
-
         if (arquivoFotoTemp && usuarioCriado && usuarioCriado.id) {
-            
             const oldPath = arquivoFotoTemp.path; 
             const ext = path.extname(arquivoFotoTemp.filename);
             const novoNome = `profile-${usuarioCriado.id}${ext}`;
-            
             const newPath = path.join(path.dirname(oldPath), novoNome); 
-            
             await fs.rename(oldPath, newPath);
-
             await Usuario.update(
                 { foto_perfil: novoNome },
                 { where: { id: usuarioCriado.id } }
             );
         }
-
         req.flash('success_msg', 'Cadastro realizado com sucesso! Faça login.');
         res.redirect('/login'); 
-        
     } catch (error) {
         console.error("ERRO NO CADASTRO:", error);
-
         if (arquivoFotoTemp) {
              try {
                 await fs.unlink(arquivoFotoTemp.path); 
@@ -83,7 +69,6 @@ export const cadastrarUsuario = async (req, res) => {
                 console.error("Erro ao deletar arquivo temporário:", unlinkError);
              }
         }
-        
         req.flash('error_msg', 'Erro no cadastro. Tente outro e-mail.');
         res.redirect('/cadastro');
     }
@@ -96,8 +81,7 @@ export const realizarLogin = async (req, res) => {
     try {
         const usuario = await Usuario.findOne({ 
             where: { email: email }
-        });
-        
+        });        
         if (usuario && usuario.senha === senha) {
             req.session.userId = usuario.id; 
             // Armazena o objeto de usuário completo na sessão para acesso fácil
@@ -168,15 +152,12 @@ export const getFormularioEdicaoPerfil = async (req, res) => {
     }
 };
 
-
-// Lógica POST: Salvar alterações no Perfil (UPDATE) - IMPLEMENTAÇÃO CORRIGIDA
-// Lógica POST: Salvar alterações no Perfil (UPDATE) - VERSÃO CORRIGIDA
+// Lógica POST: Salvar alterações no Perfil (UPDATE) 
 export const salvarEdicaoPerfil = async (req, res) => {
     const Usuario = getUsuarioModel(req);
     const idUsuario = req.session.userId; 
     const novosDados = req.body; 
     const arquivoFotoTemp = req.file; 
-    
     try {
         // 1. BUSCA O USUÁRIO ATUAL
         const usuarioAtual = await Usuario.findByPk(idUsuario);
@@ -184,10 +165,9 @@ export const salvarEdicaoPerfil = async (req, res) => {
             req.flash('error_msg', 'Usuário não encontrado.');
             return res.redirect('/perfil');
         }
-        
         const diretorioUpload = path.join(process.cwd(), 'public', 'uploads', 'perfis');
         
-        // 2. LÓGICA DE UPLOAD - CORRIGIDA
+        // 2. LÓGICA DE UPLOAD 
         if (arquivoFotoTemp) {
             // Deleta a foto antiga se existir
             const nomeFotoAntiga = usuarioAtual.foto_perfil;
@@ -203,14 +183,12 @@ export const salvarEdicaoPerfil = async (req, res) => {
                 }
             }
             
-            // CORREÇÃO: Renomeia o arquivo temporário para o nome definitivo
+            // Renomeia o arquivo temporário para o nome definitivo
             const ext = path.extname(arquivoFotoTemp.originalname); // Pega a extensão do arquivo original
             const novoNomeFoto = `profile-${idUsuario}${ext}`;
             const caminhoTemporario = arquivoFotoTemp.path;
             const caminhoDefinitivo = path.join(diretorioUpload, novoNomeFoto);
-            
             await fs.rename(caminhoTemporario, caminhoDefinitivo);
-            
             novosDados.foto_perfil = novoNomeFoto;
         } 
         
@@ -241,13 +219,10 @@ export const salvarEdicaoPerfil = async (req, res) => {
         // 5. ATUALIZA A SESSÃO
         const usuarioAtualizado = await Usuario.findByPk(idUsuario);
         req.session.usuario = usuarioAtualizado.get({ plain: true }); 
-
         req.flash('success_msg', 'Perfil atualizado com sucesso!');
         res.redirect('/perfil'); 
-        
     } catch (error) {
         console.error("ERRO AO SALVAR PERFIL:", error);
-
         if (arquivoFotoTemp) {
             try {
                 await fs.unlink(arquivoFotoTemp.path);
@@ -255,7 +230,6 @@ export const salvarEdicaoPerfil = async (req, res) => {
                 console.error("Falha ao deletar arquivo temporário:", e);
             }
         }
-        
         req.flash('error_msg', 'Erro ao salvar as alterações do perfil.');
         res.redirect('/perfil/editar');
     }
@@ -272,11 +246,9 @@ export const deletarPerfil = async (req, res) => {
             const diretorioUpload = path.join(process.cwd(), 'public', 'uploads', 'perfis');
             await deletarFotoAntigaAsync(usuario.foto_perfil, diretorioUpload);
         }
-
         await Usuario.destroy({
             where: { id: idUsuario }
-        });
-        
+        });      
         req.flash('success_msg', 'Sua conta foi deletada com sucesso. Sentiremos sua falta!');
         req.session.destroy((err) => {
             if (err) {
@@ -300,6 +272,3 @@ export const getConfiguracoes = (req, res) => {
         res.status(500).send(`<h1>ERRO 500 INTERNO</h1><p>Falha ao renderizar a view 'configuracoes'.</p>`);
     }
 };
-
-// OBSOLETA: Não é mais necessária, a lógica foi movida para salvarEdicaoPerfil
-// export const uploadFoto = async (req, res) => { ... };

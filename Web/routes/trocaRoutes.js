@@ -31,11 +31,9 @@ router.post("/cancelar/:trocaId", trocaController.cancelarProposta);
 router.post("/finalizar/:trocaId", trocaController.finalizarTroca);
 // GET /trocas/detalhes/:trocaId - API para Modal de Detalhes
 router.get("/detalhes/:trocaId", trocaController.detalhesTroca);
-// ROTAS DE REDIRECIONAMENTO (Opcional, mas mantém as URLs funcionando)
+// ROTAS DE REDIRECIONAMENTO 
 router.get("/enviadas", trocaController.gerenciarTrocas);
 router.get("/recebidas", trocaController.gerenciarTrocas);
 router.get("/historico", trocaController.gerenciarTrocas);
-// ==========================================================
-// EXPORTAÇÃO
-// ==========================================================
+
 export default router;
