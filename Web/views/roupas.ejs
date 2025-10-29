@@ -1,27 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <title>Gerenciamento de Peças (Minhas Roupas)</title>
-
     <link rel="stylesheet" href="/css/sidebar.css">
     <link rel="stylesheet" href="/css/roupas.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
-
 <body>
-
     <div class="app-layout">
-
         <%- include('partials/_sidebar', { path: typeof path !=='undefined' ? path : '' }) %>
-
             <div class="content-area">
                 <div class="content-area-pad">
-
                     <div class="header-actions">
                         <h1>Gerenciamento de Peças</h1>
                         <% if (!mostrarHistorico) { %>
@@ -58,7 +49,6 @@
                                     <p>Roupas Disponíveis</p>
                                 </div>
                             </a>
-
                             <a href="/roupas?status=EmTroca" class="filtro-item-link">
                                 <div class="filtro-item <%= (statusAtual === 'EmTroca' && !isHistorico) ? 'ativo' : '' %>"
                                     style="background-color: #fffde7;" id="filtro-emtroca" data-filtro="EmTroca">
@@ -68,7 +58,6 @@
                                     <p>Roupas em Negociação</p>
                                 </div>
                             </a>
-
                             <a href="/roupas?status=Historico" class="filtro-item-link">
                                 <div class="filtro-item <%= isHistorico ? 'ativo' : '' %>"
                                     style="background-color: #e8f5e9;" id="filtro-historico-link"
@@ -80,12 +69,9 @@
                                 </div>
                             </a>
                         </div>
-
                         <% if (isHistorico) { %>
                             <h2>Histórico de Trocas Concluídas</h2>
-
                             <div class="historico-grid">
-
                                 <% 
                                 // Função auxiliar para formatar data
                                 const formatarData = (dataStr) => {
@@ -101,9 +87,7 @@
                                     }
                                 };
                                 %>
-
                                 <% if (historicoTrocas && historicoTrocas.length > 0) { %>
-
                                     <% historicoTrocas.forEach(function(troca) { %>
                                         <div class="troca-card">
 
@@ -116,18 +100,14 @@
                                             %>
 
                                                 <h3>Troca #<%= troca.id %> - <%= troca.status %></h3>
-
                                                 <div class="item-troca-container">
-
                                                     <div class="item-troca-info enviada">
                                                         <small>Você enviou:</small>
                                                         <p>
                                                             <%= pecaEnviada.peca %> (<%= pecaEnviada.tamanho %>)
                                                         </p>
                                                     </div>
-
                                                     <span class="simbolo-troca">↔️</span>
-
                                                     <div class="item-troca-info recebida">
                                                         <small>Você recebeu:</small>
                                                         <p>
@@ -135,18 +115,15 @@
                                                         </p>
                                                     </div>
                                                 </div>
-
                                                 <p style="font-size: 0.9em; margin-top: 10px;">
                                                     <strong>Trocada com:</strong>
                                                     <%= nomeParceiro %>
                                                 </p>
-
                                                 <% if (troca.dataFinalizacao) { %>
                                                     <p style="font-size: 0.85em; color: #555;">
                                                         Finalizada em: <%= formatarData(troca.dataFinalizacao) %>
                                                     </p>
                                                 <% } %>
-
                                                 <!-- BOTÃO VER DETALHES - ADICIONADO -->
                                                 <button class="btn-ver-detalhes" 
                                                         data-troca-id="<%= troca.id %>"
@@ -167,7 +144,6 @@
                                                 </button>
                                         </div>
                                     <% }); %>
-
                                 <% } else { %>
                                     <div class="empty-message">
                                         <h2>Histórico Vazio</h2>
@@ -176,12 +152,9 @@
                                     </div>
                                 <% } %>
                             </div>
-
                         <% } else { %>
                             <h2>Peças em Status: <%= statusAtual === 'Ativo' ? 'Disponível' : 'Em Negociação' %></h2>
-
                             <div class="itens-grid">
-
                                 <% if (itens && itens.length > 0) { %>
                                     <% itens.forEach(function(item) { %>
 
@@ -189,14 +162,12 @@
                                             <div class="image-placeholder">
                                                 <% 
                                                 let caminhoDaImagem = '/images/placeholder.png';
-                                                
                                                 // 1. Geramos a lista completa de objetos de imagem
                                                 const listaImagensObj = (item.imagens || []).map(img => {
                                                     const nomeDoArquivo = img.caminho_arquivo;
                                                     const caminhoCompleto = nomeDoArquivo.startsWith('/') || nomeDoArquivo.startsWith('http')
                                                         ? nomeDoArquivo 
                                                         : '/uploads/' + nomeDoArquivo;
-                                                    
                                                     return {
                                                         id: img.id, 
                                                         caminho_arquivo: nomeDoArquivo,
@@ -204,15 +175,12 @@
                                                         is_principal: img.is_principal
                                                     };
                                                 });
-                                                
                                                 // 2. A imagem principal para a capa do card
                                                 const imagemPrincipal = listaImagensObj.length > 0 ? listaImagensObj[0].caminho_url : caminhoDaImagem;
                                                 %>
-                                                
                                                 <img src="<%= imagemPrincipal %>" alt="<%= item.peca %>"
                                                     style="width: 100%; height: auto; object-fit: cover;">
                                             </div>
-
                                             <h3>
                                                 <%= item.peca %>
                                             </h3>
@@ -288,7 +256,6 @@
                                             </div>
                                         </div>
                                     <% }); %>
-
                                 <% } else { %>
                                     <% if (statusAtual === 'EmTroca') { %>
                                         <div class="empty-message"
@@ -301,52 +268,40 @@
                                         <div class="empty-message"
                                             style="text-align: center; grid-column: 1 / -1;">
                                             <h2>Nenhuma Peça Disponível para Troca</h2>
-
                                             <% if (emTroca > 0) { %>
                                                 <p>Você possui <%= emTroca %> peça(s) em <a
                                                         href="/roupas?status=EmTroca">negociação</a>.</p>
                                             <% } else { %>
                                                 <p>Você ainda não cadastrou nenhuma peça disponível para troca.</p>
                                             <% } %>
-
                                             <p>Clique no botão Adicionar Roupa para começar a trocar!</p>
                                         </div>
                                     <% } %>
                                 <% } %>
                             </div>
-
                         <% } %>
-
                         <p style="clear: both; margin-top: 30px;"><a href="/feed">Voltar para o feed</a></p>
-
                 </div>
             </div>
     </div>
-
     <!-- MODAL DE CADASTRO/EDIÇÃO -->
     <div id="modal-cadastro">
         <div class="modal-content">
             <span id="btn-fechar-modal" class="close">&times;</span>
             <h1 id="modal-titulo">Cadastrar Nova Peça para Troca</h1>
-
             <form id="form-roupa" method="POST" action="/roupas/salvar" enctype="multipart/form-data">
-
                 <input type="hidden" id="item-id" name="id" value="">
-                
                 <!-- SEÇÃO DE GERENCIAMENTO DE FOTOS EXISTENTES -->
                 <div id="fotos-existentes-container" style="display: none; margin-bottom: 20px;">
                     <p style="font-size: 0.9em; font-weight: bold; margin-bottom: 10px; color: #555;">
                         📸 Gerenciar Fotos (Arraste para reordenar - a primeira será a capa)
                     </p>
-                    
                     <div id="galeria-edicao" class="galeria-ordenavel">
                         <!-- As imagens serão inseridas aqui via JavaScript -->
                     </div>
-
                     <input type="hidden" id="fotos-reordenadas-json" name="fotos_reordenadas_json" value="[]">
                     <input type="hidden" id="fotos-removidas-json" name="fotos_removidas_json" value="[]">
                 </div>
-                
                 <!-- SEÇÃO DE UPLOAD DE NOVAS FOTOS -->
                 <div class="upload-area" id="upload-area">
                     <label for="imagens_upload" style="cursor: pointer; display: block;">
@@ -359,11 +314,9 @@
                     <input type="file" id="imagens_upload" name="imagens_upload" accept="image/*" multiple 
                            style="display: none;">
                 </div>
-
                 <!-- CAMPOS DO FORMULÁRIO -->
                 <label for="peca">Nome da Peça (Ex: Vestido Floral, Calça Jeans):</label>
                 <input type="text" id="peca" name="peca" required>
-
                 <label for="categoriaPeca">Tipo da Peça (Categoria):</label>
                 <select id="categoriaPeca" name="categoriaPeca" required>
                     <option value="">Selecione a Categoria</option>
@@ -378,14 +331,12 @@
                     <option value="Acessorio">Acessório</option>
                     <option value="Outro">Outro</option>
                 </select>
-
                 <label for="tipo">Gênero:</label>
                 <select id="tipo" name="tipo" required>
                     <option value="Feminino">Feminino</option>
                     <option value="Masculino">Masculino</option>
                     <option value="Unissex">Unissex</option>
                 </select>
-
                 <label for="tamanho">Tamanho:</label>
                 <select id="tamanho" name="tamanho" required>
                     <option value="">Selecione o Tamanho</option>
@@ -413,13 +364,10 @@
                     <option value="GG">GG (Extra Grande)</option>
                     <option value="Único">Tamanho Único</option>
                 </select>
-
                 <label for="cor">Cor:</label>
                 <input type="text" id="cor" name="cor">
-
                 <label for="tecido">Tecido:</label>
                 <input type="text" id="tecido" name="tecido">
-
                 <label for="estacao">Estação (Ex: Verão, Inverno):</label>
                 <select id="estacao" name="estacao">
                     <option value="">Selecione a Estação</option>
@@ -429,7 +377,6 @@
                     <option value="Inverno">Inverno (Frio Intenso)</option>
                     <option value="Qualquer">Qualquer Estação</option>
                 </select>
-
                 <label for="condicao">Condição (Qualidade de Uso):</label>
                 <select id="condicao" name="condicao" required>
                     <option value="">Selecione a Condição</option>
@@ -441,16 +388,13 @@
                     <option value="Requer Reparo Simples">Requer Reparo Simples</option>
                     <option value="Com pouco uso">Com pouco uso</option>
                 </select>
-
                 <label for="descricao">Descrição Detalhada:</label>
                 <textarea id="descricao" name="descricao"
                     placeholder="Detalhes de uso, marca, estado de conservação, etc."></textarea>
-
                 <button type="submit" id="btn-submit">Cadastrar Roupa</button>
             </form>
         </div>
     </div>
-    
     <!-- MODAL DE GALERIA DE FOTOS -->
     <div id="modal-galeria-fotos" style="
         display: none; 
@@ -474,7 +418,6 @@
         ">
             <span id="btn-fechar-galeria" class="close" style="top: 10px; right: 20px; position: absolute; color: #333; cursor: pointer; font-size: 30px;">&times;</span>
             <h2 id="galeria-titulo" style="margin-top: 5px;">Fotos da Peça</h2>
-            
             <div id="galeria-container" style="
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -484,7 +427,6 @@
             </div>
         </div>
     </div>
-
     <!-- MODAL PARA DETALHES DA TROCA -->
     <div id="modal-detalhes-troca" style="
         display: none; 
@@ -515,27 +457,22 @@
                 font-size: 30px;
                 font-weight: bold;
             ">&times;</span>
-            
             <h2>Detalhes da Troca</h2>
             <div id="conteudo-detalhes-troca">
                 <!-- Conteúdo será carregado via AJAX -->
             </div>
         </div>
     </div>
-
     <div id="item-data-container" style="display: none;" 
          data-filtro-status="<%= typeof filtroStatus !== 'undefined' ? filtroStatus : 'Ativo' %>">
     </div>
-
     <script src="/js/roupas.js"></script>
-
     <script>
     // JavaScript para o modal de detalhes (APENAS para histórico)
     document.addEventListener('DOMContentLoaded', function() {
         const modalDetalhes = document.getElementById('modal-detalhes-troca');
         const btnFecharDetalhes = document.getElementById('btn-fechar-detalhes');
         const conteudoDetalhes = document.getElementById('conteudo-detalhes-troca');
-        
         // Botões "Ver Detalhes" no histórico
         document.querySelectorAll('.btn-ver-detalhes').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -543,14 +480,12 @@
                 abrirDetalhesTroca(trocaId);
             });
         });
-        
         // Fechar modal
         if (btnFecharDetalhes) {
             btnFecharDetalhes.addEventListener('click', function() {
                 modalDetalhes.style.display = 'none';
             });
         }
-        
         // Fechar ao clicar fora
         if (modalDetalhes) {
             modalDetalhes.addEventListener('click', function(e) {
@@ -559,7 +494,7 @@
                 }
             });
         }
-        
+
         function abrirDetalhesTroca(trocaId) {
             // Carrega os detalhes via AJAX
             fetch(`/trocas/detalhes/${trocaId}`)

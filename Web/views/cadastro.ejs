@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="/css/cadastro.css" rel="stylesheet">
 </head>
-
 <body class="cadastro-body">
     <header class="main-header">
         <div class="logo-title-wrapper">
@@ -18,7 +16,6 @@
             <h1 class="cadastro-title">ReVeste Kids</h1>
         </div>
         </header>
-
     <% if (messages && Object.keys(messages).length > 0) { %>
         <div class="message-container">
             <% if (messages.error) { %>
@@ -44,10 +41,8 @@
             <% } %>
         </div>
     <% } %>
-
     <div class="cadastro-container">
         <form action="/cadastro" method="POST" class="cadastro-form" enctype="multipart/form-data">
-            
             <div class="grid-2-cols">
                 <div class="input-group">
                     <label for="nome" class="input-label">Nome</label>
@@ -59,7 +54,6 @@
                         class="text-input" required>
                 </div>
             </div>
-            
             <div class="input-group foto-cadastro">
                 <label for="foto_perfil_cadastro" class="label-file">
                     <i class="fas fa-camera"></i> Foto de Perfil (Opcional)
@@ -67,13 +61,11 @@
                 <input type="file" id="foto_perfil_cadastro" name="foto_perfil_cadastro" accept="image/*" class="file-input-hidden">
                 <p class="file-info" id="file-name-display">Nenhum arquivo selecionado.</p>
             </div>
-            
             <div class="input-group">
                 <label for="email" class="input-label">E-mail</label>
                 <input type="email" id="email" name="email" placeholder="seu@email.com" class="text-input"
                     required>
             </div>
-            
             <div class="grid-2-cols">
                 <div class="input-group"> 
                     <label for="senha" class="input-label">Senha</label>
@@ -87,7 +79,6 @@
                         minlength="6">
                 </div>
             </div>
-            
             <h3 class="section-title">Endereço</h3>
             <div class="grid-2-cols">
                 <div class="input-group"> 
@@ -122,7 +113,6 @@
                 <input type="text" id="estado" name="estado" placeholder="Estado (UF)" class="text-input"
                     required maxlength="2">
             </div>
-            
             <button type="submit" class="btn-cadastro">
                 Criar conta
             </button>
@@ -131,9 +121,7 @@
             <p>Já tem uma conta? <a href="/login" class="login-link">Fazer login</a></p>
         </div>
     </div>
-    
+
     <script src="/js/cadastro.js"></script>
-
 </body>
-
 </html>

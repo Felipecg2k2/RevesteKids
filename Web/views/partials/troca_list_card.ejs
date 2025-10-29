@@ -1,10 +1,6 @@
 <%
-    // userId é passado pelo views/trocas.ejs. É crucial parsear como int se não tiver certeza do tipo.
     const currentUserId = parseInt(userId, 10);
-
-    // Usa 'troca' em vez de 'item' para clareza (assumindo que o loop forEach usa 'troca')
     const troca = item;
-
     const isPendente = troca.status === 'Pendente';
     const isAceita = troca.status === 'Aceita';
     const isProponente = troca.ProponenteId === currentUserId;
@@ -23,7 +19,6 @@
        
     // O usuário parceiro está aninhado dentro do itemDeFoco (se a lógica de inclusão da rota estiver correta)
     const otherUser = itemDeFoco && itemDeFoco.usuario ? itemDeFoco.usuario : null;
-   
     const itemTitle = itemDeFoco && itemDeFoco.peca ? itemDeFoco.peca : 'Item Não Carregado';
     const otherUserName = otherUser ? otherUser.nome : 'Usuário Desconhecido';
 
@@ -77,8 +72,6 @@
             statusLabelText = 'AGUARDANDO O OUTRO';
             descriptionText = `Você confirmou. Aguardando ${otherUserName} confirmar.`;
         } else if (minhaConfirmacao && outraConfirmacao) {
-            // Este caso não deve aparecer, pois a rota deve ter mudado o status para 'Finalizada'
-            // Mas é bom ter um fallback.
             statusLabelText = 'PENDENTE DE ATUALIZAÇÃO';
             descriptionText = 'Ambos confirmaram. Recarregue a página.';
         }
@@ -87,7 +80,6 @@
 
 <div class="troca-list-card status-<%= troca.status.toLowerCase() %>">
     <div class="card-info">
-        <!-- NOVO: IMAGEM REAL NO LUGAR DO PLACEHOLDER -->
         <div class="item-thumb" style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center;">
             <img 
                 src="<%= imagemPrincipal %>" 

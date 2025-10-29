@@ -7,24 +7,12 @@
     const itemOferecido = troca.itemOferecido;
     const itemDesejado = troca.itemDesejado;
    
-    // CORREÇÃO: Determinar quem é quem CORRETAMENTE
     // Proponente = quem INICIOU a troca (ofereceu o itemOferecido)
     // Receptor = dono do itemDesejado
     const proponenteUser = itemOferecido.usuario;
     const receptorUser = itemDesejado.usuario;
-
-    // CORREÇÃO: Determinar a posse CORRETAMENTE
     const isProponente = troca.ProponenteId === currentUserId;
     const isReceptor = troca.ReceptorId === currentUserId;
-
-    // DEBUG: Vamos logar para verificar
-    console.log('DEBUG TROCA MODAL:');
-    console.log('Current User ID:', currentUserId);
-    console.log('Proponente ID:', troca.ProponenteId);
-    console.log('Receptor ID:', troca.ReceptorId);
-    console.log('isProponente:', isProponente);
-    console.log('isReceptor:', isReceptor);
-    console.log('Status:', troca.status);
 
     // Buscar imagens principais
     let imagemOferecido = null;
@@ -62,7 +50,6 @@
     </div>
 
     <div class="items-comparison">
-       
         <div class="item-card item-oferecido">
             <div class="card-header">
                 <h3 class="card-subtitle">Item Oferecido</h3>
@@ -91,7 +78,6 @@
                         </div>
                     <% } %>
                 </div>
-                
                 <div class="item-info">
                     <div class="info-row">
                         <i class="fas fa-tag"></i>
@@ -129,7 +115,6 @@
                 </div>
             </div>
         </div>
-
         <div class="troca-icon">
             <div class="exchange-arrow">
                 <i class="fas fa-exchange-alt"></i>
@@ -138,7 +123,6 @@
                 <i class="fas fa-handshake"></i>
             </div>
         </div>
-
         <div class="item-card item-desejado">
             <div class="card-header">
                 <h3 class="card-subtitle">Item Desejado</h3>
@@ -147,7 +131,6 @@
                     <span><strong><%= receptorUser.nome %></strong> • <%= receptorUser.cidade %></span>
                 </div>
             </div>
-
             <div class="item-details">
                 <!-- FOTO DESTACADA -->
                 <div class="photo-section">
@@ -166,8 +149,7 @@
                             <span>Imagem não disponível</span>
                         </div>
                     <% } %>
-                </div>
-                
+                </div>               
                 <div class="item-info">
                     <div class="info-row">
                         <i class="fas fa-tag"></i>
@@ -175,8 +157,7 @@
                             <strong class="item-name"><%= itemDesejado.peca %></strong>
                             <span class="item-category"><%= itemDesejado.categoriaPeca %></span>
                         </div>
-                    </div>
-                    
+                    </div>                   
                     <div class="info-grid">
                         <div class="info-item">
                             <i class="fas fa-ruler"></i>
@@ -194,8 +175,7 @@
                             <i class="fas fa-star"></i>
                             <span>Condição: <strong><%= itemDesejado.condicao %></strong></span>
                         </div>
-                    </div>
-                    
+                    </div>                    
                     <% if (itemDesejado.descricao) { %>
                     <div class="description-box">
                         <i class="fas fa-align-left"></i>
@@ -205,15 +185,14 @@
                 </div>
             </div>
         </div>
-    </div>
-   
+    </div>  
     <div class="modal-actions-summary">
         <div class="actions-header">
             <i class="fas fa-cogs"></i>
             <h4>Ações e Status da Troca</h4>
         </div>
        
-        <!-- CORREÇÃO: LÓGICA DE EXIBIÇÃO DOS BOTÕES -->
+        <!-- LÓGICA DE EXIBIÇÃO DOS BOTÕES -->
         <% if (troca.status === 'Pendente') { %>
             <% if (isReceptor) { %>
                 <!-- RECEPTOR vê botões de Aceitar/Rejeitar -->
@@ -269,15 +248,15 @@
                     </div>
                 </div>
             <% } %>
-       
+    
         <% } else if (troca.status === 'Aceita') { %>
             <%
-                // CORREÇÃO: Lógica de confirmação para AMBOS os usuários
+                // Lógica de confirmação para AMBOS os usuários
                 const minhaConfirmacao = isProponente ? troca.proponenteConfirmouFinalizacao : troca.receptorConfirmouFinalizacao;
                 const outraConfirmacao = isProponente ? troca.receptorConfirmouFinalizacao : troca.proponenteConfirmouFinalizacao;
                 const outroUsuario = isProponente ? receptorUser.nome : proponenteUser.nome;
                 
-                // CORREÇÃO: Determinar qual item cada usuário recebe
+                // Determinar qual item cada usuário recebe
                 const itemQueRecebo = isProponente ? itemDesejado.peca : itemOferecido.peca;
                 const itemQueOfereci = isProponente ? itemOferecido.peca : itemDesejado.peca;
             %>
@@ -289,12 +268,10 @@
                 <div class="action-content">
                     <h5>Troca Aceita!</h5>
                     <p>Ambos concordaram com a troca. Agora confirme que você recebeu o item.</p>
-                    
                     <div class="trade-summary">
                         <p><strong>Você recebe:</strong> <%= itemQueRecebo %></p>
                         <p><strong>Você enviou:</strong> <%= itemQueOfereci %></p>
                     </div>
-                    
                     <div class="confirmation-status">
                         <div class="user-confirmation <%= minhaConfirmacao ? 'confirmed' : 'pending' %>">
                             <div class="confirmation-icon">
@@ -312,7 +289,6 @@
                             </form>
                             <% } %>
                         </div>
-                        
                         <div class="user-confirmation <%= outraConfirmacao ? 'confirmed' : 'pending' %>">
                             <div class="confirmation-icon">
                                 <i class="fas fa-<%= outraConfirmacao ? 'check-circle' : 'clock' %>"></i>
@@ -340,7 +316,6 @@
                     </div>
                 </div>
             </div>
-       
         <% } else { %>
             <div class="action-panel historical">
                 <div class="action-icon">

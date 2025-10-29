@@ -1,30 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciamento de Trocas</title>
-    
-    <!-- IMPORTAR NA MESMA ORDEM DA TELA QUE FUNCIONA -->
     <link rel="stylesheet" href="/css/sidebar.css">
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="/css/trocas.css"> <!-- SEU CSS por último -->
+    <link rel="stylesheet" href="/css/trocas.css"> 
 </head>
-
-<body>
-    
+<body>  
     <div class="app-layout">
         <%- include('partials/_sidebar') %>
-
         <main class="content-area">
-            <div class="content-area-pad">
-            
+            <div class="content-area-pad">          
                 <h2 class="page-title">Gerenciamento de Trocas</h2>
-
-                <div class="tabs-navigation">
-                    
+                <div class="tabs-navigation">                   
                     <button class="tab-button active" data-tab="recebidas"> Propostas Recebidas
                         <span class="badge badge-recebidas"><%= propostasRecebidas.length %></span>
                     </button>
@@ -36,10 +27,8 @@
                         Histórico
                         <span class="badge badge-historico"><%= historicoTrocas.length %></span>
                     </button>
-                </div>
-                
-                <div class="tab-content-area">
-                    
+                </div>               
+                <div class="tab-content-area">                   
                     <div id="recebidas" class="tab-pane proposta-list active-tab-pane"> <% if (propostasRecebidas.length > 0) { %>
                             <% propostasRecebidas.forEach(proposta => { %>
                                 <%- include('partials/troca_list_card', { 
@@ -57,7 +46,6 @@
                             </div>
                         <% } %>
                     </div>
-
                     <div id="enviadas" class="tab-pane proposta-list" style="display: none;"> <% if (propostasEnviadas.length > 0) { %>
                             <% propostasEnviadas.forEach(proposta => { %>
                                 <%- include('partials/troca_list_card', { 
@@ -75,8 +63,6 @@
                             </div>
                         <% } %>
                     </div>
-
-
                     <div id="historico" class="tab-pane proposta-list" style="display: none;"> <% if (historicoTrocas.length > 0) { %>
                             <% historicoTrocas.forEach(troca => { %>
                                 <%- include('partials/troca_list_card', { 
@@ -99,7 +85,6 @@
             </div>
         </main>
     </div>
-    
     <div id="trocaModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <span class="close-button">&times;</span>
