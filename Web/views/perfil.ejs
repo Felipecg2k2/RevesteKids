@@ -44,12 +44,9 @@
                     <p><strong>Cidade:</strong> <%= usuario.cidade %> - <%= usuario.estado %></p>
                 </div>
 
-                <!-- Nova seção para centralizar o botão de Edição -->
-                <div class="secao acoes centralizado">
+                <!-- Seção unificada para ações -->
+                <div class="secao-acoes">
                     <a href="/perfil/editar" class="botao"><i class="fas fa-edit"></i> Editar meu perfil</a>
-                </div>
-                
-                <div class="secao acoes centralizado">
                     <a href="/perfil/apagar" class="link-apagar" onclick="return confirm('Tem certeza que deseja apagar sua conta?')">
                         <i class="fas fa-trash-alt"></i> Apagar Conta
                     </a>
