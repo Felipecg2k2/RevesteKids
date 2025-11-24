@@ -194,12 +194,12 @@
             background-color: #E0BFFF;
         }
 
-        /* BOTÕES DE AÇÃO (MANTENDO O ORIGINAL) */
+        /* NOVOS BOTÕES DE NAVEGAÇÃO - SETAS LATERAIS */
         .global-card-actions {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 30px;
             margin-top: 5px;
         }
 
@@ -210,7 +210,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
             cursor: pointer;
             border: none;
             transition: all 0.2s ease-in-out;
@@ -220,36 +219,18 @@
         }
 
         .action-button .icon {
-            font-size: 30px;
-            line-height: 1;
-            font-weight: 300;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn-ignorar {
-            background-color: rgb(248, 207, 207);
-            border: 2px solid #ffaaaa;
-            box-shadow: none;
-        }
-
-        .btn-ignorar .icon {
-            color: #ff3838;
-            font-weight: 300;
-        }
-
-        .btn-ignorar:hover:not(.inactive) {
-            background-color: #ff3838;
-            border-color: #ff3838;
-        }
-
-        .btn-ignorar:hover:not(.inactive) .icon {
-            color: white;
-        }
-
+        /* BOTÃO SETA ESQUERDA */
         .btn-voltar {
             background-color: #E6F7FF;
             border: 2px solid #B3E0FF;
             box-shadow: none;
-            color: transparent;
         }
 
         .btn-voltar .icon svg {
@@ -263,6 +244,7 @@
         .btn-voltar:hover:not(.inactive) {
             background-color: #007bff;
             border-color: #007bff;
+            transform: scale(1.1);
         }
 
         .btn-voltar:hover:not(.inactive) .icon svg {
@@ -281,13 +263,50 @@
             stroke: #aaa;
         }
 
+        /* BOTÃO SETA DIREITA */
+        .btn-proximo {
+            background-color: #E6F7FF;
+            border: 2px solid #B3E0FF;
+            box-shadow: none;
+        }
+
+        .btn-proximo .icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: #007bff;
+            stroke-width: 2;
+            transition: stroke 0.2s ease-in-out;
+        }
+
+        .btn-proximo:hover:not(.inactive) {
+            background-color: #007bff;
+            border-color: #007bff;
+            transform: scale(1.1);
+        }
+
+        .btn-proximo:hover:not(.inactive) .icon svg {
+            stroke: white;
+        }
+
+        .btn-proximo.inactive {
+            background-color: #f0f0f0;
+            border-color: #ccc;
+            cursor: default;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .btn-proximo.inactive .icon svg {
+            stroke: #aaa;
+        }
+
+        /* BOTÃO TROCA (CENTRAL) */
         .btn-trocar {
             background-color: #7b1fa2;
             border: none;
             color: white;
             width: 70px;
             height: 70px;
-            font-size: 30px;
             box-shadow: 0 4px 10px rgba(123, 31, 162, 0.4);
         }
 
@@ -295,6 +314,11 @@
             width: 35px;
             height: 35px;
             transition: transform 0.2s ease;
+        }
+
+        .btn-trocar:hover {
+            background-color: #6a1b9a;
+            transform: scale(1.1);
         }
 
         .btn-trocar:hover .icon svg {
@@ -346,6 +370,72 @@
             color: #666;
             font-size: 16px;
         }
+
+        /* ESTILOS DO MODAL DE DETALHES */
+        .rk-detalhes-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .rk-detalhes-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .fechar-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+            z-index: 1001;
+        }
+
+        .fechar-btn:hover {
+            color: #000;
+        }
+
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-ver-mais {
+            background: #9370DB;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .btn-ver-mais:hover {
+            background: #7B68EE;
+        }
     </style>
 </head>
 <body>
@@ -388,29 +478,29 @@
                                             data-index="<%= index %>">
                                             
                                             <div class="card-image-container">
-                                                <% if (item.imagemPrincipal && item.imagemPrincipal.caminho_arquivo) { %>
-                                                    <img 
-                                                        src="<%= item.imagemPrincipal.caminho_arquivo %>" 
-                                                        alt="<%= item.peca %>"
-                                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                                                    >
-                                                    <% if (item.imagens && item.imagens.length > 1) { %>
-                                                        <div class="image-counter">
-                                                            +<%= item.imagens.length - 1 %>
-                                                        </div>
-                                                    <% } %>
-                                                <% } %>
-                                                
-                                                <!-- Placeholder que aparece se a imagem falhar -->
-                                                <div class="image-placeholder" style = "<%= item.imagemPrincipal && item.imagemPrincipal.caminho_arquivo ? 'display: none;' : '' %>">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                                        <polyline points="21,15 16,10 5,21"></polyline>
-                                                    </svg>
-                                                    <p style="margin-top: 10px;">Sem imagem</p>
-                                                </div>
-                                            </div>
+    <% if (item.imagemPrincipal && item.imagemPrincipal.caminho_arquivo) { %>
+        <img 
+            src="<%= item.imagemPrincipal.caminho_arquivo %>" 
+            alt="<%= item.peca %>"
+            style="width: 100%; height: 100%; object-fit: cover;"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+        <% if (item.imagens && item.imagens.length > 1) { %>
+            <div class="image-counter">
+                +<%= item.imagens.length - 1 %>
+            </div>
+        <% } %>
+    <% } else { %>
+        <div class="image-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21,15 16,10 5,21"></polyline>
+            </svg>
+            <p style="margin-top: 10px;">Sem imagem</p>
+        </div>
+    <% } %>
+</div>
                                             
                                             <div class="card-info">
                                                 <h2 style="margin-top: 0; color: #333; font-size: 1.4rem;"><%= item.peca %></h2>
@@ -426,7 +516,7 @@
                                                     type="button" 
                                                     class="btn-ver-mais"
                                                     data-item-id="<%= item.id %>"
-                                                    onclick="abrirModalDetalhes('<%= item.id %>')">
+                                                    onclick="handleVerDetalhes('<%= item.id %>')">
                                                     Ver Mais Detalhes
                                                 </button>
                                             </div>
@@ -435,17 +525,16 @@
                                 </div>
                             </div>
                             
+                            <!-- NOVOS BOTÕES: SETAS LATERAIS + TROCA NO CENTRO -->
                             <div class="global-card-actions">
-                                <button class="action-button btn-ignorar" id="global-btn-ignorar">
-                                    <span class="icon">&times;</span>
-                                </button>
                                 <button class="action-button btn-voltar <%= itens.length <= 1 ? 'inactive' : '' %>" id="global-btn-voltar">
                                     <span class="icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                                         </svg>
                                     </span>
                                 </button>
+                                
                                 <a href="#" class="action-button btn-trocar" id="global-btn-trocar">
                                     <span class="icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -453,6 +542,14 @@
                                         </svg>
                                     </span>
                                 </a>
+                                
+                                <button class="action-button btn-proximo <%= itens.length <= 1 ? 'inactive' : '' %>" id="global-btn-proximo">
+                                    <span class="icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </span>
+                                </button>
                             </div>
                         <% } %>
                     </div>
@@ -523,14 +620,87 @@
         </div>
     </div>
 
-    <script src="/js/item_modal.js" defer></script>
-    
     <script>
+        // =======================================================
+        // FUNÇÃO SEGURA PARA ABRIR DETALHES
+        // =======================================================
+        async function handleVerDetalhes(itemId) {
+            console.log('🎯 Tentando abrir detalhes do item:', itemId);
+            try {
+                if (typeof abrirModalDetalhes === 'function') {
+                    await abrirModalDetalhes(itemId);
+                } else {
+                    console.error('❌ Função abrirModalDetalhes não encontrada, carregando script...');
+                    // Tenta carregar o script dinamicamente
+                    await carregarScriptModal();
+                    if (typeof abrirModalDetalhes === 'function') {
+                        await abrirModalDetalhes(itemId);
+                    } else {
+                        throw new Error('Não foi possível carregar o modal de detalhes');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro ao abrir modal:', error);
+                // Fallback: mostrar detalhes básicos
+                mostrarDetalhesBasicos(itemId);
+            }
+        }
+
+        // Função para carregar o script do modal dinamicamente
+        function carregarScriptModal() {
+            return new Promise((resolve, reject) => {
+                if (document.querySelector('script[src="/js/item_modal.js"]')) {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = '/js/item_modal.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Fallback básico se o modal não carregar
+        function mostrarDetalhesBasicos(itemId) {
+            const modal = document.getElementById('itemDetalhesModal');
+            const modalContent = modal.querySelector('.rk-detalhes-content');
+            
+            if (!modal || !modalContent) {
+                alert('Erro ao carregar detalhes. Tente novamente.');
+                return;
+            }
+
+            modalContent.innerHTML = `
+                <span class="fechar-btn" onclick="fecharModalDetalhes()">&times;</span>
+                <h3>Detalhes do Item</h3>
+                <p><strong>ID do Item:</strong> ${itemId}</p>
+                <p>Não foi possível carregar os detalhes completos.</p>
+                <button onclick="window.location.href='/trocas/propor/${itemId}'" 
+                        style="margin-top: 20px; padding: 10px 20px; background: #9370DB; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    Propor Troca
+                </button>
+            `;
+            modal.style.display = 'flex';
+        }
+
+        // Função básica para fechar modal
+        function fecharModalDetalhes() {
+            const modal = document.getElementById('itemDetalhesModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // =======================================================
+        // CÓDIGO DO CARROSSEL
+        // =======================================================
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.card-item');
             let currentIndex = 0;
-            const globalBtnIgnorar = document.getElementById('global-btn-ignorar');
             const globalBtnVoltar = document.getElementById('global-btn-voltar');
+            const globalBtnProximo = document.getElementById('global-btn-proximo');
             const globalBtnTrocar = document.getElementById('global-btn-trocar');
             const btnAplicarFiltros = document.getElementById('btn-aplicar-filtros');
             const btnLimparFiltros = document.getElementById('btn-limpar-filtros');
@@ -543,28 +713,27 @@
                     
                     if (index === currentIndex) {
                         card.classList.add('active');
-                        console.log('Card ativo:', index);
                     } else if (index === currentIndex + 1) {
                         card.classList.add('next');
-                        console.log('Card próximo:', index);
                     } else if (index === currentIndex - 1) {
                         card.classList.add('prev');
-                        console.log('Card anterior:', index);
                     } else {
                         card.classList.add('hidden');
                     }
                 });
 
-                // Atualizar botão voltar
+                // Atualizar estado dos botões de navegação
                 if (globalBtnVoltar) {
                     globalBtnVoltar.classList.toggle('inactive', currentIndex === 0);
+                }
+                if (globalBtnProximo) {
+                    globalBtnProximo.classList.toggle('inactive', currentIndex >= cards.length - 1);
                 }
 
                 // Atualizar link de troca
                 if (globalBtnTrocar && cards[currentIndex]) {
                     const currentItemId = cards[currentIndex].dataset.id;
                     globalBtnTrocar.href = `/trocas/propor/${currentItemId}`;
-                    console.log('Link de troca atualizado para item:', currentItemId);
                 }
 
                 // Verificar fim do carrossel
@@ -579,7 +748,6 @@
                     currentIndex++;
                     updateCarousel();
                 } else {
-                    // Fim do carrossel
                     document.getElementById('swipe-container').innerHTML = 
                         '<div class="no-items-message"><p>Você viu todas as peças do catálogo! Volte mais tarde.</p></div>';
                 }
@@ -593,27 +761,25 @@
             }
 
             // Event Listeners para navegação
-            if (globalBtnIgnorar) {
-                globalBtnIgnorar.addEventListener('click', nextCard);
-            }
-
             if (globalBtnVoltar) {
                 globalBtnVoltar.addEventListener('click', prevCard);
             }
 
-            // Filtros - toggle de botões
+            if (globalBtnProximo) {
+                globalBtnProximo.addEventListener('click', nextCard);
+            }
+
+            // Filtros
             document.querySelectorAll('.filter-button').forEach(button => {
                 button.addEventListener('click', function() {
                     this.classList.toggle('active');
                 });
             });
 
-            // Aplicar filtros
             if (btnAplicarFiltros) {
                 btnAplicarFiltros.addEventListener('click', aplicarFiltros);
             }
 
-            // Limpar filtros
             if (btnLimparFiltros) {
                 btnLimparFiltros.addEventListener('click', limparFiltros);
             }
@@ -639,14 +805,25 @@
             function handleTouchEnd() {
                 const diff = startX - currentX;
                 
-                if (Math.abs(diff) > 50) { // Limite mínimo para considerar swipe
+                if (Math.abs(diff) > 50) {
                     if (diff > 0) {
-                        nextCard(); // Swipe para esquerda
+                        nextCard();
                     } else {
-                        prevCard(); // Swipe para direita
+                        prevCard();
                     }
                 }
             }
+
+            // Navegação por teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevCard();
+                } else if (e.key === 'ArrowRight') {
+                    nextCard();
+                } else if (e.key === 'Escape') {
+                    fecharModalDetalhes();
+                }
+            });
 
             function aplicarFiltros() {
                 const filtros = {
@@ -655,11 +832,7 @@
                     categoria: Array.from(document.querySelectorAll('.filter-button[data-filter-type="categoria"].active')).map(btn => btn.dataset.value),
                     condicao: Array.from(document.querySelectorAll('.filter-button[data-filter-type="condicao"].active')).map(btn => btn.dataset.value)
                 };
-
                 console.log('Aplicando filtros:', filtros);
-                // Aqui você pode fazer uma requisição para o backend com os filtros
-                // ou filtrar os cards localmente
-                
                 alert('Filtros aplicados! (Funcionalidade será implementada)');
             }
 
@@ -670,15 +843,26 @@
                 document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                     cb.checked = false;
                 });
-                console.log('Filtros limpos');
             }
 
             // Inicializar carrossel
             if (cards.length > 0) {
                 updateCarousel();
-                console.log('Carrossel inicializado com', cards.length, 'cards');
+            }
+
+            // Fechar modal ao clicar fora
+            const modal = document.getElementById('itemDetalhesModal');
+            if (modal) {
+                modal.addEventListener('click', (event) => {
+                    if (event.target.id === 'itemDetalhesModal') {
+                        fecharModalDetalhes();
+                    }
+                });
             }
         });
     </script>
+
+    <!-- Script do modal carregado por último -->
+    <script src="/js/item_modal.js" defer></script>
 </body>
 </html>
