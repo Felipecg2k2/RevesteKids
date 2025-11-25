@@ -54,20 +54,20 @@ async function abrirModalDetalhes(itemId) {
             }
         }
         
-        // 4. Montar o HTML completo do Modal - APENAS FOTO PRINCIPAL
+        // 4. Montar o HTML completo do Modal com CARROSSEL COMPLETO
         const temImagens = item.imagens && item.imagens.length > 0;
-        const imagemPrincipal = temImagens ? item.imagens[0] : null;
+        const temMultiplasImagens = item.imagens && item.imagens.length > 1;
         
         modalContent.innerHTML = `
             <span class="fechar-btn" onclick="fecharModalDetalhes()">&times;</span>
             <h3>${item.nome_da_peca || item.peca || 'Item sem nome'}</h3>
             
-            <!-- APENAS FOTO PRINCIPAL -->
+            <!-- CARROSSEL DE IMAGENS COMPLETO -->
             <div class="rk-carrossel-container">
                 <div class="rk-carrossel-imagem" id="rk-imagem-principal">
                     ${temImagens ? 
-                        `<img src="${imagemPrincipal.caminho_arquivo}" alt="${item.nome_da_peca || item.peca}" id="rk-imagem-atual" style="width: 100%; max-height: 400px; object-fit: contain;">
-                         <button class="rk-expand-btn" onclick="expandirImagem('${imagemPrincipal.caminho_arquivo}')">⤢</button>` :
+                        `<img src="${item.imagens[0].caminho_arquivo}" alt="${item.nome_da_peca || item.peca}" id="rk-imagem-atual">
+                         <button class="rk-expand-btn" onclick="expandirImagem('${item.imagens[0].caminho_arquivo}')">⤢</button>` :
                         `<div style="text-align: center; color: #666; padding: 50px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -78,6 +78,26 @@ async function abrirModalDetalhes(itemId) {
                          </div>`
                     }
                 </div>
+                
+                <!-- CONTROLES DO CARROSSEL (aparecem apenas se tiver múltiplas imagens) -->
+                ${temMultiplasImagens ? `
+                <div class="rk-carrossel-controles">
+                    <button class="rk-carrossel-btn" id="rk-btn-anterior" onclick="mudarImagem(-1)">‹ Anterior</button>
+                    <div class="rk-carrossel-contador">
+                        <span id="rk-contador-atual">1</span> / <span id="rk-contador-total">${item.imagens.length}</span>
+                    </div>
+                    <button class="rk-carrossel-btn" id="rk-btn-proximo" onclick="mudarImagem(1)">Próximo ›</button>
+                </div>
+                
+                <div class="rk-carrossel-miniatura" id="rk-miniaturas">
+                    ${item.imagens.map((imagem, index) => `
+                        <div class="rk-miniatura-item ${index === 0 ? 'active' : ''}" 
+                             onclick="irParaImagem(${index})">
+                            <img src="${imagem.caminho_arquivo}" alt="Miniatura ${index + 1}">
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
             </div>
             
             <!-- DETALHES DO ITEM -->
@@ -99,7 +119,18 @@ async function abrirModalDetalhes(itemId) {
             <button class="propor-troca-btn" data-item-id="${item.id}">Propor Troca</button>
         `;
         
-        // 5. Lógica para o botão "Propor Troca"
+        // 5. Armazenar dados do carrossel globalmente
+        window.rkCarrosselData = {
+            imagens: item.imagens || [],
+            imagemAtual: 0
+        };
+        
+        // 6. Atualizar controles do carrossel (com verificação de segurança)
+        if (temMultiplasImagens) {
+            atualizarControlesCarrossel();
+        }
+        
+        // 7. Lógica para o botão "Propor Troca"
         const btnProporTroca = modalContent.querySelector('.propor-troca-btn');
         if (btnProporTroca) {
             btnProporTroca.addEventListener('click', () => {
@@ -137,8 +168,69 @@ async function abrirModalDetalhes(itemId) {
 }
 
 // =======================================================
-// FUNÇÕES SIMPLIFICADAS - APENAS EXPANSÃO DE IMAGEM
+// FUNÇÕES DO CARROSSEL - RESTAURADAS
 // =======================================================
+
+function mudarImagem(direcao) {
+    if (!window.rkCarrosselData || window.rkCarrosselData.imagens.length <= 1) return;
+    
+    const totalImagens = window.rkCarrosselData.imagens.length;
+    let novaImagem = window.rkCarrosselData.imagemAtual + direcao;
+    
+    // Loop circular
+    if (novaImagem < 0) novaImagem = totalImagens - 1;
+    if (novaImagem >= totalImagens) novaImagem = 0;
+    
+    irParaImagem(novaImagem);
+}
+
+function irParaImagem(index) {
+    if (!window.rkCarrosselData || !window.rkCarrosselData.imagens[index]) return;
+    
+    window.rkCarrosselData.imagemAtual = index;
+    const imagem = window.rkCarrosselData.imagens[index];
+    
+    // Atualizar imagem principal
+    const imgElement = document.getElementById('rk-imagem-atual');
+    const expandBtn = document.querySelector('.rk-expand-btn');
+    
+    if (imgElement) {
+        imgElement.src = imagem.caminho_arquivo;
+        imgElement.alt = `Imagem ${index + 1}`;
+    }
+    
+    if (expandBtn) {
+        expandBtn.onclick = () => expandirImagem(imagem.caminho_arquivo);
+    }
+    
+    // Atualizar miniaturas
+    const miniaturas = document.querySelectorAll('.rk-miniatura-item');
+    if (miniaturas.length > 0) {
+        miniaturas.forEach((miniatura, i) => {
+            miniatura.classList.toggle('active', i === index);
+        });
+    }
+    
+    // Atualizar contador
+    const contadorAtual = document.getElementById('rk-contador-atual');
+    if (contadorAtual) {
+        contadorAtual.textContent = index + 1;
+    }
+    
+    atualizarControlesCarrossel();
+}
+
+function atualizarControlesCarrossel() {
+    if (!window.rkCarrosselData) return;
+    
+    const totalImagens = window.rkCarrosselData.imagens.length;
+    
+    // Atualizar contador total apenas se existir
+    const contadorTotal = document.getElementById('rk-contador-total');
+    if (contadorTotal) {
+        contadorTotal.textContent = totalImagens;
+    }
+}
 
 function expandirImagem(urlImagem) {
     // Criar overlay para imagem expandida se não existir
@@ -187,6 +279,8 @@ function fecharModalDetalhes() {
     if (modal) {
         modal.style.display = 'none';
     }
+    // Limpar dados do carrossel
+    window.rkCarrosselData = null;
 }
 
 function iniciarTroca(itemRecebidoId) {
@@ -209,8 +303,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Navegação por teclado
     document.addEventListener('keydown', (e) => {
         const modal = document.getElementById('itemDetalhesModal');
-        if (modal && modal.style.display === 'flex') {
-            if (e.key === 'Escape') {
+        if (modal && modal.style.display === 'flex' && window.rkCarrosselData) {
+            if (e.key === 'ArrowLeft') {
+                mudarImagem(-1);
+            } else if (e.key === 'ArrowRight') {
+                mudarImagem(1);
+            } else if (e.key === 'Escape') {
                 fecharModalDetalhes();
                 fecharImagemExpandida();
             }
