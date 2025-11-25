@@ -1,4 +1,3 @@
-// --- Imports e Configurações de Caminho (MANTENHA) ---
 import express from "express";
 import session from "express-session";
 import flash from "connect-flash";
@@ -11,17 +10,11 @@ const __dirname = path.dirname(__filename);
 global.APP_ROOT = __dirname;
 
 import db from "./models/index.js";
-const { Usuario, Item, Troca, sequelize } = db;
-// --------------------------------------------------------
+const { Item, Usuario, Troca, Imagem, sequelize } = db;
 
-
-// --- Instância do App Express (MANTENHA) ---
 const app = express();
-// REMOVA: const port = 8080; (A Vercel define a porta)
-// ------------------------------------------
+const port = 8080;
 
-
-// --- Configurações do App (MANTENHA) ---
 app.set("Usuario", Usuario);
 app.set("Item", Item);
 app.set("Troca", Troca);
@@ -53,47 +46,44 @@ app.use((req, res, next) => {
   res.locals.userId = req.session.userId || null;
   next();
 });
-// -------------------------------------------
 
-
-// --- Configuração das Rotas (MOVIDA PARA FORA DA PROMISE) ---
-// É CRUCIAL que as rotas sejam definidas no app ANTES da exportação
-app.use("/", viewRoutes);
-app.use("/", usuarioRoutes);
-app.use("/roupas", itemRoutes);
-app.use("/trocas", trocaRoutes);
-
-app.use((req, res, next) => {
-  res.status(404).render("404", { title: "Página não encontrada" });
-});
-// -------------------------------------------------------------
-
-
-// --- Lógica de Sincronização do DB (OPCIONAL/MELHOR PRÁTICA) ---
-// Em Serverless, é melhor garantir que o DB esteja pronto ANTES do deploy.
-// Colocar a sincronização aqui pode ser lento, mas faremos o mínimo para tentar funcionar:
 sequelize
   .authenticate()
   .then(() => {
-    // console.log("Conexão com o banco de dados realizada com sucesso!");
+    console.log("Conexão com o banco de dados realizada com sucesso!");
+
     return sequelize.query(`CREATE DATABASE IF NOT EXISTS RevesteKids;`);
   })
   .then(() => {
-    // console.log("O banco de dados está criado (ou já existia).");
+    console.log("O banco de dados está criado (ou já existia).");
+
     return sequelize.sync({});
   })
   .then(() => {
-    // console.log("Tabelas sincronizadas.");
+    console.log(
+      "Todas as tabelas foram sincronizadas e estão prontas para uso."
+    );
+
+    app.use("/", viewRoutes);
+    app.use("/", usuarioRoutes);
+    app.use("/roupas", itemRoutes);
+    app.use("/trocas", trocaRoutes);
+
+    app.use((req, res, next) => {
+      res.status(404).render("404", { title: "Página não encontrada" });
+    });
+
+    app.listen(port, function (error) {
+      if (error) {
+        console.log(`Não foi possível iniciar o servidor. Erro: ${error}`);
+      } else {
+        console.log(
+          `Servidor iniciado com sucesso em http://localhost:${port} !`
+        );
+      }
+    });
   })
   .catch((error) => {
-    console.error("Erro na sincronização do DB. Isso pode quebrar a função:", error);
-    // Em produção Serverless, não devemos usar process.exit(1),
-    // mas o erro deve ser capturado e tratado pelas rotas.
-    // Manteremos assim por enquanto, mas se a conexão falhar, as rotas falharão.
+    console.error("Erro fatal na inicialização:", error);
+    process.exit(1);
   });
-// -------------------------------------------------------------------
-
-
-// --- EXPORTAÇÃO NECESSÁRIA PARA A VERCEL ---
-// SUBSTITUI O app.listen().
-export default app;
