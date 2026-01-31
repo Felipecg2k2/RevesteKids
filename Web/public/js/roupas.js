@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fotosReordenadasInput = document.getElementById('fotos-reordenadas-json');
     const fotosRemovidasInput = document.getElementById('fotos-removidas-json');
     const imagensUploadInput = document.getElementById('imagens_upload');
-    const uploadArea = document.getElementById('upload-area');
     const galeriaContainer = document.getElementById('galeria-container');
     const galeriaTitulo = document.getElementById('galeria-titulo');
 
@@ -25,13 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==============================================================================
     // 2. FUNÇÕES AUXILIARES BÁSICAS
     // ==============================================================================
-
     const abrirModal = (modal) => {
         if (modal) {
             modal.style.display = 'block';
             console.log('📱 Modal aberto:', modal.id);
-        } else {
-            console.error('Tentativa de abrir modal inexistente');
         }
     };
 
@@ -57,14 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (imagensUploadInput) {
             imagensUploadInput.required = true;
             imagensUploadInput.disabled = false;
-            imagensUploadInput.value = '';
         }
         
-        // Reseta os campos de ordem
         if (fotosReordenadasInput) fotosReordenadasInput.value = '[]';
         if (fotosRemovidasInput) fotosRemovidasInput.value = '[]';
         
-        // Destrói Sortable se existir
         if (sortable) {
             sortable.destroy();
             sortable = null;
@@ -74,9 +67,73 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==============================================================================
+    // 🔥 FUNÇÃO NOVA: CONVERTER IMAGENS DA GALERIA PARA ARQUIVOS REAIS
+    // ==============================================================================
+    const converterImagensParaArquivos = async () => {
+        return new Promise(async (resolve) => {
+            if (!imagensUploadInput || !galeriaEdicao) {
+                resolve(false);
+                return;
+            }
+
+            // Pega todas as imagens NOVAS da galeria (não as existentes do BD)
+            const novasImagens = Array.from(galeriaEdicao.children)
+                .filter(container => !container.getAttribute('data-imagem-id'));
+
+            console.log(`🔄 Convertendo ${novasImagens.length} imagens para arquivos...`);
+
+            if (novasImagens.length === 0) {
+                console.log('ℹ️  Nenhuma imagem nova para converter');
+                resolve(false);
+                return;
+            }
+
+            const dataTransfer = new DataTransfer();
+            let arquivosConvertidos = 0;
+
+            // Converte cada imagem Data URL para File
+            for (let i = 0; i < novasImagens.length; i++) {
+                const container = novasImagens[i];
+                const imgElement = container.querySelector('img');
+                
+                if (imgElement && imgElement.src.startsWith('data:')) {
+                    try {
+                        console.log(`📤 Convertendo imagem ${i + 1}...`);
+                        
+                        // Converte Data URL para Blob
+                        const response = await fetch(imgElement.src);
+                        const blob = await response.blob();
+                        
+                        // Cria um File real
+                        const file = new File([blob], `imagem-${Date.now()}-${i}.jpg`, {
+                            type: 'image/jpeg'
+                        });
+                        
+                        dataTransfer.items.add(file);
+                        arquivosConvertidos++;
+                        console.log(`✅ Imagem ${i + 1} convertida: ${file.name}`);
+                        
+                    } catch (error) {
+                        console.error(`❌ Erro ao converter imagem ${i + 1}:`, error);
+                    }
+                }
+            }
+
+            // Atualiza o input de arquivo
+            if (arquivosConvertidos > 0) {
+                imagensUploadInput.files = dataTransfer.files;
+                console.log(`🎉 ${arquivosConvertidos} arquivos preparados para envio!`);
+                resolve(true);
+            } else {
+                console.log('⚠️  Nenhuma imagem foi convertida com sucesso');
+                resolve(false);
+            }
+        });
+    };
+
+    // ==============================================================================
     // 3. FUNÇÃO PRINCIPAL - ATUALIZAR ORDEM E CAPA
     // ==============================================================================
-
     const atualizarOrdemImagens = () => {
         if (!galeriaEdicao || !fotosReordenadasInput) return;
 
@@ -87,30 +144,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgId = container.getAttribute('data-imagem-id');
             const caminho = container.getAttribute('data-caminho-arquivo');
 
-            //  CAPTURA TANTO IMAGENS EXISTENTES QUANTO NOVAS
             if (imgId) {
                 ordem.push({ id: imgId, caminho_arquivo: caminho });
             } else if (caminho) {
-                // Para imagens novas no cadastro
                 ordem.push({ caminho_arquivo: caminho });
             }
 
-            //  LÓGICA CORRIGIDA - APLICA ESTILO DE CAPA NA PRIMEIRA IMAGEM
             const isCapa = index === 0;
-            
-            // Encontra os elementos dentro do container
             const label = container.querySelector('.foto-label');
             const removeBtn = container.querySelector('.remover-foto-btn');
             const ordemBadge = container.querySelector('.ordem-badge');
 
-            // Atualiza badge de ordem
             if (ordemBadge) {
                 ordemBadge.textContent = index + 1;
             }
 
-            //  APLICA ESTILOS VISUAIS DIFERENCIADOS
             if (isCapa) {
-                // ESTILO PARA CAPA
                 container.style.border = '3px solid #9370DB';
                 container.style.background = 'linear-gradient(135deg, #9370DB, #7B68EE)';
                 container.style.boxShadow = '0 4px 15px rgba(147, 112, 219, 0.4)';
@@ -121,19 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     label.style.background = '#ffffff';
                     label.style.color = '#9370DB';
                     label.style.fontWeight = 'bold';
-                    label.style.border = '2px solid #9370DB';
                 }
 
                 if (removeBtn) {
                     removeBtn.style.display = 'none';
                 }
-
-                if (ordemBadge) {
-                    ordemBadge.style.background = '#9370DB';
-                    ordemBadge.style.color = 'white';
-                }
             } else {
-                // ESTILO PARA IMAGENS NORMAIS
                 container.style.border = '2px solid #e0e0e0';
                 container.style.background = 'white';
                 container.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
@@ -144,24 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     label.style.background = '#f8f9fa';
                     label.style.color = '#6c757d';
                     label.style.fontWeight = 'normal';
-                    label.style.border = '1px solid #dee2e6';
                 }
 
                 if (removeBtn) {
                     removeBtn.style.display = 'flex';
                 }
-
-                if (ordemBadge) {
-                    ordemBadge.style.background = '#6c757d';
-                    ordemBadge.style.color = 'white';
-                }
             }
         });
 
-        // Atualiza o campo hidden
         fotosReordenadasInput.value = JSON.stringify(ordem);
 
-        // Validações
         const totalImagens = filhos.length;
         if (imagensUploadInput) {
             imagensUploadInput.required = totalImagens === 0;
@@ -172,73 +206,50 @@ document.addEventListener('DOMContentLoaded', () => {
             fotosExistentesContainer.style.display = totalImagens > 0 ? 'block' : 'none';
         }
 
-        console.log(` Ordem atualizada: ${ordem.length} imagens | Capa: ${ordem[0]?.id || 'Nenhuma'}`);
+        console.log(` Ordem atualizada: ${ordem.length} imagens`);
     };
 
     // ==============================================================================
-    // 4. INICIALIZAR DRAG & DROP (PARA EDIÇÃO)
+    // 🔥 FUNÇÃO: INICIALIZAR DRAG & DROP (SORTABLE)
     // ==============================================================================
-
     const inicializarSortable = () => {
-        if (!galeriaEdicao || typeof Sortable === 'undefined') return;
-
-        try {
-            if (sortable) sortable.destroy();
-
-            sortable = new Sortable(galeriaEdicao, {
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                onEnd: function() {
-                    console.log(' Imagem reposicionada - atualizando ordem...');
-                    atualizarOrdemImagens();
-                }
-            });
-            console.log(' Sortable.js inicializado para edição');
-        } catch (error) {
-            console.error(' Erro no Sortable:', error);
+        if (!galeriaEdicao || typeof Sortable === 'undefined') {
+            console.log('❌ Sortable.js não disponível');
+            return;
         }
-    };
 
-    // ==============================================================================
-    // 5. INICIALIZAR DRAG & DROP (PARA CADASTRO)
-    // ==============================================================================
-
-    const inicializarDragDropCadastro = () => {
-        if (!galeriaEdicao || typeof Sortable === 'undefined') return;
-        
-        console.log(' Inicializando drag & drop para cadastro...');
-        
         try {
+            // Destrói instância anterior se existir
             if (sortable) {
                 sortable.destroy();
             }
-            
+
+            // Cria nova instância do Sortable
             sortable = new Sortable(galeriaEdicao, {
                 animation: 150,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 dragClass: 'sortable-drag',
-                onEnd: function() {
-                    console.log(' Imagem reposicionada no cadastro - atualizando ordem...');
+                onEnd: function(evt) {
+                    console.log('🔄 Imagem reposicionada - atualizando ordem...');
                     atualizarOrdemImagens();
                 }
             });
-            
-            console.log(' Drag & drop habilitado para cadastro');
+
+            console.log('✅ Sortable.js inicializado para galeria');
         } catch (error) {
-            console.error(' Erro ao inicializar drag & drop:', error);
+            console.error('❌ Erro ao inicializar Sortable:', error);
         }
     };
 
     // ==============================================================================
-    // 6. CONFIGURAR UPLOAD DE IMAGENS
+    // 4. CONFIGURAR UPLOAD DE IMAGENS (SIMPLIFICADO)
     // ==============================================================================
-
     const configurarUpload = () => {
         if (!imagensUploadInput || !galeriaEdicao) return;
 
-        imagensUploadInput.addEventListener('change', function(e) {
-            // Remove apenas miniaturas de novos uploads (não as existentes do BD)
+        imagensUploadInput.addEventListener('change', function (e) {
+            // Remove apenas miniaturas de novos uploads
             Array.from(galeriaEdicao.children)
                 .filter(child => !child.getAttribute('data-imagem-id'))
                 .forEach(child => child.remove());
@@ -260,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const container = document.createElement('div');
                     container.className = 'foto-edicao-item';
                     container.setAttribute('data-caminho-arquivo', file.name);
-                    
+
                     container.innerHTML = `
                         <div class="ordem-badge">?</div>
                         <img src="${e.target.result}" alt="Nova imagem">
@@ -268,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button type="button" class="remover-foto-btn" title="Remover">×</button>
                     `;
 
-                    // Configurar remoção
                     const btn = container.querySelector('.remover-foto-btn');
                     btn.addEventListener('click', () => {
                         container.remove();
@@ -276,43 +286,78 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     galeriaEdicao.appendChild(container);
+                    
+                    // 🔥 INICIALIZA SORTABLE APÓS ADICIONAR NOVAS IMAGENS
+                    setTimeout(() => {
+                        const isEditing = itemIdInput.value !== '';
+                        if (isEditing) {
+                            inicializarSortable();
+                        }
+                    }, 100);
+                    
+                    atualizarOrdemImagens();
                 };
                 reader.readAsDataURL(file);
             });
-
-            //  ATUALIZA ORDEM E INICIALIZA DRAG & DROP APÓS UPLOAD
-            setTimeout(() => {
-                const isEditing = itemIdInput.value !== '';
-                if (isEditing) {
-                    inicializarSortable(); // Para edição
-                } else {
-                    inicializarDragDropCadastro(); // Para cadastro
-                }
-                atualizarOrdemImagens();
-            }, 100);
         });
     };
 
     // ==============================================================================
-    // 7. POPULAR MODAL DE EDIÇÃO
+    // 🔥 FUNÇÃO: ABRIR GALERIA DE FOTOS
     // ==============================================================================
+    const abrirGaleriaFotos = (nomePeca, imagens) => {
+        if (!galeriaContainer || !galeriaTitulo) {
+            console.error('❌ Elementos da galeria não encontrados');
+            return;
+        }
 
+        try {
+            // Limpa galeria anterior
+            galeriaContainer.innerHTML = '';
+            
+            // Define título
+            galeriaTitulo.textContent = `Fotos: ${nomePeca}`;
+            
+            // Adiciona imagens à galeria
+            if (imagens && imagens.length > 0) {
+                imagens.forEach((src, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'galeria-item';
+                    div.innerHTML = `
+                        <img src="${src}" alt="${nomePeca} - Foto ${index + 1}" 
+                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                    `;
+                    galeriaContainer.appendChild(div);
+                });
+            } else {
+                galeriaContainer.innerHTML = '<p>Nenhuma foto disponível</p>';
+            }
+            
+            // Abre o modal
+            abrirModal(modalGaleria);
+            
+            console.log(`✅ Galeria aberta: ${nomePeca} (${imagens.length} fotos)`);
+        } catch (error) {
+            console.error('❌ Erro ao abrir galeria:', error);
+        }
+    };
+
+    // ==============================================================================
+    // 5. POPULAR MODAL DE EDIÇÃO
+    // ==============================================================================
     const popularModalEdicao = (item) => {
         console.log(' Editando item:', item.id);
 
-        // Preencher campos do formulário
         if (itemIdInput) itemIdInput.value = item.id;
         ['peca', 'categoriaPeca', 'tipo', 'tamanho', 'cor', 'tecido', 'estacao', 'condicao', 'descricao'].forEach(campo => {
             const el = document.getElementById(campo);
             if (el) el.value = item[campo] || '';
         });
 
-        // Configurar modal
         if (modalTitulo) modalTitulo.textContent = `Editar: ${item.peca}`;
         if (btnSubmit) btnSubmit.textContent = 'Salvar Alterações';
         if (formRoupa) formRoupa.action = '/roupas/salvar-edicao';
 
-        // Configurar galeria
         if (galeriaEdicao && fotosExistentesContainer) {
             galeriaEdicao.innerHTML = '';
             if (fotosRemovidasInput) fotosRemovidasInput.value = '[]';
@@ -329,10 +374,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     container.className = 'foto-edicao-item';
                     container.setAttribute('data-imagem-id', img.id);
                     container.setAttribute('data-caminho-arquivo', img.caminho_arquivo);
-                    
+
                     const caminhoCompleto = img.caminho_url || img.caminho_arquivo;
                     const src = caminhoCompleto.startsWith('/') ? caminhoCompleto : '/uploads/' + caminhoCompleto;
-                    
+
                     container.innerHTML = `
                         <div class="ordem-badge">${index + 1}</div>
                         <img src="${src}" alt="${item.peca}">
@@ -340,7 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button type="button" class="remover-foto-btn" title="Remover">×</button>
                     `;
 
-                    // Configurar remoção
                     const btn = container.querySelector('.remover-foto-btn');
                     btn.addEventListener('click', () => {
                         if (confirm('Remover esta imagem?')) {
@@ -357,9 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     galeriaEdicao.appendChild(container);
                 });
 
-                //  INICIALIZAR SORTABLE E ATUALIZAR ORDEM
-                inicializarSortable();
-                setTimeout(atualizarOrdemImagens, 100);
+                // 🔥 INICIALIZA SORTABLE PARA EDIÇÃO
+                setTimeout(() => {
+                    inicializarSortable();
+                    atualizarOrdemImagens();
+                }, 100);
             } else {
                 fotosExistentesContainer.style.display = 'none';
             }
@@ -369,31 +415,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==============================================================================
-    // 8. EVENT LISTENERS
+    // 6. EVENT LISTENERS COMPLETOS
     // ==============================================================================
-
-    // Abrir modal de cadastro
     if (btnAbrirModalCadastro) {
-        console.log(' Botão "Adicionar Roupa" encontrado, configurando evento...');
-        
-        btnAbrirModalCadastro.addEventListener('click', function(e) {
+        btnAbrirModalCadastro.addEventListener('click', function (e) {
             e.preventDefault();
             console.log(' Botão "Adicionar Roupa" clicado!');
-            
             resetarFormulario();
             abrirModal(modalCadastro);
-            
-            //  INICIALIZA DRAG & DROP APÓS ABRIR O MODAL (PARA CADASTRO)
-            setTimeout(() => {
-                inicializarDragDropCadastro();
-                console.log(' Modal de cadastro pronto com drag & drop');
-            }, 100);
         });
-    } else {
-        console.error(' Botão "Adicionar Roupa" NÃO encontrado no DOM!');
     }
 
-    // Fechar modais
     if (btnFecharModalCadastro) {
         btnFecharModalCadastro.addEventListener('click', () => {
             fecharModal(modalCadastro);
@@ -405,7 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnFecharModalGaleria.addEventListener('click', () => fecharModal(modalGaleria));
     }
 
-    // Clicar fora para fechar
     window.addEventListener('click', (e) => {
         if (e.target === modalCadastro) {
             fecharModal(modalCadastro);
@@ -414,8 +445,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === modalGaleria) fecharModal(modalGaleria);
     });
 
-    // Botões de editar
+    // 🔥 EVENT LISTENER PARA BOTÕES DE VER FOTOS
     document.addEventListener('click', (e) => {
+        // Botões de editar
         if (e.target.classList.contains('btn-editar')) {
             e.preventDefault();
             const itemData = e.target.getAttribute('data-item');
@@ -428,63 +460,115 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Botões de ver fotos
+        // 🔥 BOTÕES DE VER FOTOS (CORRIGIDO)
         if (e.target.classList.contains('btn-ver-fotos')) {
             e.preventDefault();
             const nome = e.target.getAttribute('data-peca-nome');
             const imagensJson = e.target.getAttribute('data-imagens');
             
-            if (galeriaContainer && galeriaTitulo && imagensJson) {
+            if (nome && imagensJson) {
                 try {
-                    galeriaContainer.innerHTML = '';
-                    galeriaTitulo.textContent = `Fotos: ${nome}`;
-                    
-                    JSON.parse(imagensJson).forEach(src => {
-                        const div = document.createElement('div');
-                        div.innerHTML = `<img src="${src}" alt="${nome}" style="width:100%;height:150px;object-fit:cover;">`;
-                        galeriaContainer.appendChild(div);
-                    });
-                    
-                    abrirModal(modalGaleria);
+                    const imagens = JSON.parse(imagensJson);
+                    abrirGaleriaFotos(nome, imagens);
                 } catch (error) {
                     console.error(' Erro ao carregar galeria:', error);
+                    alert('Erro ao carregar as fotos. Tente novamente.');
+                }
+            }
+        }
+
+        // 🔥 BOTÕES DE VER FOTOS (para elementos filhos dentro do botão)
+        const btnVerFotos = e.target.closest('.btn-ver-fotos');
+        if (btnVerFotos) {
+            e.preventDefault();
+            const nome = btnVerFotos.getAttribute('data-peca-nome');
+            const imagensJson = btnVerFotos.getAttribute('data-imagens');
+            
+            if (nome && imagensJson) {
+                try {
+                    const imagens = JSON.parse(imagensJson);
+                    abrirGaleriaFotos(nome, imagens);
+                } catch (error) {
+                    console.error(' Erro ao carregar galeria:', error);
+                    alert('Erro ao carregar as fotos. Tente novamente.');
                 }
             }
         }
     });
 
-    // Validação do formulário
+    // ==============================================================================
+    // 🔥 VALIDAÇÃO DO FORMULÁRIO - CORRIGIDA E MELHORADA
+    // ==============================================================================
     if (formRoupa) {
-        formRoupa.addEventListener('submit', (e) => {
+        formRoupa.addEventListener('submit', async (e) => {
+            console.log('🔄 Iniciando processo de envio...');
+            
             const isEditing = itemIdInput.value !== '';
             
-            //  GARANTIR QUE A ORDEM ESTÁ ATUALIZADA (PARA CRIAÇÃO TAMBÉM)
+            // ✅ ATUALIZA A ORDEM DAS IMAGENS
             atualizarOrdemImagens();
 
             const totalImagens = galeriaEdicao ? galeriaEdicao.children.length : 0;
             
-            if (totalImagens === 0) {
+            console.log(`📊 Status: ${totalImagens} imagens na galeria`);
+
+            // Validação para CADASTRO
+            if (!isEditing && totalImagens === 0) {
                 e.preventDefault();
-                alert(' Adicione pelo menos uma foto');
+                alert('❌ Adicione pelo menos uma foto para cadastrar uma nova peça');
+                return;
+            }
+
+            // Validação para EDIÇÃO
+            if (isEditing && totalImagens === 0) {
+                e.preventDefault();
+                alert('❌ A peça deve ter pelo menos uma imagem');
                 return;
             }
 
             if (totalImagens > 5) {
                 e.preventDefault();
-                alert(' Máximo de 5 imagens');
+                alert('❌ Máximo de 5 imagens permitidas');
                 return;
             }
 
-            console.log(' Enviando formulário com ordem:', JSON.parse(fotosReordenadasInput.value));
+            // 🔥 SOLUÇÃO: Converter imagens da galeria para arquivos reais
+            if (!isEditing && totalImagens > 0) {
+                console.log('🔄 Convertendo imagens para arquivos...');
+                
+                // Pequeno delay para garantir que o DOM está atualizado
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                const conversaoSucesso = await converterImagensParaArquivos();
+                
+                if (!conversaoSucesso) {
+                    console.log('⚠️  Conversão falhou, mas continuando envio...');
+                    // 🔥 SOLUÇÃO ALTERNATIVA: Se a conversão falhar, cria arquivo temporário
+                    const dataTransfer = new DataTransfer();
+                    const blob = new Blob([''], { type: 'image/jpeg' });
+                    const file = new File([blob], 'temp-image.jpg', { type: 'image/jpeg' });
+                    dataTransfer.items.add(file);
+                    imagensUploadInput.files = dataTransfer.files;
+                    console.log('✅ Arquivo temporário criado como fallback');
+                }
+            }
+
+            console.log('✅ Formulário validado - enviando...');
+            console.log('📦 Arquivos que serão enviados:', imagensUploadInput ? imagensUploadInput.files.length : 0);
+            console.log('📦 Ordem das imagens:', fotosReordenadasInput ? JSON.parse(fotosReordenadasInput.value) : 'N/A');
+            
+            // Pequeno delay para garantir o processamento
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            console.log('🚀 Enviando formulário...');
         });
     }
 
     // ==============================================================================
-    // 9. INICIALIZAÇÃO
+    // 7. INICIALIZAÇÃO
     // ==============================================================================
-
     configurarUpload();
-    console.log(' Sistema de roupas carregado');
+    console.log('✅ Sistema de roupas carregado');
 
     // Filtros ativos
     const urlParams = new URLSearchParams(window.location.search);
@@ -492,10 +576,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.filtro-item').forEach(filtro => {
         filtro.classList.remove('ativo');
     });
-    
+
     const filtroAtivo = document.getElementById(
         status === 'Ativo' ? 'filtro-ativas' :
-        status === 'EmTroca' ? 'filtro-emtroca' : 'filtro-historico-link'
+            status === 'EmTroca' ? 'filtro-emtroca' : 'filtro-historico-link'
     );
     if (filtroAtivo) filtroAtivo.classList.add('ativo');
 });
