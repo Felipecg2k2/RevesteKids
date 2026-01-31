@@ -82,9 +82,7 @@ export const userCadastroUpload = multer({
   limits: imageLimits,
 });
 
-// ==================================================================
 // 3. UPLOAD DE ITENS/ROUPAS
-// ==================================================================
 
 // 🚨 CAMINHO CORRIGIDO: De /Web/config/ para /Web/public/uploads/itens
 const itemUploadDir = path.join(__dirname, "..", "public", "uploads", "itens");
