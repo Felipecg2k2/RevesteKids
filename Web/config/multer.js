@@ -33,9 +33,7 @@ const itemImageLimits = {
   maxCount: 5, // Limite de 5 arquivos por requisição
 };
 
-// ==================================================================
 // 1. UPLOAD DE PERFIL (Edição)
-// ==================================================================
 const profileUploadDir = path.join(
   __dirname,
   "..",
@@ -63,9 +61,7 @@ export const profileUpload = multer({
   limits: imageLimits,
 });
 
-// ==================================================================
 // 2. UPLOAD DE CADASTRO DE USUÁRIO
-// ==================================================================
 
 const userCadastroStorage = multer.diskStorage({
   destination: (req, file, cb) => {
