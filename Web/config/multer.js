@@ -4,10 +4,6 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
-// ==========================================================
-// FIX: Definir __dirname e __filename para ES Modules
-// O __dirname aqui é o caminho absoluto para /Web/config
-// ==========================================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -19,10 +15,6 @@ const ensureDirectoryExists = (dir) => {
   }
 };
 
-// ------------------------------------------------------------------
-// CONFIGURAÇÕES REUTILIZÁVEIS
-// ------------------------------------------------------------------
-// 1. Filtro de arquivo (apenas imagens)
 const imageFileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
